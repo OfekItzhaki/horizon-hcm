@@ -11,6 +11,7 @@ import { CommonModule } from './common/common.module';
 import { BuildingsModule } from './buildings/buildings.module';
 import { ApartmentsModule } from './apartments/apartments.module';
 import { PaymentsModule } from './payments/payments.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FilesModule } from './files/files.module';
 import { SyncModule } from './sync/sync.module';
@@ -64,6 +65,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     BuildingsModule,
     ApartmentsModule,
     PaymentsModule,
+    MaintenanceModule,
     NotificationsModule,
     FilesModule,
     SyncModule,
