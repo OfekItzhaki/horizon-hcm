@@ -14,6 +14,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { MeetingsModule } from './meetings/meetings.module';
 import { DocumentsModule } from './documents/documents.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FilesModule } from './files/files.module';
 import { SyncModule } from './sync/sync.module';
@@ -70,6 +71,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     MaintenanceModule,
     MeetingsModule,
     DocumentsModule,
+    AnnouncementsModule,
     NotificationsModule,
     FilesModule,
     SyncModule,
