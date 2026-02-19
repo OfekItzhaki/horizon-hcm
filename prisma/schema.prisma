@@ -1,0 +1,660 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Horizon-HCM specific enums
+enum UserType {
+  COMMITTEE
+  OWNER
+  TENANT
+  ADMIN
+}
+
+// Extended User model - integrates with @ofeklabs/horizon-auth
+// The auth package handles: id, email, password, verification, sessions, 2FA, devices
+// We add Horizon-HCM specific fields
+model UserProfile {
+  id                 String   @id @default(uuid())
+  user_id            String   @unique // Links to User from auth package
+  full_name          String
+  national_id        String?
+  phone_number       String?
+  user_type          UserType
+  preferred_language String   @default("en")
+  signing_key        String?  // HMAC signing key for request authentication
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  // Relations to Horizon-HCM entities
+  committee_memberships BuildingCommitteeMember[]
+  owned_apartments      ApartmentOwner[]
+  tenant_apartments     ApartmentTenant[]
+
+  @@index([user_id])
+  @@map("user_profiles")
+}
+
+// Building entity
+model Building {
+  id                        String    @id @default(uuid())
+  name                      String?
+  address_line              String
+  city                      String?
+  postal_code               String?
+  num_units                 Int?
+  public_garden_area_sqm    Decimal?  @db.Decimal(10, 2)
+  public_balcony_area_sqm   Decimal?  @db.Decimal(10, 2)
+  public_rooftop_area_sqm   Decimal?  @db.Decimal(10, 2)
+  num_parking_spaces        Int?
+  num_elevators             Int?
+  num_entrance_doors        Int?
+  entrance_code             String?
+  shelter_description       String?   @db.Text
+  current_balance           Decimal   @default(0) @db.Decimal(12, 2)
+  is_active                 Boolean   @default(true)
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+
+  // Relations
+  committee_members    BuildingCommitteeMember[]
+  apartments           Apartment[]
+  maintenance_requests MaintenanceRequest[]
+  meetings             Meeting[]
+  documents            Document[]
+  announcements        Announcement[]
+
+  @@map("buildings")
+}
+
+// Building Committee Members
+model BuildingCommitteeMember {
+  id          String   @id @default(uuid())
+  building_id String
+  user_id     String
+  role        String? // e.g., "Chairman", "Treasurer"
+  created_at  DateTime @default(now())
+
+  building     Building    @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  user_profile UserProfile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([building_id, user_id])
+  @@index([building_id])
+  @@index([user_id])
+  @@map("building_committee_members")
+}
+
+// Apartment entity
+model Apartment {
+  id              String   @id @default(uuid())
+  building_id     String
+  apartment_number String
+  area_sqm        Decimal? @db.Decimal(10, 2)
+  floor           Int?
+  is_vacant       Boolean  @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  building             Building              @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  owners               ApartmentOwner[]
+  tenants              ApartmentTenant[]
+  payments             Payment[]
+  maintenance_requests MaintenanceRequest[]
+
+  @@unique([building_id, apartment_number])
+  @@index([building_id])
+  @@map("apartments")
+}
+
+// Apartment Owners
+model ApartmentOwner {
+  id               String   @id @default(uuid())
+  apartment_id     String
+  user_id          String
+  ownership_share  Decimal? @db.Decimal(5, 2)
+  is_primary       Boolean  @default(false)
+  created_at       DateTime @default(now())
+
+  apartment    Apartment   @relation(fields: [apartment_id], references: [id], onDelete: Cascade)
+  user_profile UserProfile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([apartment_id, user_id])
+  @@index([apartment_id])
+  @@index([user_id])
+  @@map("apartment_owners")
+}
+
+// Apartment Tenants
+model ApartmentTenant {
+  id            String    @id @default(uuid())
+  apartment_id  String
+  user_id       String
+  move_in_date  DateTime?
+  move_out_date DateTime?
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+
+  apartment    Apartment   @relation(fields: [apartment_id], references: [id], onDelete: Cascade)
+  user_profile UserProfile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([apartment_id, is_active])
+  @@index([user_id])
+  @@map("apartment_tenants")
+}
+
+// Notification Template
+model NotificationTemplate {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "payment_reminder", "maintenance_alert"
+  title       String   // Template title with variables: "Payment Due: {{amount}}"
+  body        String   @db.Text // Template body with variables
+  language    String   @default("en") // Language code
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([name, language])
+  @@map("notification_templates")
+}
+
+// User Notification Preferences
+model NotificationPreference {
+  id                      String   @id @default(uuid())
+  user_id                 String   @unique
+  payment_reminders       Boolean  @default(true)
+  maintenance_alerts      Boolean  @default(true)
+  meeting_notifications   Boolean  @default(true)
+  general_announcements   Boolean  @default(true)
+  push_enabled            Boolean  @default(true)
+  email_enabled           Boolean  @default(true)
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  @@index([user_id])
+  @@map("notification_preferences")
+}
+
+// Notification Log (for tracking delivery)
+model NotificationLog {
+  id              String   @id @default(uuid())
+  user_id         String
+  template_name   String?
+  title           String
+  body            String   @db.Text
+  delivery_status String   // "pending", "sent", "failed", "delivered"
+  provider        String   // "fcm", "apns", "web_push"
+  error_message   String?  @db.Text
+  sent_at         DateTime?
+  delivered_at    DateTime?
+  created_at      DateTime @default(now())
+
+  @@index([user_id, created_at])
+  @@index([delivery_status])
+  @@map("notification_logs")
+}
+
+// File Storage
+model File {
+  id              String    @id @default(uuid())
+  user_id         String    // User who uploaded the file
+  filename        String    // Original filename
+  storage_key     String    @unique // Key in cloud storage (S3/Azure)
+  mime_type       String    // MIME type (image/jpeg, application/pdf, etc.)
+  size_bytes      Int       // File size in bytes
+  url             String?   // Public URL (if applicable)
+  is_public       Boolean   @default(false)
+  is_scanned      Boolean   @default(false) // Malware scan status
+  scan_result     String?   // Scan result details
+  metadata        Json?     // Additional metadata (dimensions, duration, etc.)
+  expires_at      DateTime? // For temporary files
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([user_id, created_at])
+  @@index([storage_key])
+  @@index([is_scanned])
+  @@map("files")
+}
+
+// Sync State - tracks offline sync status per user per entity type
+model SyncState {
+  id                    String   @id @default(uuid())
+  user_id               String
+  entity_type           String   // "building", "apartment", "user_profile", etc.
+  last_sync_timestamp   DateTime @default(now())
+  pending_operations    Int      @default(0) // Count of operations waiting to sync
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  @@unique([user_id, entity_type])
+  @@index([user_id])
+  @@index([entity_type])
+  @@map("sync_states")
+}
+
+// Device Fingerprint - tracks device information for security
+model DeviceFingerprint {
+  id                String   @id @default(uuid())
+  user_id           String
+  fingerprint_hash  String   @unique // Hash of device characteristics
+  user_agent        String
+  ip_address        String
+  screen_resolution String?
+  timezone          String?
+  language          String?
+  platform          String?
+  is_trusted        Boolean  @default(false)
+  last_seen_at      DateTime @default(now())
+  created_at        DateTime @default(now())
+
+  @@index([user_id])
+  @@index([fingerprint_hash])
+  @@index([is_trusted])
+  @@map("device_fingerprints")
+}
+
+// Audit Log - tracks sensitive operations
+model AuditLog {
+  id            String   @id @default(uuid())
+  user_id       String?  // Null for system actions
+  action        String   // e.g., "user.login", "data.access", "permission.change"
+  resource_type String?  // e.g., "Building", "Apartment", "UserProfile"
+  resource_id   String?  // ID of the affected resource
+  ip_address    String?
+  user_agent    String?
+  metadata      Json?    // Additional context
+  created_at    DateTime @default(now())
+
+  @@index([user_id, created_at])
+  @@index([action])
+  @@index([resource_type, resource_id])
+  @@map("audit_logs")
+}
+
+// Analytics Event - tracks user events for analytics
+model AnalyticsEvent {
+  id          String   @id @default(uuid())
+  user_id     String?
+  event_name  String   // e.g., "page_view", "button_click", "feature_used"
+  event_data  Json?    // Additional event data
+  session_id  String?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+
+  @@index([user_id, created_at])
+  @@index([event_name, created_at])
+  @@index([session_id])
+  @@map("analytics_events")
+}
+
+// Feature Usage - tracks feature usage statistics
+model FeatureUsage {
+  id           String   @id @default(uuid())
+  user_id      String?
+  feature_name String   // e.g., "file_upload", "notification_send"
+  usage_count  Int      @default(1)
+  last_used_at DateTime @default(now())
+  created_at   DateTime @default(now())
+
+  @@unique([user_id, feature_name])
+  @@index([feature_name])
+  @@index([user_id, last_used_at])
+  @@map("feature_usage")
+}
+
+// Performance Metrics - tracks API performance
+model PerformanceMetric {
+  id                  String   @id @default(uuid())
+  endpoint            String   // e.g., "GET /buildings"
+  response_time_ms    Int      // Response time in milliseconds
+  database_queries    Int      @default(0)
+  database_time_ms    Int      @default(0)
+  cache_hits          Int      @default(0)
+  cache_misses        Int      @default(0)
+  external_api_calls  Int      @default(0)
+  external_api_time_ms Int     @default(0)
+  status_code         Int?     // HTTP status code
+  error_message       String?
+  created_at          DateTime @default(now())
+
+  @@index([endpoint, created_at])
+  @@index([created_at])
+  @@map("performance_metrics")
+}
+
+// Feature Flag - controls feature availability
+model FeatureFlag {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "new_dashboard", "beta_feature"
+  description String?
+  is_enabled  Boolean  @default(false)
+  variants    Json?    // For A/B testing: {"control": 50, "variant_a": 25, "variant_b": 25}
+  rules       Json?    // Targeting rules: {"user_types": ["ADMIN"], "percentage": 10}
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([name])
+  @@index([is_enabled])
+  @@map("feature_flags")
+}
+
+// Feature Flag Assignment - tracks variant assignments for users
+model FeatureFlagAssignment {
+  id              String   @id @default(uuid())
+  feature_flag_id String
+  user_id         String
+  variant         String   // e.g., "control", "variant_a", "variant_b"
+  created_at      DateTime @default(now())
+
+  @@unique([feature_flag_id, user_id])
+  @@index([user_id])
+  @@map("feature_flag_assignments")
+}
+
+// Translation - manages translations for i18n
+model Translation {
+  id          String   @id @default(uuid())
+  key         String   // e.g., "common.welcome", "errors.notFound"
+  language    String   // e.g., "en", "he"
+  value       String   @db.Text
+  namespace   String   @default("common") // e.g., "common", "auth", "buildings"
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@unique([key, language, namespace])
+  @@index([language])
+  @@index([namespace])
+  @@map("translations")
+}
+
+// Webhook - external event notifications
+model Webhook {
+  id          String   @id @default(uuid())
+  url         String   // Callback URL
+  events      String[] // Event types to subscribe to
+  secret      String   // HMAC secret for payload signing
+  is_active   Boolean  @default(true)
+  created_by  String   // User who created the webhook
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@index([is_active])
+  @@index([created_by])
+  @@map("webhooks")
+}
+
+// Webhook Delivery - tracks webhook delivery attempts
+model WebhookDelivery {
+  id          String    @id @default(uuid())
+  webhook_id  String
+  event_type  String    // e.g., "user.created", "payment.completed"
+  payload     Json      // Event data
+  status      String    // "pending", "success", "failed"
+  attempts    Int       @default(0)
+  response    String?   @db.Text // Response from webhook endpoint
+  error       String?   @db.Text // Error message if failed
+  delivered_at DateTime?
+  created_at  DateTime  @default(now())
+
+  webhook Webhook @relation(fields: [webhook_id], references: [id], onDelete: Cascade)
+
+  @@index([webhook_id, created_at])
+  @@index([status])
+  @@index([event_type])
+  @@map("webhook_deliveries")
+}
+
+// ============================================
+// Core HCM Business Models
+// ============================================
+
+// Payment - tracks maintenance fees and special assessments
+model Payment {
+  id              String    @id @default(uuid())
+  apartment_id    String
+  amount          Decimal   @db.Decimal(12, 2)
+  due_date        DateTime
+  paid_date       DateTime?
+  status          String    // "pending", "paid", "overdue"
+  payment_type    String    // "monthly_fee", "special_assessment"
+  description     String?   @db.Text
+  reference_number String?
+  created_by      String    // Committee member who created the payment
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  apartment Apartment @relation(fields: [apartment_id], references: [id], onDelete: Cascade)
+
+  @@index([apartment_id, status])
+  @@index([due_date])
+  @@index([status])
+  @@map("payments")
+}
+
+// Maintenance Request - tracks building maintenance and repair requests
+model MaintenanceRequest {
+  id              String    @id @default(uuid())
+  building_id     String
+  apartment_id    String?   // Optional - some requests are building-wide
+  requester_id    String    // User who submitted the request
+  title           String
+  description     String    @db.Text
+  category        String    // "plumbing", "electrical", "hvac", "structural", "other"
+  priority        String    // "low", "medium", "high", "urgent"
+  status          String    // "pending", "in_progress", "completed", "cancelled"
+  assigned_to     String?   // Service provider or committee member
+  completion_date DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  building  Building   @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  apartment Apartment? @relation(fields: [apartment_id], references: [id], onDelete: SetNull)
+  comments  MaintenanceComment[]
+  photos    MaintenancePhoto[]
+
+  @@index([building_id, status])
+  @@index([apartment_id])
+  @@index([requester_id])
+  @@index([status])
+  @@index([priority])
+  @@map("maintenance_requests")
+}
+
+// Maintenance Comment - comments on maintenance requests
+model MaintenanceComment {
+  id                     String   @id @default(uuid())
+  maintenance_request_id String
+  user_id                String
+  comment                String   @db.Text
+  created_at             DateTime @default(now())
+
+  maintenance_request MaintenanceRequest @relation(fields: [maintenance_request_id], references: [id], onDelete: Cascade)
+
+  @@index([maintenance_request_id])
+  @@map("maintenance_comments")
+}
+
+// Maintenance Photo - photos attached to maintenance requests
+model MaintenancePhoto {
+  id                     String   @id @default(uuid())
+  maintenance_request_id String
+  file_id                String
+  created_at             DateTime @default(now())
+
+  maintenance_request MaintenanceRequest @relation(fields: [maintenance_request_id], references: [id], onDelete: Cascade)
+
+  @@index([maintenance_request_id])
+  @@map("maintenance_photos")
+}
+
+// Meeting - building committee and resident meetings
+model Meeting {
+  id          String    @id @default(uuid())
+  building_id String
+  title       String
+  description String?   @db.Text
+  meeting_date DateTime
+  location    String?
+  is_recurring Boolean  @default(false)
+  recurrence_rule String? // RRULE format for recurring meetings
+  status      String    @default("scheduled") // "scheduled", "completed", "cancelled"
+  created_by  String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  building      Building       @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  attendees     MeetingAttendee[]
+  agenda_items  AgendaItem[]
+  votes         Vote[]
+
+  @@index([building_id, meeting_date])
+  @@index([status])
+  @@map("meetings")
+}
+
+// Meeting Attendee - tracks RSVPs and attendance
+model MeetingAttendee {
+  id          String   @id @default(uuid())
+  meeting_id  String
+  user_id     String
+  rsvp_status String?  // "attending", "not_attending", "maybe"
+  attended    Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  meeting Meeting @relation(fields: [meeting_id], references: [id], onDelete: Cascade)
+
+  @@unique([meeting_id, user_id])
+  @@index([meeting_id])
+  @@index([user_id])
+  @@map("meeting_attendees")
+}
+
+// Agenda Item - items discussed in meetings
+model AgendaItem {
+  id          String   @id @default(uuid())
+  meeting_id  String
+  title       String
+  description String?  @db.Text
+  order       Int      // Display order
+  created_at  DateTime @default(now())
+
+  meeting Meeting @relation(fields: [meeting_id], references: [id], onDelete: Cascade)
+
+  @@index([meeting_id])
+  @@map("agenda_items")
+}
+
+// Vote - voting on meeting topics
+model Vote {
+  id          String   @id @default(uuid())
+  meeting_id  String
+  title       String
+  description String?  @db.Text
+  options     Json     // Array of voting options
+  created_at  DateTime @default(now())
+  closed_at   DateTime?
+
+  meeting      Meeting      @relation(fields: [meeting_id], references: [id], onDelete: Cascade)
+  vote_records VoteRecord[]
+
+  @@index([meeting_id])
+  @@map("votes")
+}
+
+// Vote Record - individual votes cast by users
+model VoteRecord {
+  id         String   @id @default(uuid())
+  vote_id    String
+  user_id    String
+  option     String   // Selected option
+  created_at DateTime @default(now())
+
+  vote Vote @relation(fields: [vote_id], references: [id], onDelete: Cascade)
+
+  @@unique([vote_id, user_id])
+  @@index([vote_id])
+  @@map("vote_records")
+}
+
+// Document - building documents and files
+model Document {
+  id              String    @id @default(uuid())
+  building_id     String
+  file_id         String
+  title           String
+  category        String    // "contract", "invoice", "meeting_minutes", "regulation", "other"
+  access_level    String    // "committee_only", "all_residents"
+  version         Int       @default(1)
+  previous_version_id String?
+  uploaded_by     String
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  building Building @relation(fields: [building_id], references: [id], onDelete: Cascade)
+
+  @@index([building_id, category])
+  @@index([access_level])
+  @@map("documents")
+}
+
+// Announcement - building announcements and notices
+model Announcement {
+  id          String    @id @default(uuid())
+  building_id String
+  title       String
+  content     String    @db.Text
+  category    String    // "general", "maintenance", "financial", "event", "emergency"
+  is_urgent   Boolean   @default(false)
+  author_id   String
+  deleted_at  DateTime? // Soft delete
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  building         Building            @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  read_receipts    AnnouncementRead[]
+  comments         AnnouncementComment[]
+
+  @@index([building_id, created_at])
+  @@index([category])
+  @@index([is_urgent])
+  @@map("announcements")
+}
+
+// Announcement Read - tracks who has read announcements
+model AnnouncementRead {
+  id              String   @id @default(uuid())
+  announcement_id String
+  user_id         String
+  read_at         DateTime @default(now())
+
+  announcement Announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
+
+  @@unique([announcement_id, user_id])
+  @@index([announcement_id])
+  @@map("announcement_reads")
+}
+
+// Announcement Comment - comments on announcements
+model AnnouncementComment {
+  id              String   @id @default(uuid())
+  announcement_id String
+  user_id         String
+  comment         String   @db.Text
+  created_at      DateTime @default(now())
+
+  announcement Announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
+
+  @@index([announcement_id])
+  @@map("announcement_comments")
+}
