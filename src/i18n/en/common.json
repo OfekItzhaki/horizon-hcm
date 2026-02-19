@@ -1,0 +1,20 @@
+{
+  "welcome": "Welcome to Horizon HCM",
+  "errors": {
+    "notFound": "Resource not found",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Access forbidden",
+    "internalError": "Internal server error"
+  },
+  "success": {
+    "created": "Created successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid": "Invalid value",
+    "tooShort": "Value is too short",
+    "tooLong": "Value is too long"
+  }
+}

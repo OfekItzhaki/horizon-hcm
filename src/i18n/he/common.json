@@ -1,0 +1,20 @@
+{
+  "welcome": "ברוכים הבאים ל-Horizon HCM",
+  "errors": {
+    "notFound": "המשאב לא נמצא",
+    "unauthorized": "גישה לא מורשית",
+    "forbidden": "גישה אסורה",
+    "internalError": "שגיאת שרת פנימית"
+  },
+  "success": {
+    "created": "נוצר בהצלחה",
+    "updated": "עודכן בהצלחה",
+    "deleted": "נמחק בהצלחה"
+  },
+  "validation": {
+    "required": "שדה זה הוא חובה",
+    "invalid": "ערך לא תקין",
+    "tooShort": "הערך קצר מדי",
+    "tooLong": "הערך ארוך מדי"
+  }
+}
