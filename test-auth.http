@@ -1,0 +1,55 @@
+### Test Horizon-HCM Auth Integration
+### Use with REST Client extension in VS Code or similar tools
+
+@baseUrl = http://localhost:3001
+@contentType = application/json
+
+### 1. Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "test@horizon-hcm.com",
+  "password": "SecurePass123!",
+  "name": "Test User"
+}
+
+### 2. Login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@horizon-hcm.com",
+  "password": "SecurePass123!"
+}
+
+### 3. Get current user (requires auth token from login)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 4. Enable 2FA
+POST {{baseUrl}}/auth/2fa/enable
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: {{contentType}}
+
+### 5. Get 2FA QR Code
+GET {{baseUrl}}/auth/2fa/qr
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 6. List devices
+GET {{baseUrl}}/auth/devices
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 7. Register push token
+POST {{baseUrl}}/auth/push/register
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: {{contentType}}
+
+{
+  "token": "expo-push-token-here",
+  "platform": "ios"
+}
+
+### 8. Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer YOUR_TOKEN_HERE
