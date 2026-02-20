@@ -442,7 +442,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - File: src/apartments/apartments.controller.ts
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 14.1, 14.3, 14.6, 14.7, 14.8_
 
-  - [ ] 7.9 Update Payments controller
+  - [x] 7.9 Update Payments controller
     - Import @CurrentUser() from @ofeklabs/horizon-auth
     - Replace 'current-user-id' placeholders with user.id
     - Pass user.preferredLanguage to command handlers for notifications

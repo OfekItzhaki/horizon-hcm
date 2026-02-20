@@ -9,9 +9,13 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { BuildingMemberGuard } from '../common/guards/building-member.guard';
+import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CreatePaymentCommand } from './commands/impl/create-payment.command';
 import { MarkPaymentPaidCommand } from './commands/impl/mark-payment-paid.command';
@@ -29,17 +33,18 @@ export class PaymentsController {
   ) {}
 
   @Post()
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new payment' })
   @ApiResponse({ status: 201, description: 'Payment created successfully' })
   @ApiResponse({ status: 404, description: 'Apartment not found' })
-  async createPayment(@Body() dto: CreatePaymentDto) {
+  async createPayment(@CurrentUser() user: any, @Body() dto: CreatePaymentDto) {
     const command = new CreatePaymentCommand(
       dto.apartmentId,
       dto.amount,
       new Date(dto.dueDate),
       dto.paymentType,
-      'current-user-id', // TODO: Get from auth context
+      user.id,
       dto.description,
       dto.referenceNumber,
     );
@@ -47,26 +52,29 @@ export class PaymentsController {
   }
 
   @Patch(':id/mark-paid')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark payment as paid' })
   @ApiResponse({ status: 200, description: 'Payment marked as paid' })
   @ApiResponse({ status: 404, description: 'Payment not found' })
-  async markPaymentPaid(@Param('id') id: string) {
+  async markPaymentPaid(@CurrentUser() user: any, @Param('id') id: string) {
     const command = new MarkPaymentPaidCommand(id, new Date());
     return this.commandBus.execute(command);
   }
 
   @Get(':id')
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get payment by ID' })
   @ApiResponse({ status: 200, description: 'Payment found' })
   @ApiResponse({ status: 404, description: 'Payment not found' })
-  async getPayment(@Param('id') id: string) {
+  async getPayment(@CurrentUser() user: any, @Param('id') id: string) {
     const query = new GetPaymentQuery(id);
     return this.queryBus.execute(query);
   }
 
   @Get()
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'List payments' })
   @ApiQuery({ name: 'apartmentId', required: false, type: String })
@@ -76,6 +84,7 @@ export class PaymentsController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Payments list retrieved' })
   async listPayments(
+    @CurrentUser() user: any,
     @Query('apartmentId') apartmentId?: string,
     @Query('buildingId') buildingId?: string,
     @Query('status') status?: string,
@@ -87,10 +96,11 @@ export class PaymentsController {
   }
 
   @Get('building/:buildingId/summary')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get payment summary for building' })
   @ApiResponse({ status: 200, description: 'Payment summary retrieved' })
-  async getPaymentSummary(@Param('buildingId') buildingId: string) {
+  async getPaymentSummary(@CurrentUser() user: any, @Param('buildingId') buildingId: string) {
     const query = new GetPaymentSummaryQuery(buildingId);
     return this.queryBus.execute(query);
   }
