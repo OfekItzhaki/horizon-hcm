@@ -434,7 +434,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - File: src/announcements/announcements.controller.ts
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 14.1, 14.3, 14.6, 14.7, 14.8_
 
-  - [ ] 7.8 Update Apartments controller
+  - [x] 7.8 Update Apartments controller
     - Import @CurrentUser() from @ofeklabs/horizon-auth
     - Replace 'current-user-id' placeholders with user.id
     - Pass user.preferredLanguage to command handlers for notifications
