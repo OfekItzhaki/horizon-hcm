@@ -10,6 +10,11 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { BuildingMemberGuard } from '../common/guards/building-member.guard';
+import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
+import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
+import { ResourceType } from '../common/decorators/resource-type.decorator';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { UpdateMeetingDto } from './dto/update-meeting.dto';
 import { RsvpDto } from './dto/rsvp.dto';
@@ -36,14 +41,13 @@ export class MeetingsController {
   ) {}
 
   @Post()
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Create meeting' })
-  async createMeeting(@Body() dto: CreateMeetingDto) {
-    // TODO: Get organizerId from authenticated user context
-    const organizerId = 'current-user-id'; // Placeholder
+  async createMeeting(@CurrentUser() user: any, @Body() dto: CreateMeetingDto) {
     return this.commandBus.execute(
       new CreateMeetingCommand(
         dto.buildingId,
-        organizerId,
+        user.id,
         dto.title,
         dto.description,
         new Date(dto.scheduledAt),
@@ -54,8 +58,11 @@ export class MeetingsController {
   }
 
   @Patch(':id')
+  @UseGuards(ResourceOwnerGuard)
+  @ResourceType('Meeting')
   @ApiOperation({ summary: 'Update meeting' })
   async updateMeeting(
+    @CurrentUser() user: any,
     @Param('id') id: string,
     @Body() dto: UpdateMeetingDto,
   ) {
@@ -69,16 +76,17 @@ export class MeetingsController {
   }
 
   @Post(':id/rsvp')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'RSVP to meeting' })
-  async rsvpMeeting(@Param('id') id: string, @Body() dto: RsvpDto) {
-    // TODO: Get userId from authenticated user context
-    const userId = 'current-user-id'; // Placeholder
-    return this.commandBus.execute(new RsvpMeetingCommand(id, userId, dto.status));
+  async rsvpMeeting(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: RsvpDto) {
+    return this.commandBus.execute(new RsvpMeetingCommand(id, user.id, dto.status));
   }
 
   @Post(':id/agenda')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Add agenda item' })
   async addAgendaItem(
+    @CurrentUser() user: any,
     @Param('id') id: string,
     @Body() dto: AddAgendaItemDto,
   ) {
@@ -88,32 +96,35 @@ export class MeetingsController {
   }
 
   @Post(':id/votes')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Create vote' })
-  async createVote(@Param('id') id: string, @Body() dto: CreateVoteDto) {
+  async createVote(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: CreateVoteDto) {
     return this.commandBus.execute(
       new CreateVoteCommand(id, dto.question, dto.options),
     );
   }
 
   @Post('votes/:voteId/cast')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Cast vote' })
-  async castVote(@Param('voteId') voteId: string, @Body() dto: CastVoteDto) {
-    // TODO: Get userId from authenticated user context
-    const userId = 'current-user-id'; // Placeholder
+  async castVote(@CurrentUser() user: any, @Param('voteId') voteId: string, @Body() dto: CastVoteDto) {
     return this.commandBus.execute(
-      new CastVoteCommand(voteId, userId, dto.selectedOption),
+      new CastVoteCommand(voteId, user.id, dto.selectedOption),
     );
   }
 
   @Get(':id')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Get meeting details' })
-  async getMeeting(@Param('id') id: string) {
+  async getMeeting(@CurrentUser() user: any, @Param('id') id: string) {
     return this.queryBus.execute(new GetMeetingQuery(id));
   }
 
   @Get()
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'List meetings' })
   async listMeetings(
+    @CurrentUser() user: any,
     @Query('buildingId') buildingId: string,
     @Query('status') status?: string,
     @Query('page') page?: string,
@@ -130,8 +141,9 @@ export class MeetingsController {
   }
 
   @Get('votes/:voteId/results')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Get vote results' })
-  async getVoteResults(@Param('voteId') voteId: string) {
+  async getVoteResults(@CurrentUser() user: any, @Param('voteId') voteId: string) {
     return this.queryBus.execute(new GetVoteResultsQuery(voteId));
   }
 }

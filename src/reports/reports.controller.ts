@@ -5,6 +5,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import {
@@ -14,6 +15,9 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { BuildingMemberGuard } from '../common/guards/building-member.guard';
+import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { DateRangeDto } from './dto/date-range.dto';
 import { TransactionFiltersDto } from './dto/transaction-filters.dto';
 import { BudgetComparisonDto } from './dto/budget-comparison.dto';
@@ -32,17 +36,19 @@ export class ReportsController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get('buildings/:buildingId/reports/balance')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get building balance' })
   @ApiResponse({
     status: 200,
     description: 'Building balance retrieved',
   })
-  async getBalance(@Param('buildingId') buildingId: string) {
+  async getBalance(@CurrentUser() user: any, @Param('buildingId') buildingId: string) {
     return this.queryBus.execute(new GetBuildingBalanceQuery(buildingId));
   }
 
   @Get('buildings/:buildingId/reports/transactions')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get transaction history' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -55,6 +61,7 @@ export class ReportsController {
     description: 'Transaction history retrieved',
   })
   async getTransactions(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query() filters: TransactionFiltersDto,
   ) {
@@ -71,6 +78,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/income')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get income report' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
@@ -80,6 +88,7 @@ export class ReportsController {
     description: 'Income report retrieved',
   })
   async getIncome(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query() dateRange: DateRangeDto,
   ) {
@@ -93,6 +102,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/expenses')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get expense report' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
@@ -102,6 +112,7 @@ export class ReportsController {
     description: 'Expense report retrieved',
   })
   async getExpenses(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query() dateRange: DateRangeDto,
   ) {
@@ -115,6 +126,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/budget-comparison')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get budget comparison' })
   @ApiQuery({ name: 'startDate', required: true, type: String })
@@ -124,6 +136,7 @@ export class ReportsController {
     description: 'Budget comparison retrieved',
   })
   async getBudgetComparison(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query() dto: BudgetComparisonDto,
   ) {
@@ -133,6 +146,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/payment-status')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get payment status summary' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
@@ -142,6 +156,7 @@ export class ReportsController {
     description: 'Payment status summary retrieved',
   })
   async getPaymentStatus(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query() dateRange: DateRangeDto,
   ) {
@@ -155,6 +170,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/year-over-year')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get year-over-year comparison' })
   @ApiQuery({ name: 'year', required: false, type: Number })
@@ -163,6 +179,7 @@ export class ReportsController {
     description: 'Year-over-year comparison retrieved',
   })
   async getYearOverYear(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query('year') year?: number,
   ) {

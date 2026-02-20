@@ -410,7 +410,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - File: src/maintenance/maintenance.controller.ts
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 14.1, 14.3, 14.6, 14.7, 14.8_
 
-  - [ ] 7.5 Update Meetings controller
+  - [x] 7.5 Update Meetings controller
     - Import @CurrentUser() from @ofeklabs/horizon-auth
     - Replace 'current-user-id' placeholders with user.id
     - Pass user.preferredLanguage to command handlers for notifications
@@ -418,7 +418,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - File: src/meetings/meetings.controller.ts
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 14.1, 14.3, 14.6, 14.7, 14.8_
 
-  - [ ] 7.6 Update Documents controller
+  - [x] 7.6 Update Documents controller
     - Import @CurrentUser() from @ofeklabs/horizon-auth
     - Replace 'current-user-id' placeholders with user.id
     - Pass user.preferredLanguage to command handlers for notifications

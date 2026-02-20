@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -18,6 +19,9 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { BuildingMemberGuard } from '../common/guards/building-member.guard';
+import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { AddCommitteeMemberDto } from './dto/add-committee-member.dto';
 import { ListResidentsDto } from './dto/list-residents.dto';
 import { AddCommitteeMemberCommand } from './commands/impl/add-committee-member.command';
@@ -36,6 +40,7 @@ export class ResidentsController {
   ) {}
 
   @Get('buildings/:buildingId/residents')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'List all residents in a building' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -50,6 +55,7 @@ export class ResidentsController {
   })
   @ApiResponse({ status: 404, description: 'Building not found' })
   async listResidents(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query() dto: ListResidentsDto,
   ) {
@@ -66,6 +72,7 @@ export class ResidentsController {
   }
 
   @Get('residents/:id')
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get resident profile with all associations' })
   @ApiResponse({
@@ -73,12 +80,13 @@ export class ResidentsController {
     description: 'Resident profile retrieved with apartments and roles',
   })
   @ApiResponse({ status: 404, description: 'Resident not found' })
-  async getResidentProfile(@Param('id') id: string) {
+  async getResidentProfile(@CurrentUser() user: any, @Param('id') id: string) {
     const query = new GetResidentProfileQuery(id);
     return this.queryBus.execute(query);
   }
 
   @Post('buildings/:buildingId/committee-members')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Add a committee member to the building' })
   @ApiResponse({
@@ -94,22 +102,21 @@ export class ResidentsController {
     description: 'User is already a committee member',
   })
   async addCommitteeMember(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Body() dto: AddCommitteeMemberDto,
   ) {
-    // TODO: Replace with @CurrentUser() decorator in task 7.x
-    const currentUserId = 'current-user-id';
-
     const command = new AddCommitteeMemberCommand(
       buildingId,
       dto.userId,
       dto.role,
-      currentUserId,
+      user.id,
     );
     return this.commandBus.execute(command);
   }
 
   @Delete('buildings/:buildingId/committee-members/:memberId')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remove a committee member from the building' })
   @ApiResponse({
@@ -121,21 +128,20 @@ export class ResidentsController {
     description: 'Committee member not found',
   })
   async removeCommitteeMember(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Param('memberId') memberId: string,
   ) {
-    // TODO: Replace with @CurrentUser() decorator in task 7.x
-    const currentUserId = 'current-user-id';
-
     const command = new RemoveCommitteeMemberCommand(
       buildingId,
       memberId,
-      currentUserId,
+      user.id,
     );
     return this.commandBus.execute(command);
   }
 
   @Get('buildings/:buildingId/residents/export')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Export residents to CSV' })
   @ApiResponse({
@@ -143,7 +149,7 @@ export class ResidentsController {
     description: 'CSV export URL generated (valid for 24 hours)',
   })
   @ApiResponse({ status: 404, description: 'Building not found' })
-  async exportResidents(@Param('buildingId') buildingId: string) {
+  async exportResidents(@CurrentUser() user: any, @Param('buildingId') buildingId: string) {
     const query = new ExportResidentsQuery(buildingId);
     return this.queryBus.execute(query);
   }
