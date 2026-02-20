@@ -281,7 +281,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 30: Export Audit Logging**
     - **Validates: Requirements 7.8**
 
-  - [ ] 3.38 Create reports controller
+  - [x] 3.38 Create reports controller
     - GET /buildings/:buildingId/reports/balance (get balance)
     - GET /buildings/:buildingId/reports/transactions (get transaction history)
     - GET /buildings/:buildingId/reports/income (get income report)
