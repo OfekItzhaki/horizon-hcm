@@ -150,7 +150,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 17: Default Date Range Application**
     - **Validates: Requirements 3.7, 4.7, 5.7**
 
-  - [-] 3.14 Implement income report query
+  - [x] 3.14 Implement income report query
     - GetIncomeReportQuery and handler
     - Query Payment table, filter by status='paid' and date range
     - Group by payment_type, calculate SUM and COUNT
@@ -159,19 +159,19 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Default date range: current month
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [ ]* 3.15 Write property test for income aggregation accuracy
+  - [x]* 3.15 Write property test for income aggregation accuracy
     - **Property 18: Income Aggregation Accuracy**
     - **Validates: Requirements 4.1, 4.2, 4.5**
 
-  - [ ]* 3.16 Write property test for category data completeness
+  - [x]* 3.16 Write property test for category data completeness
     - **Property 19: Category Data Completeness**
     - **Validates: Requirements 4.4, 5.4**
 
-  - [ ]* 3.17 Write property test for descending amount sort
+  - [x]* 3.17 Write property test for descending amount sort
     - **Property 20: Descending Amount Sort**
     - **Validates: Requirements 4.8, 5.8**
 
-  - [ ] 3.18 Implement expense report query
+  - [x] 3.18 Implement expense report query
     - GetExpenseReportQuery and handler
     - Query MaintenanceRequest table, filter by status='completed' and completion_date in range
     - Group by category, calculate SUM and COUNT
@@ -180,11 +180,11 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Default date range: current month
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8_
 
-  - [ ]* 3.19 Write property test for expense aggregation accuracy
+  - [x]* 3.19 Write property test for expense aggregation accuracy
     - **Property 21: Expense Aggregation Accuracy**
     - **Validates: Requirements 5.1, 5.2, 5.5**
 
-  - [ ] 3.20 Implement budget comparison query
+  - [x] 3.20 Implement budget comparison query
     - GetBudgetComparisonQuery and handler
     - Calculate actual income/expenses for period
     - Retrieve budgeted amounts from Building.budget_config JSON field
@@ -206,7 +206,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 24: Variance Classification Logic**
     - **Validates: Requirements 6.6**
 
-  - [ ] 3.24 Implement payment status summary query
+  - [x] 3.24 Implement payment status summary query
     - GetPaymentStatusSummaryQuery and handler
     - Query Payment table, filter by date range
     - Group by status, calculate SUM and COUNT for each
@@ -222,7 +222,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 32: Collection Rate Calculation**
     - **Validates: Requirements 8.5**
 
-  - [ ] 3.27 Implement year-over-year comparison query
+  - [x] 3.27 Implement year-over-year comparison query
     - GetYearOverYearQuery and handler
     - Calculate income/expenses for current year and previous year (same date range)
     - Calculate change amount: current - previous

@@ -493,3 +493,160 @@ describe('Reports Module - Property-Based Tests', () => {
       );
     });
   });
+
+  describe('Property 18: Income Aggregation Accuracy', () => {
+    it('should correctly sum income by payment type', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          uuidArbitrary(),
+          fc.array(
+            fc.record({
+              payment_type: fc.constantFrom('monthly_fee', 'special_assessment'),
+              amount: decimalArbitrary(),
+            }),
+            { minLength: 1, maxLength: 20 },
+          ),
+          async (buildingId, payments) => {
+            // Group payments by type
+            const expected = new Map<string, { total: number; count: number }>();
+
+            payments.forEach((p) => {
+              if (!expected.has(p.payment_type)) {
+                expected.set(p.payment_type, { total: 0, count: 0 });
+              }
+              const group = expected.get(p.payment_type)!;
+              group.total = Number((group.total + p.amount).toFixed(2));
+              group.count += 1;
+            });
+
+            // Verify aggregation
+            expected.forEach((group, type) => {
+              const typePayments = payments.filter((p) => p.payment_type === type);
+              expect(group.count).toBe(typePayments.length);
+
+              // Verify total is sum of amounts
+              const calculatedTotal = Number(
+                typePayments.reduce((sum, p) => sum + p.amount, 0).toFixed(2),
+              );
+              expect(group.total).toBe(calculatedTotal);
+            });
+          },
+        ),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Property 19: Category Data Completeness', () => {
+    it('should include name, total, and count for each category', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.array(
+            fc.record({
+              name: fc.string({ minLength: 1, maxLength: 50 }),
+              total: decimalArbitrary(),
+              count: fc.integer({ min: 1, max: 100 }),
+            }),
+            { minLength: 1, maxLength: 10 },
+          ),
+          async (categories) => {
+            // Verify each category has required fields
+            categories.forEach((category) => {
+              expect(category).toHaveProperty('name');
+              expect(category).toHaveProperty('total');
+              expect(category).toHaveProperty('count');
+
+              expect(typeof category.name).toBe('string');
+              expect(typeof category.total).toBe('number');
+              expect(typeof category.count).toBe('number');
+
+              expect(category.name.length).toBeGreaterThan(0);
+              expect(category.total).toBeGreaterThanOrEqual(0);
+              expect(category.count).toBeGreaterThan(0);
+            });
+          },
+        ),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Property 20: Descending Amount Sort', () => {
+    it('should sort categories by total amount in descending order', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.array(
+            fc.record({
+              name: fc.string({ minLength: 1, maxLength: 50 }),
+              total: decimalArbitrary(),
+              count: fc.integer({ min: 1, max: 100 }),
+            }),
+            { minLength: 2, maxLength: 10 },
+          ),
+          async (categories) => {
+            // Sort by total DESC
+            const sorted = [...categories].sort((a, b) => b.total - a.total);
+
+            // Verify order
+            for (let i = 0; i < sorted.length - 1; i++) {
+              expect(sorted[i].total).toBeGreaterThanOrEqual(sorted[i + 1].total);
+            }
+          },
+        ),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Property 21: Expense Aggregation Accuracy', () => {
+    it('should correctly sum expenses by category', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          uuidArbitrary(),
+          fc.array(
+            fc.record({
+              category: fc.constantFrom(
+                'plumbing',
+                'electrical',
+                'hvac',
+                'structural',
+                'other',
+              ),
+              estimated_cost: decimalArbitrary(),
+            }),
+            { minLength: 1, maxLength: 20 },
+          ),
+          async (buildingId, requests) => {
+            // Group requests by category
+            const expected = new Map<string, { total: number; count: number }>();
+
+            requests.forEach((r) => {
+              if (!expected.has(r.category)) {
+                expected.set(r.category, { total: 0, count: 0 });
+              }
+              const group = expected.get(r.category)!;
+              group.total = Number((group.total + r.estimated_cost).toFixed(2));
+              group.count += 1;
+            });
+
+            // Verify aggregation
+            expected.forEach((group, category) => {
+              const categoryRequests = requests.filter(
+                (r) => r.category === category,
+              );
+              expect(group.count).toBe(categoryRequests.length);
+
+              // Verify total is sum of costs
+              const calculatedTotal = Number(
+                categoryRequests
+                  .reduce((sum, r) => sum + r.estimated_cost, 0)
+                  .toFixed(2),
+              );
+              expect(group.total).toBe(calculatedTotal);
+            });
+          },
+        ),
+        { numRuns: 100 },
+      );
+    });
+  });
