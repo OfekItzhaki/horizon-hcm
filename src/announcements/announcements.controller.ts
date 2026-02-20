@@ -10,6 +10,11 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { BuildingMemberGuard } from '../common/guards/building-member.guard';
+import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
+import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
+import { ResourceType } from '../common/decorators/resource-type.decorator';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { CreateAnnouncementCommand } from './commands/impl/create-announcement.command';
@@ -30,14 +35,16 @@ export class AnnouncementsController {
   ) {}
 
   @Post()
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Create announcement' })
-  async createAnnouncement(@Body() dto: CreateAnnouncementDto) {
-    // TODO: Get authorId from authenticated user context
-    const authorId = 'current-user-id'; // Placeholder
+  async createAnnouncement(
+    @CurrentUser() user: any,
+    @Body() dto: CreateAnnouncementDto,
+  ) {
     return this.commandBus.execute(
       new CreateAnnouncementCommand(
         dto.buildingId,
-        authorId,
+        user.id,
         dto.title,
         dto.content,
         dto.category,
@@ -47,44 +54,50 @@ export class AnnouncementsController {
   }
 
   @Post(':id/read')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Mark announcement as read' })
-  async markAsRead(@Param('id') id: string) {
-    // TODO: Get userId from authenticated user context
-    const userId = 'current-user-id'; // Placeholder
-    return this.commandBus.execute(new MarkAsReadCommand(id, userId));
+  async markAsRead(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.commandBus.execute(new MarkAsReadCommand(id, user.id));
   }
 
   @Post(':id/comments')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Add comment to announcement' })
-  async addComment(@Param('id') id: string, @Body() dto: AddCommentDto) {
-    // TODO: Get userId from authenticated user context
-    const userId = 'current-user-id'; // Placeholder
-    return this.commandBus.execute(new AddCommentCommand(id, userId, dto.comment));
+  async addComment(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() dto: AddCommentDto,
+  ) {
+    return this.commandBus.execute(new AddCommentCommand(id, user.id, dto.comment));
   }
 
   @Delete(':id')
+  @UseGuards(ResourceOwnerGuard)
+  @ResourceType('Announcement')
   @ApiOperation({ summary: 'Delete announcement' })
-  async deleteAnnouncement(@Param('id') id: string) {
-    // TODO: Get userId from authenticated user context
-    const userId = 'current-user-id'; // Placeholder
-    return this.commandBus.execute(new DeleteAnnouncementCommand(id, userId));
+  async deleteAnnouncement(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.commandBus.execute(new DeleteAnnouncementCommand(id, user.id));
   }
 
   @Get(':id')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Get announcement details' })
-  async getAnnouncement(@Param('id') id: string) {
+  async getAnnouncement(@CurrentUser() user: any, @Param('id') id: string) {
     return this.queryBus.execute(new GetAnnouncementQuery(id));
   }
 
   @Get(':id/stats')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Get announcement statistics' })
-  async getAnnouncementStats(@Param('id') id: string) {
+  async getAnnouncementStats(@CurrentUser() user: any, @Param('id') id: string) {
     return this.queryBus.execute(new GetAnnouncementStatsQuery(id));
   }
 
   @Get()
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'List announcements' })
   async listAnnouncements(
+    @CurrentUser() user: any,
     @Query('buildingId') buildingId: string,
     @Query('category') category?: string,
     @Query('isUrgent') isUrgent?: string,

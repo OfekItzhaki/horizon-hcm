@@ -388,7 +388,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Implement User Context Integration
-  - [ ] 7.1 Import @CurrentUser() decorator from @ofeklabs/horizon-auth
+  - [x] 7.1 Import @CurrentUser() decorator from @ofeklabs/horizon-auth
     - Add import statement: `import { CurrentUser } from '@ofeklabs/horizon-auth';`
     - Verify HorizonAuthModule is imported in AppModule
     - Verify AuthGuard is applied globally or per-controller
@@ -402,7 +402,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 46: Authentication Requirement**
     - **Validates: Requirements 13.5**
 
-  - [ ] 7.4 Update Maintenance controller
+  - [x] 7.4 Update Maintenance controller
     - Import @CurrentUser() from @ofeklabs/horizon-auth
     - Replace 'current-user-id' placeholders with user.id
     - Pass user.preferredLanguage to command handlers for notifications
@@ -426,7 +426,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - File: src/documents/documents.controller.ts
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 14.1, 14.3, 14.6, 14.7, 14.8_
 
-  - [ ] 7.7 Update Announcements controller
+  - [x] 7.7 Update Announcements controller
     - Import @CurrentUser() from @ofeklabs/horizon-auth
     - Replace 'current-user-id' placeholders with user.id
     - Pass user.preferredLanguage to command handlers for notifications

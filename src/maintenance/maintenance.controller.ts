@@ -10,6 +10,10 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { BuildingMemberGuard } from '../common/guards/building-member.guard';
+import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
+import { ResourceType } from '../common/decorators/resource-type.decorator';
 import { CreateMaintenanceRequestDto } from './dto/create-maintenance-request.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
@@ -32,15 +36,17 @@ export class MaintenanceController {
   ) {}
 
   @Post()
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Create maintenance request' })
-  async createRequest(@Body() dto: CreateMaintenanceRequestDto) {
-    // TODO: Get requesterId from authenticated user context
-    const requesterId = 'current-user-id'; // Placeholder
+  async createRequest(
+    @CurrentUser() user: any,
+    @Body() dto: CreateMaintenanceRequestDto,
+  ) {
     return this.commandBus.execute(
       new CreateMaintenanceRequestCommand(
         dto.buildingId,
         dto.apartmentId,
-        requesterId,
+        user.id,
         dto.title,
         dto.description,
         dto.category,
@@ -50,8 +56,11 @@ export class MaintenanceController {
   }
 
   @Patch(':id/status')
+  @UseGuards(ResourceOwnerGuard)
+  @ResourceType('MaintenanceRequest')
   @ApiOperation({ summary: 'Update maintenance request status' })
   async updateStatus(
+    @CurrentUser() user: any,
     @Param('id') id: string,
     @Body() dto: UpdateStatusDto,
   ) {
@@ -61,8 +70,11 @@ export class MaintenanceController {
   }
 
   @Patch(':id/assign')
+  @UseGuards(ResourceOwnerGuard)
+  @ResourceType('MaintenanceRequest')
   @ApiOperation({ summary: 'Assign maintenance request to service provider' })
   async assignRequest(
+    @CurrentUser() user: any,
     @Param('id') id: string,
     @Body() dto: AssignRequestDto,
   ) {
@@ -72,21 +84,23 @@ export class MaintenanceController {
   }
 
   @Post(':id/comments')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Add comment to maintenance request' })
   async addComment(
+    @CurrentUser() user: any,
     @Param('id') id: string,
     @Body() dto: AddCommentDto,
   ) {
-    // TODO: Get userId from authenticated user context
-    const userId = 'current-user-id'; // Placeholder
     return this.commandBus.execute(
-      new AddMaintenanceCommentCommand(id, userId, dto.comment),
+      new AddMaintenanceCommentCommand(id, user.id, dto.comment),
     );
   }
 
   @Post(':id/photos')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Add photo to maintenance request' })
   async addPhoto(
+    @CurrentUser() user: any,
     @Param('id') id: string,
     @Body() body: { fileId: string },
   ) {
@@ -96,14 +110,17 @@ export class MaintenanceController {
   }
 
   @Get(':id')
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Get maintenance request details' })
-  async getRequest(@Param('id') id: string) {
+  async getRequest(@CurrentUser() user: any, @Param('id') id: string) {
     return this.queryBus.execute(new GetMaintenanceRequestQuery(id));
   }
 
   @Get()
+  @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'List maintenance requests' })
   async listRequests(
+    @CurrentUser() user: any,
     @Query('buildingId') buildingId?: string,
     @Query('apartmentId') apartmentId?: string,
     @Query('status') status?: string,
