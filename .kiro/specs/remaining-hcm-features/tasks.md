@@ -304,7 +304,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Implement Authorization Guards
-  - [ ] 5.1 Create CommitteeMemberGuard
+  - [x] 5.1 Create CommitteeMemberGuard
     - Implement CanActivate interface
     - Extract buildingId from request.params or request.body
     - Check cache first (key: `committee:{userId}:{buildingId}`, TTL: 15 minutes)
@@ -330,7 +330,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 39: Authorization Failure Audit Logging**
     - **Validates: Requirements 10.7, 11.7, 12.7**
 
-  - [ ] 5.6 Create BuildingMemberGuard
+  - [x] 5.6 Create BuildingMemberGuard
     - Implement CanActivate interface
     - Extract buildingId from request.params or request.body
     - Check cache first (key: `building-member:{userId}:{buildingId}`, TTL: 15 minutes)
@@ -348,7 +348,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 41: Building Membership Authorization Error**
     - **Validates: Requirements 11.2**
 
-  - [ ] 5.9 Create ResourceOwnerGuard
+  - [x] 5.9 Create ResourceOwnerGuard
     - Implement CanActivate interface
     - Extract resourceId from request.params (id, resourceId, or userId)
     - Extract resourceType from controller metadata using Reflect.getMetadata
@@ -371,7 +371,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - **Property 44: User Profile Self-Modification**
     - **Validates: Requirements 12.6**
 
-  - [ ] 5.13 Create @ResourceType() decorator
+  - [x] 5.13 Create @ResourceType() decorator
     - Create custom decorator to set resource type metadata
     - Use Reflect.setMetadata to store resourceType on handler
     - Usage: @ResourceType('MaintenanceRequest')
