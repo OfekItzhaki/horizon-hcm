@@ -15,6 +15,7 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
 import { MeetingsModule } from './meetings/meetings.module';
 import { DocumentsModule } from './documents/documents.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
+import { ResidentsModule } from './residents/residents.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FilesModule } from './files/files.module';
 import { SyncModule } from './sync/sync.module';
@@ -72,6 +73,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     MeetingsModule,
     DocumentsModule,
     AnnouncementsModule,
+    ResidentsModule,
     NotificationsModule,
     FilesModule,
     SyncModule,
