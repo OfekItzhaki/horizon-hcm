@@ -194,15 +194,15 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Handle null budgeted amounts (return null for variance)
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8_
 
-  - [ ]* 3.21 Write property test for variance calculation accuracy
+  - [x]* 3.21 Write property test for variance calculation accuracy
     - **Property 22: Variance Calculation Accuracy**
     - **Validates: Requirements 6.3, 6.4**
 
-  - [ ]* 3.22 Write property test for budget comparison data completeness
+  - [x]* 3.22 Write property test for budget comparison data completeness
     - **Property 23: Budget Comparison Data Completeness**
     - **Validates: Requirements 6.5**
 
-  - [ ]* 3.23 Write property test for variance classification logic
+  - [x]* 3.23 Write property test for variance classification logic
     - **Property 24: Variance Classification Logic**
     - **Validates: Requirements 6.6**
 
@@ -214,11 +214,11 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Cache result with TTL 10 minutes (key: `payment-summary:{buildingId}:{dateRange}`)
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8_
 
-  - [ ]* 3.25 Write property test for payment status aggregation accuracy
+  - [x]* 3.25 Write property test for payment status aggregation accuracy
     - **Property 31: Payment Status Aggregation Accuracy**
     - **Validates: Requirements 8.1, 8.2, 8.3, 8.4**
 
-  - [ ]* 3.26 Write property test for collection rate calculation
+  - [x]* 3.26 Write property test for collection rate calculation
     - **Property 32: Collection Rate Calculation**
     - **Validates: Requirements 8.5**
 
@@ -231,15 +231,15 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Generate monthly breakdown for 12-month trend
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8_
 
-  - [ ]* 3.28 Write property test for year-over-year change calculation
+  - [x]* 3.28 Write property test for year-over-year change calculation
     - **Property 33: Year-over-Year Change Calculation**
     - **Validates: Requirements 9.3, 9.4**
 
-  - [ ]* 3.29 Write property test for year-over-year data completeness
+  - [x]* 3.29 Write property test for year-over-year data completeness
     - **Property 34: Year-over-Year Data Completeness**
     - **Validates: Requirements 9.5**
 
-  - [ ]* 3.30 Write property test for monthly breakdown structure
+  - [x]* 3.30 Write property test for monthly breakdown structure
     - **Property 35: Monthly Breakdown Structure**
     - **Validates: Requirements 9.8**
 
