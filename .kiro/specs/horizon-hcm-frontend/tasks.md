@@ -82,7 +82,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
 - [x] 3. Checkpoint - Shared package complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Web Application - Project Setup
+- [x] 4. Web Application - Project Setup
   - [x] 4.1 Initialize React + Vite project
     - Create Vite project with React and TypeScript template
     - Configure Vite for development and production
@@ -103,19 +103,19 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Implement light and dark theme variants
     - _Requirements: 47.3, 47.4, 47.9_
 
-  - [ ] 4.3 Configure React Router
+  - [x] 4.3 Configure React Router
     - Set up route structure (auth, protected, admin routes)
     - Implement ProtectedRoute component with authentication check
     - Configure route-based code splitting
     - _Requirements: 53.13, 53.14, 30.2_
 
-  - [ ] 4.4 Configure React Query
+  - [x] 4.4 Configure React Query
     - Create QueryClient with appropriate cache settings
     - Define query keys factory for all entities
     - Configure stale times and retry logic
     - _Requirements: 30.4, 40.10, 40.11, 78.2_
 
-  - [ ] 4.5 Create Zustand stores
+  - [x] 4.5 Create Zustand stores
     - Implement auth store (user, tokens, login, logout)
     - Implement app store (selectedBuilding, language, theme, sidebar)
     - Implement notification store (notifications, unread count)
