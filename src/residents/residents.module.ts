@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ResidentsController } from './residents.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { CommonModule } from '../common/common.module';
+import { FilesModule } from '../files/files.module';
 
 // Command Handlers
 import { AddCommitteeMemberHandler } from './commands/handlers/add-committee-member.handler';
@@ -14,10 +15,7 @@ import { GetResidentProfileHandler } from './queries/handlers/get-resident-profi
 import { SearchResidentsHandler } from './queries/handlers/search-residents.handler';
 import { ExportResidentsHandler } from './queries/handlers/export-residents.handler';
 
-const CommandHandlers = [
-  AddCommitteeMemberHandler,
-  RemoveCommitteeMemberHandler,
-];
+const CommandHandlers = [AddCommitteeMemberHandler, RemoveCommitteeMemberHandler];
 
 const QueryHandlers = [
   ListResidentsHandler,
@@ -27,7 +25,7 @@ const QueryHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, CommonModule],
+  imports: [CqrsModule, PrismaModule, CommonModule, FilesModule],
   controllers: [ResidentsController],
   providers: [...CommandHandlers, ...QueryHandlers],
 })
