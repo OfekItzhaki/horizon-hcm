@@ -9,6 +9,7 @@ import {
   Typography,
   Divider,
   ListItemIcon,
+  Popover,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -19,7 +20,9 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, useAppStore, useNotificationStore } from '../store';
 import { useLogout } from '../hooks/useLogout';
+import { useUnreadCount } from '../hooks/useNotifications';
 import { BuildingSelector } from './BuildingSelector';
+import { NotificationPanel } from './NotificationPanel';
 
 export function Header() {
   const navigate = useNavigate();
@@ -30,6 +33,9 @@ export function Header() {
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
+
+  // Fetch unread count on mount and periodically
+  useUnreadCount();
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setUserMenuAnchor(event.currentTarget);
@@ -86,9 +92,9 @@ export function Header() {
       </IconButton>
 
       {/* Notification Menu */}
-      <Menu
-        anchorEl={notificationAnchor}
+      <Popover
         open={Boolean(notificationAnchor)}
+        anchorEl={notificationAnchor}
         onClose={handleNotificationClose}
         anchorOrigin={{
           vertical: 'bottom',
@@ -99,15 +105,8 @@ export function Header() {
           horizontal: 'right',
         }}
       >
-        <Box sx={{ p: 2, minWidth: 300 }}>
-          <Typography variant="subtitle2" gutterBottom>
-            Notifications
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            No new notifications
-          </Typography>
-        </Box>
-      </Menu>
+        <NotificationPanel onClose={handleNotificationClose} />
+      </Popover>
 
       {/* User Menu */}
       <IconButton onClick={handleUserMenuOpen} color="inherit">
