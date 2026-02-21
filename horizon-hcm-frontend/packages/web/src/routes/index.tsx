@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { CircularProgress, Box } from '@mui/material';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 
 // Lazy load components for code splitting
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
@@ -35,9 +36,11 @@ export const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: (
-      <LazyLoad>
-        <DashboardPage />
-      </LazyLoad>
+      <ProtectedRoute>
+        <LazyLoad>
+          <DashboardPage />
+        </LazyLoad>
+      </ProtectedRoute>
     ),
   },
   {
