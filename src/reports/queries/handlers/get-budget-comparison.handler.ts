@@ -27,18 +27,10 @@ export class GetBudgetComparisonHandler implements IQueryHandler<GetBudgetCompar
       _sum: { amount: true },
     });
 
-    // Calculate actual expenses
-    const actualExpenses = await this.prisma.maintenanceRequest.aggregate({
-      where: {
-        building_id: buildingId,
-        status: 'completed',
-        completion_date: { gte: start, lte: end },
-      },
-      _sum: { estimated_cost: true },
-    });
-
     const actualIncomeAmount = Number((actualIncome._sum.amount || 0).toFixed(2));
-    const actualExpensesAmount = Number((actualExpenses._sum.estimated_cost || 0).toFixed(2));
+
+    // Note: Expense tracking not available in current schema
+    const actualExpensesAmount = 0;
 
     // Build comparison categories
     const categories = [];

@@ -25,16 +25,11 @@ export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuer
       _sum: { amount: true },
     });
 
-    const currentExpenses = await this.prisma.maintenanceRequest.aggregate({
-      where: {
-        building_id: buildingId,
-        status: 'completed',
-        completion_date: { gte: currentYearStart, lte: currentYearEnd },
-      },
-      _sum: { estimated_cost: true },
-    });
+    // Note: Expense tracking not available in current schema
+    const currentIncomeAmount = Number((currentIncome._sum.amount || 0).toFixed(2));
+    const currentExpensesAmount = 0;
 
-    // Calculate previous year income and expenses
+    // Calculate previous year income
     const previousYearStart = new Date(previousYear, 0, 1);
     const previousYearEnd = new Date(previousYear, 11, 31);
 
@@ -47,19 +42,8 @@ export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuer
       _sum: { amount: true },
     });
 
-    const previousExpenses = await this.prisma.maintenanceRequest.aggregate({
-      where: {
-        building_id: buildingId,
-        status: 'completed',
-        completion_date: { gte: previousYearStart, lte: previousYearEnd },
-      },
-      _sum: { estimated_cost: true },
-    });
-
-    const currentIncomeAmount = Number((currentIncome._sum.amount || 0).toFixed(2));
-    const currentExpensesAmount = Number((currentExpenses._sum.estimated_cost || 0).toFixed(2));
     const previousIncomeAmount = Number((previousIncome._sum.amount || 0).toFixed(2));
-    const previousExpensesAmount = Number((previousExpenses._sum.estimated_cost || 0).toFixed(2));
+    const previousExpensesAmount = 0;
 
     // Calculate changes
     const incomeChange = Number((currentIncomeAmount - previousIncomeAmount).toFixed(2));
@@ -89,19 +73,10 @@ export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuer
         _sum: { amount: true },
       });
 
-      const monthExpenses = await this.prisma.maintenanceRequest.aggregate({
-        where: {
-          building_id: buildingId,
-          status: 'completed',
-          completion_date: { gte: monthStart, lte: monthEnd },
-        },
-        _sum: { estimated_cost: true },
-      });
-
       monthlyBreakdown.push({
         month: month + 1,
         income: Number((monthIncome._sum.amount || 0).toFixed(2)),
-        expenses: Number((monthExpenses._sum.estimated_cost || 0).toFixed(2)),
+        expenses: 0, // Expense tracking not available
       });
     }
 

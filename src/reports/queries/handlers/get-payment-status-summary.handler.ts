@@ -26,7 +26,7 @@ export class GetPaymentStatusSummaryHandler implements IQueryHandler<GetPaymentS
 
     // Check cache first
     const cached = await this.cache.get(cacheKey);
-    if (cached) {
+    if (cached && typeof cached === 'string') {
       return JSON.parse(cached);
     }
 
