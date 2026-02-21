@@ -199,7 +199,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Redirect to login if refresh fails
     - _Requirements: 1.8, 40.6, 40.7_
 
-  - [ ] 5.9 Implement logout functionality
+  - [x] 5.9 Implement logout functionality
     - Clear all Zustand stores
     - Clear tokens from storage
     - Disconnect WebSocket
