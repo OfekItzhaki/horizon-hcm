@@ -5,9 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { WebhookService } from '../services/webhook.service';
 import axios from 'axios';
 
-@Processor('webhooks', {
-  concurrency: 5,
-})
+@Processor('webhooks')
 export class WebhookProcessor extends WorkerHost {
   private readonly logger = new Logger(WebhookProcessor.name);
 
@@ -54,10 +52,7 @@ export class WebhookProcessor extends WorkerHost {
       };
 
       // Sign payload
-      const signature = this.webhookService.signPayload(
-        payload,
-        delivery.webhook.secret,
-      );
+      const signature = this.webhookService.signPayload(payload, delivery.webhook.secret);
 
       // Send webhook request
       const response = await axios.post(delivery.webhook.url, payload, {
@@ -87,9 +82,7 @@ export class WebhookProcessor extends WorkerHost {
 
       return { success: true };
     } catch (error) {
-      this.logger.error(
-        `Webhook delivery failed: ${deliveryId} - ${error.message}`,
-      );
+      this.logger.error(`Webhook delivery failed: ${deliveryId} - ${error.message}`);
 
       // Get current delivery to check attempts
       const delivery = await this.prisma.webhookDelivery.findUnique({
