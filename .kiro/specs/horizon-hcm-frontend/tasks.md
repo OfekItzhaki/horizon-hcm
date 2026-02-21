@@ -235,7 +235,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Provide "Mark all as read" action
     - _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.11_
 
-  - [ ] 7.4 Implement WebSocket client integration
+  - [x] 7.4 Implement WebSocket client integration
     - Connect to WebSocket on login
     - Handle connection, disconnection, errors
     - Listen for real-time events (notifications, messages, announcements)

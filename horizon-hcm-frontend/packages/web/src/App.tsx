@@ -7,6 +7,7 @@ import { queryClient } from './lib/query-client';
 import { initializeApiClient } from './lib/api-config';
 import { router } from './routes';
 import { useAppStore } from './store';
+import { useWebSocket } from './hooks/useWebSocket';
 
 function App() {
   const theme = useAppStore((state) => state.theme);
@@ -16,6 +17,9 @@ function App() {
   useEffect(() => {
     initializeApiClient();
   }, []);
+
+  // Initialize WebSocket connection
+  useWebSocket();
 
   return (
     <QueryClientProvider client={queryClient}>
