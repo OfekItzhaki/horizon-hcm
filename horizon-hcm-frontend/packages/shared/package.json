@@ -1,0 +1,29 @@
+{
+  "name": "@horizon-hcm/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared code for Horizon HCM frontend applications",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "axios": "^1.6.5",
+    "date-fns": "^3.2.0",
+    "socket.io-client": "^4.6.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@vitest/coverage-v8": "^1.2.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
+  }
+}
