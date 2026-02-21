@@ -218,7 +218,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Handle sidebar collapse/expand
     - _Requirements: 5.6, 5.8, 53.1, 53.2, 53.3, 53.4_
 
-  - [ ] 7.2 Implement building selector component
+  - [x] 7.2 Implement building selector component
     - Display current building name
     - Provide dropdown with all user's buildings
     - Implement building search for many buildings

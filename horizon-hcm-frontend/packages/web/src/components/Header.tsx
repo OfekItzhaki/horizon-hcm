@@ -9,9 +9,6 @@ import {
   Typography,
   Divider,
   ListItemIcon,
-  Select,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -22,12 +19,13 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, useAppStore, useNotificationStore } from '../store';
 import { useLogout } from '../hooks/useLogout';
+import { BuildingSelector } from './BuildingSelector';
 
 export function Header() {
   const navigate = useNavigate();
   const logout = useLogout();
   const user = useAuthStore((state) => state.user);
-  const { theme, setTheme, selectedBuildingId, setSelectedBuilding } = useAppStore();
+  const { theme, setTheme } = useAppStore();
   const unreadCount = useNotificationStore((state) => state.unreadCount);
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
@@ -70,20 +68,8 @@ export function Header() {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 2 }}>
-      {/* Building Selector - Placeholder for now */}
-      <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel>Building</InputLabel>
-        <Select
-          value={selectedBuildingId || ''}
-          label="Building"
-          onChange={(e) => setSelectedBuilding(e.target.value)}
-          disabled
-        >
-          <MenuItem value="">
-            <em>Select Building</em>
-          </MenuItem>
-        </Select>
-      </FormControl>
+      {/* Building Selector */}
+      <BuildingSelector />
 
       <Box sx={{ flexGrow: 1 }} />
 
