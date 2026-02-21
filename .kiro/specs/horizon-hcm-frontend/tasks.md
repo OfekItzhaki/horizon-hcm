@@ -243,7 +243,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Queue messages when disconnected
     - _Requirements: 17.2, 26.6, 40.12_
 
-  - [ ] 7.5 Implement language selector and i18n
+  - [x] 7.5 Implement language selector and i18n
     - Configure next-intl with English and Hebrew
     - Create translation files for all UI text
     - Implement language selector in settings
@@ -251,7 +251,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Persist language preference
     - _Requirements: 28.1, 28.2, 28.3, 28.4, 28.5, 28.6, 28.7, 28.8, 28.9, 66.1, 66.2, 66.6_
 
-  - [ ] 7.6 Implement theme toggle (light/dark mode)
+  - [x] 7.6 Implement theme toggle (light/dark mode)
     - Create theme toggle button
     - Switch between light and dark themes
     - Persist theme preference

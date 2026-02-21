@@ -1,0 +1,65 @@
+{
+  "common": {
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "success": "הצלחה",
+    "cancel": "ביטול",
+    "save": "שמור",
+    "delete": "מחק",
+    "edit": "ערוך",
+    "search": "חיפוש",
+    "filter": "סינון",
+    "close": "סגור",
+    "back": "חזור",
+    "next": "הבא",
+    "previous": "הקודם",
+    "submit": "שלח",
+    "confirm": "אישור"
+  },
+  "nav": {
+    "dashboard": "לוח בקרה",
+    "buildings": "בניינים",
+    "residents": "דיירים",
+    "invoices": "חשבוניות",
+    "payments": "תשלומים",
+    "reports": "דוחות",
+    "announcements": "הודעות",
+    "messages": "הודעות",
+    "polls": "סקרים",
+    "maintenance": "תחזוקה",
+    "meetings": "פגישות",
+    "documents": "מסמכים",
+    "settings": "הגדרות",
+    "admin": "ניהול"
+  },
+  "auth": {
+    "login": "התחבר",
+    "logout": "התנתק",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "rememberMe": "זכור אותי",
+    "forgotPassword": "שכחת סיסמה?",
+    "createAccount": "צור חשבון",
+    "welcomeBack": "ברוך שובך!",
+    "loginToContinue": "התחבר כדי להמשיך ל-Horizon HCM"
+  },
+  "header": {
+    "notifications": "התראות",
+    "profile": "פרופיל",
+    "noNotifications": "אין התראות חדשות",
+    "markAllAsRead": "סמן הכל כנקרא",
+    "viewAll": "הצג את כל ההתראות"
+  },
+  "building": {
+    "selectBuilding": "בחר בניין",
+    "noBuildings": "אין בניינים זמינים",
+    "searchBuildings": "חפש בניינים..."
+  },
+  "dashboard": {
+    "welcome": "ברוך שובך, {name}!",
+    "quickStats": "סטטיסטיקות מהירות",
+    "recentActivity": "פעילות אחרונה",
+    "quickActions": "פעולות מהירות",
+    "comingSoon": "בקרוב"
+  }
+}

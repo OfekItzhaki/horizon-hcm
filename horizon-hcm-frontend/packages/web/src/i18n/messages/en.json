@@ -1,0 +1,65 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "buildings": "Buildings",
+    "residents": "Residents",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "reports": "Reports",
+    "announcements": "Announcements",
+    "messages": "Messages",
+    "polls": "Polls",
+    "maintenance": "Maintenance",
+    "meetings": "Meetings",
+    "documents": "Documents",
+    "settings": "Settings",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "createAccount": "Create Account",
+    "welcomeBack": "Welcome back!",
+    "loginToContinue": "Login to continue to Horizon HCM"
+  },
+  "header": {
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "noNotifications": "No new notifications",
+    "markAllAsRead": "Mark all as read",
+    "viewAll": "View all notifications"
+  },
+  "building": {
+    "selectBuilding": "Select Building",
+    "noBuildings": "No buildings available",
+    "searchBuildings": "Search buildings..."
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}!",
+    "quickStats": "Quick Stats",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions",
+    "comingSoon": "Coming Soon"
+  }
+}

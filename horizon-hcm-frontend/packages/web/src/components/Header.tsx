@@ -23,6 +23,7 @@ import { useLogout } from '../hooks/useLogout';
 import { useUnreadCount } from '../hooks/useNotifications';
 import { BuildingSelector } from './BuildingSelector';
 import { NotificationPanel } from './NotificationPanel';
+import { LanguageSelector } from './LanguageSelector';
 
 export function Header() {
   const navigate = useNavigate();
@@ -78,6 +79,9 @@ export function Header() {
       <BuildingSelector />
 
       <Box sx={{ flexGrow: 1 }} />
+
+      {/* Language Selector */}
+      <LanguageSelector />
 
       {/* Theme Toggle */}
       <IconButton onClick={handleThemeToggle} color="inherit">
