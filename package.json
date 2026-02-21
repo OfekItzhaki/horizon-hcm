@@ -60,6 +60,7 @@
     "compression": "^1.8.1",
     "firebase-admin": "^13.6.1",
     "helmet": "^8.1.0",
+    "jest-util": "^30.2.0",
     "nestjs-i18n": "^10.6.0",
     "nodemailer": "^6.9.7",
     "passport": "^0.7.0",
