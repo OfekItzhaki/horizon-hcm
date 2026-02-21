@@ -210,7 +210,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Web Application - Layout and Navigation
-  - [ ] 7.1 Implement DashboardLayout component
+  - [x] 7.1 Implement DashboardLayout component
     - Create responsive layout with sidebar and header
     - Implement navigation sidebar with role-based menu items
     - Implement header with building selector, notifications, user menu
