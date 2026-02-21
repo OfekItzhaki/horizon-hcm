@@ -12,7 +12,7 @@ import { GetPaymentStatusSummaryHandler } from './queries/handlers/get-payment-s
 import { GetYearOverYearHandler } from './queries/handlers/get-year-over-year.handler';
 
 // Services
-import { PrismaService } from '../common/services/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CacheService } from '../common/services/cache.service';
 
 const QueryHandlers = [

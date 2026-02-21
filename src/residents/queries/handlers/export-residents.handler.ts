@@ -2,16 +2,14 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { ExportResidentsQuery } from '../impl/export-residents.query';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { FileStorageService } from '../../../files/services/file-storage.service';
+import { StorageService } from '../../../files/services/storage.service';
 
 @Injectable()
 @QueryHandler(ExportResidentsQuery)
-export class ExportResidentsHandler
-  implements IQueryHandler<ExportResidentsQuery>
-{
+export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuery> {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly fileStorage: FileStorageService,
+    private readonly fileStorage: StorageService,
   ) {}
 
   async execute(query: ExportResidentsQuery): Promise<any> {
@@ -87,9 +85,7 @@ export class ExportResidentsHandler
           committee_role: '',
         });
       }
-      residentsMap
-        .get(userId)
-        .apartments.push(owner.apartment.apartment_number);
+      residentsMap.get(userId).apartments.push(owner.apartment.apartment_number);
     });
 
     tenants.forEach((tenant) => {
@@ -103,9 +99,7 @@ export class ExportResidentsHandler
           committee_role: '',
         });
       }
-      residentsMap
-        .get(userId)
-        .apartments.push(tenant.apartment.apartment_number);
+      residentsMap.get(userId).apartments.push(tenant.apartment.apartment_number);
     });
 
     // Convert to array and sort
@@ -129,10 +123,7 @@ export class ExportResidentsHandler
       this.escapeCsvField(r.committee_role),
     ]);
 
-    const csvContent = [
-      csvHeaders.join(','),
-      ...csvRows.map((row) => row.join(',')),
-    ].join('\n');
+    const csvContent = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
 
     // Upload to file storage with 24-hour expiration
     const fileName = `residents-${buildingId}-${Date.now()}.csv`;

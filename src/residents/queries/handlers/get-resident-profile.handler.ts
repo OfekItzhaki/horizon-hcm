@@ -1,13 +1,11 @@
-import { QueryHandler, IQueryHandler } from '@nestjs/common';
+import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { NotFoundException, Injectable } from '@nestjs/common';
 import { GetResidentProfileQuery } from '../impl/get-resident-profile.query';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 @QueryHandler(GetResidentProfileQuery)
-export class GetResidentProfileHandler
-  implements IQueryHandler<GetResidentProfileQuery>
-{
+export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfileQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetResidentProfileQuery): Promise<any> {

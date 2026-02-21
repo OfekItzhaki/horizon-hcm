@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from '@nestjs/common';
-import { PrismaService } from '../services/prisma.service';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AuditLogService } from '../services/audit-log.service';
 
 @Injectable()
@@ -30,21 +25,16 @@ export class ResourceOwnerGuard implements CanActivate {
     }
 
     // Check if user is committee member for the building (if applicable)
-    const buildingId = await this.getBuildingIdForResource(
-      resourceType,
-      resourceId,
-    );
+    const buildingId = await this.getBuildingIdForResource(resourceType, resourceId);
     if (buildingId) {
-      const isCommittee = await this.prisma.buildingCommitteeMember.findUnique(
-        {
-          where: {
-            building_id_user_id: {
-              building_id: buildingId,
-              user_id: user.id,
-            },
+      const isCommittee = await this.prisma.buildingCommitteeMember.findUnique({
+        where: {
+          building_id_user_id: {
+            building_id: buildingId,
+            user_id: user.id,
           },
         },
-      );
+      });
 
       if (isCommittee) {
         return true; // Committee members can modify any resource in their building
@@ -52,11 +42,7 @@ export class ResourceOwnerGuard implements CanActivate {
     }
 
     // Check resource ownership
-    const isOwner = await this.checkResourceOwnership(
-      resourceType,
-      resourceId,
-      user.id,
-    );
+    const isOwner = await this.checkResourceOwnership(resourceType, resourceId, user.id);
 
     if (!isOwner) {
       await this.auditLog.log({
@@ -67,9 +53,7 @@ export class ResourceOwnerGuard implements CanActivate {
         metadata: { reason: 'not_resource_owner', endpoint: request.url },
       });
 
-      throw new ForbiddenException(
-        'Access denied: You do not own this resource',
-      );
+      throw new ForbiddenException('Access denied: You do not own this resource');
     }
 
     return true;
@@ -77,12 +61,7 @@ export class ResourceOwnerGuard implements CanActivate {
 
   private extractResourceId(request: any): string | null {
     // Try various common parameter names
-    return (
-      request.params?.id ||
-      request.params?.resourceId ||
-      request.params?.userId ||
-      null
-    );
+    return request.params?.id || request.params?.resourceId || request.params?.userId || null;
   }
 
   private extractResourceType(context: ExecutionContext): string | null {

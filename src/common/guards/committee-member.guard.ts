@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from '@nestjs/common';
-import { PrismaService } from '../services/prisma.service';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from '../services/cache.service';
 import { AuditLogService } from '../services/audit-log.service';
 
@@ -57,9 +52,7 @@ export class CommitteeMemberGuard implements CanActivate {
         metadata: { reason: 'not_committee_member', endpoint: request.url },
       });
 
-      throw new ForbiddenException(
-        'Access denied: Committee member role required',
-      );
+      throw new ForbiddenException('Access denied: Committee member role required');
     }
 
     return true;

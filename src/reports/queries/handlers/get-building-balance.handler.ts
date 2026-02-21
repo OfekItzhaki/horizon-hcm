@@ -1,12 +1,10 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetBuildingBalanceQuery } from '../impl/get-building-balance.query';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { CacheService } from '../../../common/services/cache.service';
 
 @QueryHandler(GetBuildingBalanceQuery)
-export class GetBuildingBalanceHandler
-  implements IQueryHandler<GetBuildingBalanceQuery>
-{
+export class GetBuildingBalanceHandler implements IQueryHandler<GetBuildingBalanceQuery> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,

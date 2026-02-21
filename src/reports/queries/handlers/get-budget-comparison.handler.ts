@@ -1,11 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetBudgetComparisonQuery } from '../impl/get-budget-comparison.query';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @QueryHandler(GetBudgetComparisonQuery)
-export class GetBudgetComparisonHandler
-  implements IQueryHandler<GetBudgetComparisonQuery>
-{
+export class GetBudgetComparisonHandler implements IQueryHandler<GetBudgetComparisonQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetBudgetComparisonQuery) {
@@ -39,12 +37,8 @@ export class GetBudgetComparisonHandler
       _sum: { estimated_cost: true },
     });
 
-    const actualIncomeAmount = Number(
-      (actualIncome._sum.amount || 0).toFixed(2),
-    );
-    const actualExpensesAmount = Number(
-      (actualExpenses._sum.estimated_cost || 0).toFixed(2),
-    );
+    const actualIncomeAmount = Number((actualIncome._sum.amount || 0).toFixed(2));
+    const actualExpensesAmount = Number((actualExpenses._sum.estimated_cost || 0).toFixed(2));
 
     // Build comparison categories
     const categories = [];
@@ -53,9 +47,7 @@ export class GetBudgetComparisonHandler
     const budgetedIncome = budgetConfig.income || null;
     if (budgetedIncome !== null) {
       const variance = Number((actualIncomeAmount - budgetedIncome).toFixed(2));
-      const variancePercent = Number(
-        ((variance / budgetedIncome) * 100).toFixed(1),
-      );
+      const variancePercent = Number(((variance / budgetedIncome) * 100).toFixed(1));
       categories.push({
         name: 'Income',
         budgeted: budgetedIncome,
@@ -78,12 +70,8 @@ export class GetBudgetComparisonHandler
     // Expenses comparison
     const budgetedExpenses = budgetConfig.expenses || null;
     if (budgetedExpenses !== null) {
-      const variance = Number(
-        (actualExpensesAmount - budgetedExpenses).toFixed(2),
-      );
-      const variancePercent = Number(
-        ((variance / budgetedExpenses) * 100).toFixed(1),
-      );
+      const variance = Number((actualExpensesAmount - budgetedExpenses).toFixed(2));
+      const variancePercent = Number(((variance / budgetedExpenses) * 100).toFixed(1));
       categories.push({
         name: 'Expenses',
         budgeted: budgetedExpenses,

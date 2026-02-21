@@ -1,12 +1,10 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetPaymentStatusSummaryQuery } from '../impl/get-payment-status-summary.query';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { CacheService } from '../../../common/services/cache.service';
 
 @QueryHandler(GetPaymentStatusSummaryQuery)
-export class GetPaymentStatusSummaryHandler
-  implements IQueryHandler<GetPaymentStatusSummaryQuery>
-{
+export class GetPaymentStatusSummaryHandler implements IQueryHandler<GetPaymentStatusSummaryQuery> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
@@ -50,10 +48,7 @@ export class GetPaymentStatusSummaryHandler
     });
 
     // Group by status
-    const statusMap = new Map<
-      string,
-      { amount: number; count: number }
-    >();
+    const statusMap = new Map<string, { amount: number; count: number }>();
 
     let totalAmount = 0;
     let paidAmount = 0;
@@ -78,9 +73,7 @@ export class GetPaymentStatusSummaryHandler
 
     // Calculate collection rate
     const collectionRate =
-      totalAmount > 0
-        ? Number(((paidAmount / totalAmount) * 100).toFixed(1))
-        : 0;
+      totalAmount > 0 ? Number(((paidAmount / totalAmount) * 100).toFixed(1)) : 0;
 
     const result = {
       pending: statusMap.get('pending') || { amount: 0, count: 0 },

@@ -1,11 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetExpenseReportQuery } from '../impl/get-expense-report.query';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @QueryHandler(GetExpenseReportQuery)
-export class GetExpenseReportHandler
-  implements IQueryHandler<GetExpenseReportQuery>
-{
+export class GetExpenseReportHandler implements IQueryHandler<GetExpenseReportQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetExpenseReportQuery) {
@@ -36,10 +34,7 @@ export class GetExpenseReportHandler
     });
 
     // Group by category
-    const categoryMap = new Map<
-      string,
-      { name: string; total: number; count: number }
-    >();
+    const categoryMap = new Map<string, { name: string; total: number; count: number }>();
 
     requests.forEach((request) => {
       const category = request.category;
@@ -55,14 +50,10 @@ export class GetExpenseReportHandler
     });
 
     // Convert to array and sort by total DESC
-    const categories = Array.from(categoryMap.values()).sort(
-      (a, b) => b.total - a.total,
-    );
+    const categories = Array.from(categoryMap.values()).sort((a, b) => b.total - a.total);
 
     // Calculate grand total
-    const grandTotal = Number(
-      categories.reduce((sum, cat) => sum + cat.total, 0).toFixed(2),
-    );
+    const grandTotal = Number(categories.reduce((sum, cat) => sum + cat.total, 0).toFixed(2));
 
     return {
       categories,

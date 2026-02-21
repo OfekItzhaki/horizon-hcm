@@ -1,11 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetYearOverYearQuery } from '../impl/get-year-over-year.query';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @QueryHandler(GetYearOverYearQuery)
-export class GetYearOverYearHandler
-  implements IQueryHandler<GetYearOverYearQuery>
-{
+export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetYearOverYearQuery) {
@@ -58,26 +56,14 @@ export class GetYearOverYearHandler
       _sum: { estimated_cost: true },
     });
 
-    const currentIncomeAmount = Number(
-      (currentIncome._sum.amount || 0).toFixed(2),
-    );
-    const currentExpensesAmount = Number(
-      (currentExpenses._sum.estimated_cost || 0).toFixed(2),
-    );
-    const previousIncomeAmount = Number(
-      (previousIncome._sum.amount || 0).toFixed(2),
-    );
-    const previousExpensesAmount = Number(
-      (previousExpenses._sum.estimated_cost || 0).toFixed(2),
-    );
+    const currentIncomeAmount = Number((currentIncome._sum.amount || 0).toFixed(2));
+    const currentExpensesAmount = Number((currentExpenses._sum.estimated_cost || 0).toFixed(2));
+    const previousIncomeAmount = Number((previousIncome._sum.amount || 0).toFixed(2));
+    const previousExpensesAmount = Number((previousExpenses._sum.estimated_cost || 0).toFixed(2));
 
     // Calculate changes
-    const incomeChange = Number(
-      (currentIncomeAmount - previousIncomeAmount).toFixed(2),
-    );
-    const expensesChange = Number(
-      (currentExpensesAmount - previousExpensesAmount).toFixed(2),
-    );
+    const incomeChange = Number((currentIncomeAmount - previousIncomeAmount).toFixed(2));
+    const expensesChange = Number((currentExpensesAmount - previousExpensesAmount).toFixed(2));
 
     const incomeChangePercent =
       previousIncomeAmount > 0

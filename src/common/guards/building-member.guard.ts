@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from '@nestjs/common';
-import { PrismaService } from '../services/prisma.service';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from '../services/cache.service';
 import { AuditLogService } from '../services/audit-log.service';
 
@@ -87,9 +82,7 @@ export class BuildingMemberGuard implements CanActivate {
         metadata: { reason: 'not_building_member', endpoint: request.url },
       });
 
-      throw new ForbiddenException(
-        'Access denied: You do not belong to this building',
-      );
+      throw new ForbiddenException('Access denied: You do not belong to this building');
     }
 
     return true;

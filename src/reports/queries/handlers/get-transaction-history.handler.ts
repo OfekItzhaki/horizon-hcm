@@ -1,16 +1,13 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetTransactionHistoryQuery } from '../impl/get-transaction-history.query';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @QueryHandler(GetTransactionHistoryQuery)
-export class GetTransactionHistoryHandler
-  implements IQueryHandler<GetTransactionHistoryQuery>
-{
+export class GetTransactionHistoryHandler implements IQueryHandler<GetTransactionHistoryQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetTransactionHistoryQuery) {
-    const { buildingId, page, limit, startDate, endDate, transactionType } =
-      query;
+    const { buildingId, page, limit, startDate, endDate, transactionType } = query;
 
     // Calculate default date range (current month) if not provided
     const now = new Date();
