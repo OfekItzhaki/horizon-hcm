@@ -1,56 +1,33 @@
-import { Box, Typography, Grid, Card, CardContent } from '@mui/material';
 import { useAuthStore } from '../../store';
+import { CommitteeDashboard } from './CommitteeDashboard';
+import { OwnerDashboard } from './OwnerDashboard';
+import { TenantDashboard } from './TenantDashboard';
+import { AdminDashboard } from './AdminDashboard';
+import { Box, CircularProgress } from '@mui/material';
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
 
-  return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Welcome back, {user?.name || 'User'}!
-      </Typography>
-      <Typography variant="body1" color="text.secondary" paragraph>
-        Horizon HCM - Building Management System
-      </Typography>
+  // Show loading if user data is not yet available
+  if (!user) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Quick Stats
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Dashboard statistics will appear here
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Recent Activity
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Recent activity feed will appear here
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Quick Actions
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Quick action buttons will appear here
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+  // Route to appropriate dashboard based on user role
+  switch (user.role) {
+    case 'admin':
+      return <AdminDashboard />;
+    case 'committee_member':
+      return <CommitteeDashboard />;
+    case 'owner':
+      return <OwnerDashboard />;
+    case 'tenant':
+      return <TenantDashboard />;
+    default:
+      return <OwnerDashboard />; // Default fallback
+  }
 }
