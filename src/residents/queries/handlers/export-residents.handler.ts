@@ -129,12 +129,21 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     const fileName = `residents-${buildingId}-${Date.now()}.csv`;
     const buffer = Buffer.from(csvContent, 'utf-8');
 
-    const uploadResult = await this.fileStorage.uploadFile({
+    // Create a mock Multer file object for the upload method
+    const mockFile: Express.Multer.File = {
       buffer,
-      originalName: fileName,
-      mimeType: 'text/csv',
+      originalname: fileName,
+      mimetype: 'text/csv',
       size: buffer.length,
-    });
+      fieldname: 'file',
+      encoding: '7bit',
+      stream: null,
+      destination: '',
+      filename: fileName,
+      path: '',
+    };
+
+    const uploadResult = await this.fileStorage.upload(mockFile, 'system-export', false);
 
     // Set expiration to 24 hours
     const expiresAt = new Date();
