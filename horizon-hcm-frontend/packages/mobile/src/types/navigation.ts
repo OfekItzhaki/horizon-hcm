@@ -72,6 +72,7 @@ export type CommunicationStackParamList = {
   };
   MaintenanceForm: undefined;
   Settings: undefined;
+  Profile: undefined;
 };
 
 export type MainTabParamList = {

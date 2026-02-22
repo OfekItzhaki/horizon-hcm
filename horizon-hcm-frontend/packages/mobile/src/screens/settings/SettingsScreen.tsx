@@ -2,8 +2,12 @@ import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { List, Switch, Divider } from 'react-native-paper';
 import { useAppStore, useAuthStore } from '@horizon-hcm/shared';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CommunicationStackParamList } from '../../types/navigation';
 
-export default function SettingsScreen() {
+type Props = NativeStackScreenProps<CommunicationStackParamList, 'Settings'>;
+
+export default function SettingsScreen({ navigation }: Props) {
   const { theme, setTheme, language, setLanguage } = useAppStore();
   const logout = useAuthStore((state) => state.logout);
 
@@ -70,7 +74,7 @@ export default function SettingsScreen() {
           description="View and edit your profile"
           left={(props) => <List.Icon {...props} icon="account" />}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => {}}
+          onPress={() => navigation.navigate('Profile')}
         />
         <List.Item
           title="Change Password"
