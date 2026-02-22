@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -15,50 +15,42 @@ import {
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginInput } from '@horizon-hcm/shared';
+import { registerSchema, type RegisterInput } from '@horizon-hcm/shared';
 import { authApi } from '@horizon-hcm/shared';
-import { useAuthStore } from '../../store';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const login = useAuthStore((state) => state.login);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Get success message from navigation state
-  const successMessage = (location.state as any)?.message;
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
+      name: '',
+      phone: '',
+      acceptedTerms: false,
     },
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: RegisterInput) => {
     try {
       setError(null);
       setIsLoading(true);
 
-      // Login and get tokens
-      const loginResponse = await authApi.login(data);
-      const { accessToken, refreshToken } = loginResponse.data;
+      await authApi.register(data);
 
-      // Fetch user profile
-      const userResponse = await authApi.getCurrentUser();
-      const user = userResponse.data;
-
-      login(user, accessToken, refreshToken);
-      navigate('/dashboard');
+      // Redirect to login page with success message
+      navigate('/login', {
+        state: { message: 'Registration successful! Please log in.' },
+      });
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Login failed. Please try again.';
+      const message = err.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
     } finally {
       setIsLoading(false);
@@ -74,21 +66,16 @@ export default function LoginPage() {
       minHeight="100vh"
       bgcolor="background.default"
       px={2}
+      py={4}
     >
       <Card sx={{ maxWidth: 400, width: '100%' }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" gutterBottom align="center">
-            Horizon HCM
+            Create Account
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom align="center" mb={3}>
-            Building Management System
+            Join Horizon HCM
           </Typography>
-
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {successMessage}
-            </Alert>
-          )}
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -97,6 +84,25 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)}>
+            {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Full Name"
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                  disabled={isLoading}
+                  autoComplete="name"
+                  autoFocus
+                />
+              )}
+            />
+
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller
               name="email"
@@ -112,7 +118,25 @@ export default function LoginPage() {
                   helperText={errors.email?.message}
                   disabled={isLoading}
                   autoComplete="email"
-                  autoFocus
+                />
+              )}
+            />
+
+            {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Phone Number"
+                  type="tel"
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.phone}
+                  helperText={errors.phone?.message}
+                  disabled={isLoading}
+                  autoComplete="tel"
                 />
               )}
             />
@@ -131,22 +155,39 @@ export default function LoginPage() {
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   disabled={isLoading}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                 />
               )}
             />
 
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller
-              name="rememberMe"
+              name="acceptedTerms"
               control={control}
               render={({ field }) => (
                 <FormControlLabel
                   control={<Checkbox {...field} checked={field.value} disabled={isLoading} />}
-                  label="Remember me"
+                  label={
+                    <Typography variant="body2">
+                      I accept the{' '}
+                      <Link href="/terms" target="_blank" underline="hover">
+                        Terms of Service
+                      </Link>{' '}
+                      and{' '}
+                      <Link href="/privacy" target="_blank" underline="hover">
+                        Privacy Policy
+                      </Link>
+                    </Typography>
+                  }
+                  sx={{ mt: 1 }}
                 />
               )}
             />
+            {errors.acceptedTerms && (
+              <Typography variant="caption" color="error" display="block" sx={{ mt: 0.5 }}>
+                {errors.acceptedTerms.message}
+              </Typography>
+            )}
 
             <Button
               type="submit"
@@ -154,17 +195,17 @@ export default function LoginPage() {
               fullWidth
               size="large"
               disabled={isLoading}
-              sx={{ mt: 2, mb: 2 }}
+              sx={{ mt: 3, mb: 2 }}
             >
-              {isLoading ? <CircularProgress size={24} /> : 'Sign In'}
+              {isLoading ? <CircularProgress size={24} /> : 'Create Account'}
             </Button>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Link component={RouterLink} to="/forgot-password" variant="body2" underline="hover">
-                Forgot password?
-              </Link>
-              <Link component={RouterLink} to="/register" variant="body2" underline="hover">
-                Create account
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <Typography variant="body2" color="text.secondary" mr={1}>
+                Already have an account?
+              </Typography>
+              <Link component={RouterLink} to="/login" variant="body2" underline="hover">
+                Sign in
               </Link>
             </Box>
           </form>
