@@ -1,8 +1,27 @@
 /**
+ * Get API base URL from environment
+ * Works for both Vite (web) and Expo (mobile)
+ */
+const getApiBaseUrl = (): string => {
+  // For Vite (web)
+  if (typeof window !== 'undefined' && (window as any).VITE_API_URL) {
+    return (window as any).VITE_API_URL;
+  }
+
+  // For Expo (mobile) - process.env is available
+  if (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  // Default for development
+  return 'http://localhost:3001';
+};
+
+/**
  * API Configuration
  */
 export const API_CONFIG = {
-  BASE_URL: process.env.VITE_API_URL || process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001',
+  BASE_URL: getApiBaseUrl(),
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
