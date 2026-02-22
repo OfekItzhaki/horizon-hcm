@@ -63,11 +63,18 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
         limit: 100, // 100 requests per minute
       },
     ]),
-    // HorizonAuthModule with explicit database configuration
-    HorizonAuthModule.forRoot({
-      database: {
-        url: process.env.DATABASE_URL,
-      },
+    // HorizonAuthModule with async configuration to ensure env vars are loaded
+    HorizonAuthModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        database: {
+          url: configService.get<string>('DATABASE_URL'),
+        },
+        jwt: {
+          privateKey: configService.get<string>('JWT_PRIVATE_KEY'),
+          publicKey: configService.get<string>('JWT_PUBLIC_KEY'),
+        },
+      }),
+      inject: [ConfigService],
     }),
     LoggerModule,
     CommonModule,
