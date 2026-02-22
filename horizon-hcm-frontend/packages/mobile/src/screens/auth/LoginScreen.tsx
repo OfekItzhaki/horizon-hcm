@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text, Surface } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 import { authApi } from '@horizon-hcm/shared/src/api/auth';
+import {
+  checkBiometricCapabilities,
+  authenticateWithBiometrics,
+  getBiometricName,
+} from '../../utils/biometric';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { AuthNavigationProp } from '../../types/navigation';
 
 interface LoginFormData {
@@ -18,6 +24,8 @@ interface LoginScreenProps {
 export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricName, setBiometricName] = useState('Biometric');
   const login = useAuthStore((state) => state.login);
 
   const {
@@ -31,30 +39,110 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  useEffect(() => {
+    checkBiometricSupport();
+    attemptBiometricLogin();
+  }, []);
+
+  const checkBiometricSupport = async () => {
+    const capabilities = await checkBiometricCapabilities();
+    setBiometricAvailable(capabilities.isAvailable);
+    if (capabilities.isAvailable) {
+      const name = await getBiometricName();
+      setBiometricName(name);
+    }
+  };
+
+  const attemptBiometricLogin = async () => {
+    try {
+      const biometricEnabled = await AsyncStorage.getItem('biometric_enabled');
+      const savedCredentials = await AsyncStorage.getItem('saved_credentials');
+
+      if (biometricEnabled === 'true' && savedCredentials) {
+        const result = await authenticateWithBiometrics('Login with biometrics');
+        if (result.success) {
+          const credentials = JSON.parse(savedCredentials);
+          await performLogin(credentials.email, credentials.password);
+        }
+      }
+    } catch (err) {
+      // Silent fail - user can login manually
+    }
+  };
+
+  const performLogin = async (email: string, password: string) => {
     try {
       setError(null);
       setIsLoading(true);
 
-      // Login and get tokens
       const loginResponse = await authApi.login({
-        email: data.email,
-        password: data.password,
-        rememberMe: false,
+        email,
+        password,
       });
       const tokens = loginResponse.data;
 
-      // Get user profile
       const userResponse = await authApi.getCurrentUser();
       const user = userResponse.data;
 
-      // Save to store
       login(user, tokens.accessToken, tokens.refreshToken);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || 'Login failed. Please try again.');
+      throw err;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      await performLogin(data.email, data.password);
+
+      // Offer to enable biometric login
+      if (biometricAvailable) {
+        const biometricEnabled = await AsyncStorage.getItem('biometric_enabled');
+        if (biometricEnabled !== 'true') {
+          Alert.alert(
+            'Enable Biometric Login',
+            `Would you like to use ${biometricName} for faster login?`,
+            [
+              { text: 'Not Now', style: 'cancel' },
+              {
+                text: 'Enable',
+                onPress: async () => {
+                  await AsyncStorage.setItem('biometric_enabled', 'true');
+                  await AsyncStorage.setItem('saved_credentials', JSON.stringify(data));
+                },
+              },
+            ]
+          );
+        }
+      }
+    } catch (err) {
+      // Error already handled in performLogin
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    try {
+      const savedCredentials = await AsyncStorage.getItem('saved_credentials');
+      if (!savedCredentials) {
+        Alert.alert(
+          'Error',
+          'No saved credentials found. Please login with email and password first.'
+        );
+        return;
+      }
+
+      const result = await authenticateWithBiometrics('Login with biometrics');
+      if (result.success) {
+        const credentials = JSON.parse(savedCredentials);
+        await performLogin(credentials.email, credentials.password);
+      } else {
+        Alert.alert('Authentication Failed', result.error || 'Please try again');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Biometric login failed');
     }
   };
 
@@ -127,6 +215,18 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           Sign In
         </Button>
 
+        {biometricAvailable && (
+          <Button
+            mode="outlined"
+            onPress={handleBiometricLogin}
+            disabled={isLoading}
+            icon="fingerprint"
+            style={styles.biometricButton}
+          >
+            Login with {biometricName}
+          </Button>
+        )}
+
         <Button
           mode="text"
           onPress={() => navigation.navigate('ForgotPassword')}
@@ -184,6 +284,9 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
+  },
+  biometricButton: {
+    marginTop: 8,
   },
   linkButton: {
     marginTop: 8,

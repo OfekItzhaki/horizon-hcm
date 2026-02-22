@@ -8,8 +8,6 @@ import {
   Button,
   Typography,
   Link,
-  Checkbox,
-  FormControlLabel,
   Alert,
   CircularProgress,
 } from '@mui/material';
@@ -38,7 +36,6 @@ export default function LoginPage() {
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
     },
   });
 
@@ -132,18 +129,6 @@ export default function LoginPage() {
                   helperText={errors.password?.message}
                   disabled={isLoading}
                   autoComplete="current-password"
-                />
-              )}
-            />
-
-            {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
-            <Controller
-              name="rememberMe"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={<Checkbox {...field} checked={field.value} disabled={isLoading} />}
-                  label="Remember me"
                 />
               )}
             />
