@@ -11,10 +11,11 @@ export const authApi = {
   refreshToken: (refreshToken: string) =>
     apiClient.post<AuthTokens>('/auth/refresh', { refreshToken }),
 
-  requestPasswordReset: (email: string) => apiClient.post('/auth/forgot-password', { email }),
+  requestPasswordReset: (email: string) =>
+    apiClient.post('/auth/password-reset/request', { email }),
 
   resetPassword: (token: string, password: string) =>
-    apiClient.post('/auth/reset-password', { token, password }),
+    apiClient.post('/auth/password-reset/complete', { token, newPassword: password }),
 
   setup2FA: () => apiClient.post<{ qrCode: string; manualCode: string }>('/auth/2fa/setup'),
 
