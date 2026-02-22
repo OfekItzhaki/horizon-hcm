@@ -44,7 +44,7 @@ export default function BuildingsScreen({ navigation }: Props) {
             <Card.Content>
               <Text variant="titleLarge">{item.name}</Text>
               <Text variant="bodyMedium" style={styles.address}>
-                {item.address}
+                {typeof item.address === 'string' ? item.address : JSON.stringify(item.address)}
               </Text>
               <View style={styles.stats}>
                 <Text variant="bodySmall">{item.apartmentCount || 0} Apartments</Text>

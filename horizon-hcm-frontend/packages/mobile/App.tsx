@@ -6,9 +6,28 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { lightTheme } from './src/theme';
 import RootNavigator from './src/navigation/RootNavigator';
 import { configureAPIClient } from '@horizon-hcm/shared/src/api/client';
+import { useAuthStore } from '@horizon-hcm/shared';
 
-// Configure API client with backend URL
-configureAPIClient('http://localhost:3001/api');
+// Configure API client with backend URL and token management
+configureAPIClient({
+  baseURL: 'http://localhost:3001/api',
+  getTokens: () => {
+    const state = useAuthStore.getState();
+    return {
+      accessToken: state.accessToken || '',
+      refreshToken: state.refreshToken || '',
+    };
+  },
+  saveTokens: (tokens) => {
+    useAuthStore.getState().setTokens(tokens.accessToken, tokens.refreshToken);
+  },
+  clearTokens: () => {
+    useAuthStore.getState().logout();
+  },
+  onUnauthorized: () => {
+    useAuthStore.getState().logout();
+  },
+});
 
 // Create React Query client
 const queryClient = new QueryClient({

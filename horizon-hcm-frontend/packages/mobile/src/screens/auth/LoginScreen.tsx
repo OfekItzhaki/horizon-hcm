@@ -36,8 +36,16 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       setError(null);
       setIsLoading(true);
 
-      const response = await authApi.login(data.email, data.password);
-      login(response.data.accessToken, response.data.refreshToken, response.data.user);
+      // Login and get tokens
+      const loginResponse = await authApi.login({ email: data.email, password: data.password });
+      const tokens = loginResponse.data;
+
+      // Get user profile
+      const userResponse = await authApi.getCurrentUser();
+      const user = userResponse.data;
+
+      // Save to store
+      login(user, tokens.accessToken, tokens.refreshToken);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || 'Login failed. Please try again.');

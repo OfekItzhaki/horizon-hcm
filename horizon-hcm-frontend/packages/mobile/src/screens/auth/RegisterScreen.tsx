@@ -48,6 +48,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
         email: data.email,
         phone: data.phone,
         password: data.password,
+        acceptedTerms: true, // Mobile users implicitly accept terms by registering
       });
 
       navigation.navigate('Login');
