@@ -1,62 +1,94 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, Surface } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
-import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 import { authApi } from '@horizon-hcm/shared/src/api/auth';
 import type { AuthNavigationProp } from '../../types/navigation';
 
-interface LoginFormData {
+interface RegisterFormData {
+  name: string;
   email: string;
+  phone: string;
   password: string;
+  confirmPassword: string;
 }
 
-interface LoginScreenProps {
+interface RegisterScreenProps {
   navigation: AuthNavigationProp;
 }
 
-export default function LoginScreen({ navigation }: LoginScreenProps) {
+export default function RegisterScreen({ navigation }: RegisterScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const login = useAuthStore((state) => state.login);
 
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<LoginFormData>({
+  } = useForm<RegisterFormData>({
     defaultValues: {
+      name: '',
       email: '',
+      phone: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const password = watch('password');
+
+  const onSubmit = async (data: RegisterFormData) => {
     try {
       setError(null);
       setIsLoading(true);
 
-      const response = await authApi.login(data.email, data.password);
-      login(response.data.accessToken, response.data.refreshToken, response.data.user);
+      await authApi.register({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+      });
+
+      navigation.navigate('Login');
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Login failed. Please try again.');
+      setError(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Surface style={styles.surface} elevation={2}>
         <Text variant="headlineMedium" style={styles.title}>
-          Horizon HCM
+          Create Account
         </Text>
         <Text variant="bodyMedium" style={styles.subtitle}>
-          Sign in to continue
+          Sign up to get started
         </Text>
 
         {error && <Text style={styles.error}>{error}</Text>}
+
+        <Controller
+          control={control}
+          name="name"
+          rules={{ required: 'Name is required' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Full Name"
+              mode="outlined"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={!!errors.name}
+              disabled={isLoading}
+              style={styles.input}
+            />
+          )}
+        />
+        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
         <Controller
           control={control}
@@ -87,8 +119,34 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
         <Controller
           control={control}
+          name="phone"
+          rules={{ required: 'Phone is required' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Phone"
+              mode="outlined"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={!!errors.phone}
+              keyboardType="phone-pad"
+              disabled={isLoading}
+              style={styles.input}
+            />
+          )}
+        />
+        {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
+
+        <Controller
+          control={control}
           name="password"
-          rules={{ required: 'Password is required' }}
+          rules={{
+            required: 'Password is required',
+            minLength: {
+              value: 8,
+              message: 'Password must be at least 8 characters',
+            },
+          }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               label="Password"
@@ -105,6 +163,31 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         />
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
+        <Controller
+          control={control}
+          name="confirmPassword"
+          rules={{
+            required: 'Please confirm your password',
+            validate: (value) => value === password || 'Passwords do not match',
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Confirm Password"
+              mode="outlined"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={!!errors.confirmPassword}
+              secureTextEntry
+              disabled={isLoading}
+              style={styles.input}
+            />
+          )}
+        />
+        {errors.confirmPassword && (
+          <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
+        )}
+
         <Button
           mode="contained"
           onPress={handleSubmit(onSubmit)}
@@ -112,39 +195,30 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           disabled={isLoading}
           style={styles.button}
         >
-          Sign In
+          Sign Up
         </Button>
 
         <Button
           mode="text"
-          onPress={() => navigation.navigate('ForgotPassword')}
+          onPress={() => navigation.navigate('Login')}
           disabled={isLoading}
           style={styles.linkButton}
         >
-          Forgot Password?
-        </Button>
-
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Register')}
-          disabled={isLoading}
-          style={styles.linkButton}
-        >
-          Don&apos;t have an account? Sign Up
+          Already have an account? Sign In
         </Button>
       </Surface>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 16,
     backgroundColor: '#f5f5f5',
   },
   surface: {
+    margin: 16,
+    marginTop: 40,
     padding: 24,
     borderRadius: 8,
   },

@@ -2,58 +2,78 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, Surface } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
-import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 import { authApi } from '@horizon-hcm/shared/src/api/auth';
 import type { AuthNavigationProp } from '../../types/navigation';
 
-interface LoginFormData {
+interface ForgotPasswordFormData {
   email: string;
-  password: string;
 }
 
-interface LoginScreenProps {
+interface ForgotPasswordScreenProps {
   navigation: AuthNavigationProp;
 }
 
-export default function LoginScreen({ navigation }: LoginScreenProps) {
+export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const login = useAuthStore((state) => state.login);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
+  } = useForm<ForgotPasswordFormData>({
     defaultValues: {
       email: '',
-      password: '',
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       setError(null);
       setIsLoading(true);
 
-      const response = await authApi.login(data.email, data.password);
-      login(response.data.accessToken, response.data.refreshToken, response.data.user);
+      await authApi.requestPasswordReset(data.email);
+      setIsSuccess(true);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Login failed. Please try again.');
+      setError(error.response?.data?.message || 'Failed to send reset email. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (isSuccess) {
+    return (
+      <View style={styles.container}>
+        <Surface style={styles.surface} elevation={2}>
+          <Text variant="headlineMedium" style={styles.title}>
+            Check Your Email
+          </Text>
+          <Text variant="bodyMedium" style={styles.successText}>
+            We&apos;ve sent a password reset link to your email. Please check your inbox and follow
+            the instructions.
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('Login')}
+            style={styles.button}
+          >
+            Back to Login
+          </Button>
+        </Surface>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Surface style={styles.surface} elevation={2}>
         <Text variant="headlineMedium" style={styles.title}>
-          Horizon HCM
+          Reset Password
         </Text>
         <Text variant="bodyMedium" style={styles.subtitle}>
-          Sign in to continue
+          Enter your email address and we&apos;ll send you a link to reset your password.
         </Text>
 
         {error && <Text style={styles.error}>{error}</Text>}
@@ -85,26 +105,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-        <Controller
-          control={control}
-          name="password"
-          rules={{ required: 'Password is required' }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Password"
-              mode="outlined"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={!!errors.password}
-              secureTextEntry
-              disabled={isLoading}
-              style={styles.input}
-            />
-          )}
-        />
-        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
-
         <Button
           mode="contained"
           onPress={handleSubmit(onSubmit)}
@@ -112,25 +112,16 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           disabled={isLoading}
           style={styles.button}
         >
-          Sign In
+          Send Reset Link
         </Button>
 
         <Button
           mode="text"
-          onPress={() => navigation.navigate('ForgotPassword')}
+          onPress={() => navigation.navigate('Login')}
           disabled={isLoading}
           style={styles.linkButton}
         >
-          Forgot Password?
-        </Button>
-
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Register')}
-          disabled={isLoading}
-          style={styles.linkButton}
-        >
-          Don&apos;t have an account? Sign Up
+          Back to Login
         </Button>
       </Surface>
     </View>
@@ -153,6 +144,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
+    textAlign: 'center',
+    marginBottom: 24,
+    color: '#757575',
+  },
+  successText: {
     textAlign: 'center',
     marginBottom: 24,
     color: '#757575',
