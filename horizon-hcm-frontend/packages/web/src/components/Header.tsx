@@ -10,8 +10,10 @@ import {
   Divider,
   ListItemIcon,
   Popover,
+  Tooltip,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -24,6 +26,7 @@ import { useUnreadCount } from '../hooks/useNotifications';
 import { BuildingSelector } from './BuildingSelector';
 import { NotificationPanel } from './NotificationPanel';
 import { LanguageSelector } from './LanguageSelector';
+import { GlobalSearch } from './GlobalSearch';
 
 export function Header() {
   const navigate = useNavigate();
@@ -34,6 +37,7 @@ export function Header() {
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Fetch unread count on mount and periodically
   useUnreadCount();
@@ -82,6 +86,13 @@ export function Header() {
 
       {/* Language Selector */}
       <LanguageSelector />
+
+      {/* Global Search */}
+      <Tooltip title="Search (Ctrl+K)">
+        <IconButton color="inherit" onClick={() => setSearchOpen(true)}>
+          <SearchIcon />
+        </IconButton>
+      </Tooltip>
 
       {/* Theme Toggle */}
       <IconButton onClick={handleThemeToggle} color="inherit">
@@ -157,6 +168,9 @@ export function Header() {
           Logout
         </MenuItem>
       </Menu>
+
+      {/* Global Search Dialog */}
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </Box>
   );
 }

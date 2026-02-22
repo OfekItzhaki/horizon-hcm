@@ -63,6 +63,12 @@ export function Sidebar({ onClose }: SidebarProps) {
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER],
       },
       {
+        label: 'Apartments',
+        path: '/apartments',
+        icon: <ApartmentIcon />,
+        roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER],
+      },
+      {
         label: 'Residents',
         path: '/residents',
         icon: <PeopleIcon />,
