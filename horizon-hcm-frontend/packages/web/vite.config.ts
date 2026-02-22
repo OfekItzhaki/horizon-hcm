@@ -28,14 +28,24 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'mui-vendor': ['@mui/material', '@mui/icons-material'],
           'query-vendor': ['@tanstack/react-query', 'axios'],
+          'form-vendor': ['react-hook-form', 'zod'],
+          'chart-vendor': ['recharts'],
         },
       },
     },
+    chunkSizeWarningLimit: 500,
   },
 });
