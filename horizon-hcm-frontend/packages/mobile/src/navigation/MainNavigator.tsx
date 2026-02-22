@@ -17,6 +17,7 @@ import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetai
 import MaintenanceScreen from '../screens/maintenance/MaintenanceScreen';
 import MaintenanceDetailScreen from '../screens/maintenance/MaintenanceDetailScreen';
 import MaintenanceFormScreen from '../screens/maintenance/MaintenanceFormScreen';
+import SettingsScreen from '../screens/settings/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -81,6 +82,7 @@ function CommunicationStack() {
         component={MaintenanceFormScreen}
         options={{ title: 'New Request' }}
       />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
     </Stack.Navigator>
   );
 }
