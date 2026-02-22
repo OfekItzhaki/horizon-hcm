@@ -12,6 +12,7 @@ import InvoicesScreen from '../screens/invoices/InvoicesScreen';
 import InvoiceDetailScreen from '../screens/invoices/InvoiceDetailScreen';
 import PaymentsScreen from '../screens/payments/PaymentsScreen';
 import PaymentFormScreen from '../screens/payments/PaymentFormScreen';
+import ReportsScreen from '../screens/reports/ReportsScreen';
 import AnnouncementsScreen from '../screens/announcements/AnnouncementsScreen';
 import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetailScreen';
 import MaintenanceScreen from '../screens/maintenance/MaintenanceScreen';
@@ -112,6 +113,7 @@ function FinanceStack() {
         component={PaymentsScreen}
         options={{ title: 'Payments' }}
       />
+      <Stack.Screen name="ReportsList" component={ReportsScreen} options={{ title: 'Reports' }} />
     </Stack.Navigator>
   );
 }

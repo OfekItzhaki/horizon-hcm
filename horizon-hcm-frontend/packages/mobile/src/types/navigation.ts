@@ -39,6 +39,7 @@ export type FinanceStackParamList = {
   };
   PaymentForm: { invoice: { id: string; number: string; description: string; amount: number } };
   PaymentsList: undefined;
+  ReportsList: undefined;
 };
 
 export type CommunicationStackParamList = {
