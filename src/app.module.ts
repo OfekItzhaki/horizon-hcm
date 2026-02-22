@@ -63,8 +63,12 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
         limit: 100, // 100 requests per minute
       },
     ]),
-    // HorizonAuthModule now uses ENV variables automatically!
-    HorizonAuthModule.forRoot(),
+    // HorizonAuthModule with explicit database configuration
+    HorizonAuthModule.forRoot({
+      database: {
+        url: process.env.DATABASE_URL,
+      },
+    }),
     LoggerModule,
     CommonModule,
     BuildingsModule,
@@ -86,8 +90,6 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(CorrelationIdMiddleware, ApiVersioningMiddleware)
-      .forRoutes('*');
+    consumer.apply(CorrelationIdMiddleware, ApiVersioningMiddleware).forRoutes('*');
   }
 }
