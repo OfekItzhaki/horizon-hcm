@@ -15,7 +15,7 @@ export default function PaymentsScreen({ navigation }: PaymentsScreenProps) {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['payments', selectedBuildingId],
-    queryFn: () => paymentsApi.getAll(selectedBuildingId!),
+    queryFn: () => paymentsApi.getAll({ buildingId: selectedBuildingId }),
     enabled: !!selectedBuildingId,
   });
 

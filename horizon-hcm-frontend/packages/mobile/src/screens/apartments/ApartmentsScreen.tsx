@@ -16,18 +16,17 @@ export default function ApartmentsScreen({ navigation }: ApartmentsScreenProps) 
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['apartments', selectedBuildingId, statusFilter],
-    queryFn: () =>
-      apartmentsApi.getAll(selectedBuildingId!, {
-        status: statusFilter === 'all' ? undefined : statusFilter,
-      }),
+    queryKey: ['apartments', selectedBuildingId],
+    queryFn: () => apartmentsApi.getByBuilding(selectedBuildingId!),
     enabled: !!selectedBuildingId,
   });
 
   const apartments = data?.data || [];
-  const filteredApartments = apartments.filter((apt) =>
-    apt.unitNumber.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredApartments = apartments.filter((apt: { unitNumber: string; status: string }) => {
+    const matchesSearch = apt.unitNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {

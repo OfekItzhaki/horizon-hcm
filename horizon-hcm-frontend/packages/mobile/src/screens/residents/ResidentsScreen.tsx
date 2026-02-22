@@ -16,7 +16,7 @@ export default function ResidentsScreen({ navigation }: ResidentsScreenProps) {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['residents', selectedBuildingId],
-    queryFn: () => residentsApi.getAll(selectedBuildingId!),
+    queryFn: () => residentsApi.getByBuilding(selectedBuildingId!),
     enabled: !!selectedBuildingId,
   });
 

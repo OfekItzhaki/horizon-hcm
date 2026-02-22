@@ -17,7 +17,8 @@ export default function InvoicesScreen({ navigation }: Props) {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['invoices', selectedBuildingId, statusFilter],
     queryFn: () =>
-      invoicesApi.getAll(selectedBuildingId!, {
+      invoicesApi.getAll({
+        buildingId: selectedBuildingId,
         status: statusFilter === 'all' ? undefined : statusFilter,
       }),
     enabled: !!selectedBuildingId,
