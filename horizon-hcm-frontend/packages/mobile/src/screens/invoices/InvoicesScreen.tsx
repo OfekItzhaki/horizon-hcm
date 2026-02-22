@@ -4,13 +4,12 @@ import { Text, Card, Chip, Searchbar, SegmentedButtons } from 'react-native-pape
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { invoicesApi } from '@horizon-hcm/shared/src/api/financial';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { FinanceStackParamList } from '../../types/navigation';
 
-interface InvoicesScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<FinanceStackParamList, 'InvoicesList'>;
 
-export default function InvoicesScreen({ navigation }: InvoicesScreenProps) {
+export default function InvoicesScreen({ navigation }: Props) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('all');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
@@ -72,7 +71,7 @@ export default function InvoicesScreen({ navigation }: InvoicesScreenProps) {
         renderItem={({ item }) => (
           <Card
             style={styles.card}
-            onPress={() => navigation.navigate('InvoiceDetail', { invoiceId: item.id })}
+            onPress={() => navigation.navigate('InvoiceDetail', { invoice: item })}
           >
             <Card.Content>
               <View style={styles.header}>

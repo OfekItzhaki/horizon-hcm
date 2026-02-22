@@ -4,13 +4,12 @@ import { Text, Card, Chip, SegmentedButtons } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { announcementsApi } from '@horizon-hcm/shared/src/api/communication';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CommunicationStackParamList } from '../../types/navigation';
 
-interface AnnouncementsScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<CommunicationStackParamList, 'AnnouncementsList'>;
 
-export default function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
+export default function AnnouncementsScreen({ navigation }: Props) {
   const [priorityFilter, setPriorityFilter] = React.useState('all');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
@@ -59,7 +58,7 @@ export default function AnnouncementsScreen({ navigation }: AnnouncementsScreenP
         renderItem={({ item }) => (
           <Card
             style={styles.card}
-            onPress={() => navigation.navigate('AnnouncementDetail', { announcementId: item.id })}
+            onPress={() => navigation.navigate('AnnouncementDetail', { announcement: item })}
           >
             <Card.Content>
               <View style={styles.header}>

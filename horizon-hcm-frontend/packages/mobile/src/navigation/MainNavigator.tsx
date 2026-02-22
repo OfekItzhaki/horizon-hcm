@@ -4,12 +4,19 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import BuildingsScreen from '../screens/buildings/BuildingsScreen';
+import BuildingDetailScreen from '../screens/buildings/BuildingDetailScreen';
+import BuildingFormScreen from '../screens/buildings/BuildingFormScreen';
 import ApartmentsScreen from '../screens/apartments/ApartmentsScreen';
 import ResidentsScreen from '../screens/residents/ResidentsScreen';
 import InvoicesScreen from '../screens/invoices/InvoicesScreen';
+import InvoiceDetailScreen from '../screens/invoices/InvoiceDetailScreen';
 import PaymentsScreen from '../screens/payments/PaymentsScreen';
+import PaymentFormScreen from '../screens/payments/PaymentFormScreen';
 import AnnouncementsScreen from '../screens/announcements/AnnouncementsScreen';
+import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetailScreen';
 import MaintenanceScreen from '../screens/maintenance/MaintenanceScreen';
+import MaintenanceDetailScreen from '../screens/maintenance/MaintenanceDetailScreen';
+import MaintenanceFormScreen from '../screens/maintenance/MaintenanceFormScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -21,6 +28,16 @@ function BuildingsStack() {
         name="BuildingsList"
         component={BuildingsScreen}
         options={{ title: 'Buildings' }}
+      />
+      <Stack.Screen
+        name="BuildingDetail"
+        component={BuildingDetailScreen}
+        options={{ title: 'Building Details' }}
+      />
+      <Stack.Screen
+        name="BuildingForm"
+        component={BuildingFormScreen}
+        options={{ title: 'Building Form' }}
       />
       <Stack.Screen
         name="ApartmentsList"
@@ -45,9 +62,24 @@ function CommunicationStack() {
         options={{ title: 'Announcements' }}
       />
       <Stack.Screen
+        name="AnnouncementDetail"
+        component={AnnouncementDetailScreen}
+        options={{ title: 'Announcement' }}
+      />
+      <Stack.Screen
         name="MaintenanceList"
         component={MaintenanceScreen}
         options={{ title: 'Maintenance' }}
+      />
+      <Stack.Screen
+        name="MaintenanceDetail"
+        component={MaintenanceDetailScreen}
+        options={{ title: 'Request Details' }}
+      />
+      <Stack.Screen
+        name="MaintenanceForm"
+        component={MaintenanceFormScreen}
+        options={{ title: 'New Request' }}
       />
     </Stack.Navigator>
   );
@@ -60,6 +92,16 @@ function FinanceStack() {
         name="InvoicesList"
         component={InvoicesScreen}
         options={{ title: 'Invoices' }}
+      />
+      <Stack.Screen
+        name="InvoiceDetail"
+        component={InvoiceDetailScreen}
+        options={{ title: 'Invoice Details' }}
+      />
+      <Stack.Screen
+        name="PaymentForm"
+        component={PaymentFormScreen}
+        options={{ title: 'Make Payment' }}
       />
       <Stack.Screen
         name="PaymentsList"

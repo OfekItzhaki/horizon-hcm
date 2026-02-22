@@ -4,13 +4,12 @@ import { Text, Card, Chip, FAB, SegmentedButtons } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { maintenanceApi } from '@horizon-hcm/shared/src/api/maintenance';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CommunicationStackParamList } from '../../types/navigation';
 
-interface MaintenanceScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<CommunicationStackParamList, 'MaintenanceList'>;
 
-export default function MaintenanceScreen({ navigation }: MaintenanceScreenProps) {
+export default function MaintenanceScreen({ navigation }: Props) {
   const [statusFilter, setStatusFilter] = React.useState('all');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
@@ -76,7 +75,7 @@ export default function MaintenanceScreen({ navigation }: MaintenanceScreenProps
         renderItem={({ item }) => (
           <Card
             style={styles.card}
-            onPress={() => navigation.navigate('MaintenanceDetail', { maintenanceId: item.id })}
+            onPress={() => navigation.navigate('MaintenanceDetail', { request: item })}
           >
             <Card.Content>
               <View style={styles.header}>

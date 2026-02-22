@@ -4,13 +4,12 @@ import { Text, Card, Searchbar, FAB } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { buildingsApi } from '@horizon-hcm/shared/src/api/buildings';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BuildingsStackParamList } from '../../types/navigation';
 
-interface BuildingsScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<BuildingsStackParamList, 'BuildingsList'>;
 
-export default function BuildingsScreen({ navigation }: BuildingsScreenProps) {
+export default function BuildingsScreen({ navigation }: Props) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
@@ -40,7 +39,7 @@ export default function BuildingsScreen({ navigation }: BuildingsScreenProps) {
         renderItem={({ item }) => (
           <Card
             style={[styles.card, item.id === selectedBuildingId && styles.selectedCard]}
-            onPress={() => navigation.navigate('BuildingDetail', { buildingId: item.id })}
+            onPress={() => navigation.navigate('BuildingDetail', { building: item })}
           >
             <Card.Content>
               <Text variant="titleLarge">{item.name}</Text>
@@ -62,7 +61,7 @@ export default function BuildingsScreen({ navigation }: BuildingsScreenProps) {
         }
       />
 
-      <FAB icon="plus" style={styles.fab} onPress={() => navigation.navigate('BuildingForm')} />
+      <FAB icon="plus" style={styles.fab} onPress={() => navigation.navigate('BuildingForm', {})} />
     </View>
   );
 }
