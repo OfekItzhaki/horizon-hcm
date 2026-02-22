@@ -47,12 +47,12 @@ export const getPriorityColor = (priority: string): string => {
 
 export const getApartmentStatusColor = (status: string): string => {
   switch (status) {
-    case 'occupied':
+    case 'owner_occupied':
+      return '#2196f3';
+    case 'tenant_occupied':
       return '#4caf50';
     case 'vacant':
       return '#ff9800';
-    case 'maintenance':
-      return '#f44336';
     default:
       return '#757575';
   }

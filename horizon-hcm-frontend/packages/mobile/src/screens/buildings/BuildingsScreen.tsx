@@ -6,6 +6,7 @@ import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { buildingsApi } from '@horizon-hcm/shared/src/api/buildings';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BuildingsStackParamList } from '../../types/navigation';
+import { EmptyState } from '../../components';
 
 type Props = NativeStackScreenProps<BuildingsStackParamList, 'BuildingsList'>;
 
@@ -54,11 +55,7 @@ export default function BuildingsScreen({ navigation }: Props) {
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No buildings found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No buildings found" icon="office-building" />}
       />
 
       <FAB icon="plus" style={styles.fab} onPress={() => navigation.navigate('BuildingForm', {})} />
@@ -89,12 +86,6 @@ const styles = StyleSheet.create({
   stats: {
     flexDirection: 'row',
     marginTop: 8,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
   fab: {
     position: 'absolute',

@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Chip, Searchbar, SegmentedButtons } from 'react-native-paper';
+import { Text, Card, Searchbar, SegmentedButtons } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { apartmentsApi } from '@horizon-hcm/shared/src/api/buildings';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BuildingsStackParamList } from '../../types/navigation';
+import { StatusChip, EmptyState } from '../../components';
+import { getApartmentStatusColor } from '../../utils';
 
-interface ApartmentsScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<BuildingsStackParamList, 'ApartmentsList'>;
 
-export default function ApartmentsScreen({ navigation }: ApartmentsScreenProps) {
+export default function ApartmentsScreen({ navigation: _navigation }: Props) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('all');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
@@ -22,24 +23,11 @@ export default function ApartmentsScreen({ navigation }: ApartmentsScreenProps) 
   });
 
   const apartments = data?.data || [];
-  const filteredApartments = apartments.filter((apt: { unitNumber: string; status: string }) => {
+  const filteredApartments = apartments.filter((apt) => {
     const matchesSearch = apt.unitNumber.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || apt.occupancyStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'occupied':
-        return '#4caf50';
-      case 'vacant':
-        return '#ff9800';
-      case 'maintenance':
-        return '#f44336';
-      default:
-        return '#757575';
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -55,8 +43,9 @@ export default function ApartmentsScreen({ navigation }: ApartmentsScreenProps) 
         onValueChange={setStatusFilter}
         buttons={[
           { value: 'all', label: 'All' },
-          { value: 'occupied', label: 'Occupied' },
           { value: 'vacant', label: 'Vacant' },
+          { value: 'owner_occupied', label: 'Owner' },
+          { value: 'tenant_occupied', label: 'Tenant' },
         ]}
         style={styles.segmented}
       />
@@ -66,35 +55,22 @@ export default function ApartmentsScreen({ navigation }: ApartmentsScreenProps) 
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         renderItem={({ item }) => (
-          <Card
-            style={styles.card}
-            onPress={() => navigation.navigate('ApartmentDetail', { apartmentId: item.id })}
-          >
+          <Card style={styles.card}>
             <Card.Content>
               <View style={styles.header}>
                 <Text variant="titleLarge">Unit {item.unitNumber}</Text>
-                <Chip
-                  mode="flat"
-                  style={{ backgroundColor: getStatusColor(item.status) }}
-                  textStyle={{ color: '#fff' }}
-                >
-                  {item.status}
-                </Chip>
+                <StatusChip status={item.occupancyStatus} getColor={getApartmentStatusColor} />
               </View>
               <Text variant="bodyMedium" style={styles.floor}>
                 Floor {item.floor}
               </Text>
               <Text variant="bodySmall" style={styles.size}>
-                {item.size} sqm • {item.bedrooms} bed • {item.bathrooms} bath
+                {item.size} sqm
               </Text>
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No apartments found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No apartments found" icon="office-building" />}
       />
     </View>
   );
@@ -130,11 +106,5 @@ const styles = StyleSheet.create({
   size: {
     marginTop: 4,
     color: '#757575',
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
 });

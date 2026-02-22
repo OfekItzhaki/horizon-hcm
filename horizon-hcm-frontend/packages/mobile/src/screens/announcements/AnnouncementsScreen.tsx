@@ -6,6 +6,8 @@ import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { announcementsApi } from '@horizon-hcm/shared/src/api/communication';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
+import { StatusChip, EmptyState } from '../../components';
+import { getPriorityColor } from '../../utils';
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'AnnouncementsList'>;
 
@@ -13,7 +15,11 @@ export default function AnnouncementsScreen({ navigation }: Props) {
   const [priorityFilter, setPriorityFilter] = React.useState('all');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
-  const { data, isLoading, refetch } = useQuery({
+  const {
+    data: response,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['announcements', selectedBuildingId, priorityFilter],
     queryFn: () =>
       announcementsApi.getAll(selectedBuildingId!, {
@@ -22,20 +28,7 @@ export default function AnnouncementsScreen({ navigation }: Props) {
     enabled: !!selectedBuildingId,
   });
 
-  const announcements = data?.data || [];
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return '#f44336';
-      case 'normal':
-        return '#2196f3';
-      case 'low':
-        return '#757575';
-      default:
-        return '#757575';
-    }
-  };
+  const announcements = response?.data.data || [];
 
   return (
     <View style={styles.container}>
@@ -65,13 +58,7 @@ export default function AnnouncementsScreen({ navigation }: Props) {
                 <Text variant="titleMedium" style={styles.title}>
                   {item.title}
                 </Text>
-                <Chip
-                  mode="flat"
-                  style={{ backgroundColor: getPriorityColor(item.priority) }}
-                  textStyle={{ color: '#fff' }}
-                >
-                  {item.priority}
-                </Chip>
+                <StatusChip status={item.priority} getColor={getPriorityColor} />
               </View>
               <Text variant="bodyMedium" numberOfLines={2} style={styles.content}>
                 {item.content}
@@ -87,11 +74,7 @@ export default function AnnouncementsScreen({ navigation }: Props) {
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No announcements found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No announcements found" icon="bullhorn" />}
       />
     </View>
   );
@@ -130,11 +113,5 @@ const styles = StyleSheet.create({
   confirmChip: {
     marginTop: 8,
     alignSelf: 'flex-start',
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
 });

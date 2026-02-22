@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Chip } from 'react-native-paper';
+import { Text, Card } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { paymentsApi } from '@horizon-hcm/shared/src/api/financial';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { FinanceStackParamList } from '../../types/navigation';
+import { StatusChip, EmptyState } from '../../components';
+import { getPaymentMethodColor } from '../../utils';
 
-interface PaymentsScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<FinanceStackParamList, 'PaymentsList'>;
 
-export default function PaymentsScreen({ navigation }: PaymentsScreenProps) {
+export default function PaymentsScreen({ navigation: _navigation }: Props) {
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
   const { data, isLoading, refetch } = useQuery({
@@ -21,19 +22,6 @@ export default function PaymentsScreen({ navigation }: PaymentsScreenProps) {
 
   const payments = data?.data || [];
 
-  const getMethodColor = (method: string) => {
-    switch (method) {
-      case 'credit_card':
-        return '#2196f3';
-      case 'bank_transfer':
-        return '#4caf50';
-      case 'cash':
-        return '#ff9800';
-      default:
-        return '#757575';
-    }
-  };
-
   return (
     <View style={styles.container}>
       <FlatList
@@ -41,20 +29,11 @@ export default function PaymentsScreen({ navigation }: PaymentsScreenProps) {
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         renderItem={({ item }) => (
-          <Card
-            style={styles.card}
-            onPress={() => navigation.navigate('PaymentDetail', { paymentId: item.id })}
-          >
+          <Card style={styles.card}>
             <Card.Content>
               <View style={styles.header}>
                 <Text variant="titleMedium">Payment #{item.transactionId}</Text>
-                <Chip
-                  mode="flat"
-                  style={{ backgroundColor: getMethodColor(item.method) }}
-                  textStyle={{ color: '#fff' }}
-                >
-                  {item.method.replace('_', ' ')}
-                </Chip>
+                <StatusChip status={item.method} getColor={getPaymentMethodColor} />
               </View>
               <Text variant="headlineSmall" style={styles.amount}>
                 ${item.amount.toFixed(2)}
@@ -65,11 +44,7 @@ export default function PaymentsScreen({ navigation }: PaymentsScreenProps) {
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No payments found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No payments found" icon="credit-card" />}
       />
     </View>
   );
@@ -97,11 +72,5 @@ const styles = StyleSheet.create({
   date: {
     marginTop: 4,
     color: '#757575',
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
 });

@@ -1,15 +1,19 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, Icon } from 'react-native-paper';
 
 interface EmptyStateProps {
   message: string;
+  icon?: string;
 }
 
-export default function EmptyState({ message }: EmptyStateProps) {
+export default function EmptyState({ message, icon }: EmptyStateProps) {
   return (
     <View style={styles.container}>
-      <Text variant="bodyLarge">{message}</Text>
+      {icon && <Icon source={icon} size={48} color="#9e9e9e" />}
+      <Text variant="bodyLarge" style={styles.message}>
+        {message}
+      </Text>
     </View>
   );
 }
@@ -20,5 +24,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
+  },
+  message: {
+    marginTop: icon ? 16 : 0,
   },
 });

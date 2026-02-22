@@ -1,16 +1,26 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Chip, Searchbar, Avatar } from 'react-native-paper';
+import { Text, Card, Searchbar, Avatar } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { residentsApi } from '@horizon-hcm/shared/src/api/buildings';
-import type { MainNavigationProp } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BuildingsStackParamList } from '../../types/navigation';
+import { StatusChip, EmptyState } from '../../components';
+import { getResidentRoleColor } from '../../utils';
 
-interface ResidentsScreenProps {
-  navigation: MainNavigationProp;
-}
+type Props = NativeStackScreenProps<BuildingsStackParamList, 'ResidentsList'>;
 
-export default function ResidentsScreen({ navigation }: ResidentsScreenProps) {
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+export default function ResidentsScreen({ navigation: _navigation }: Props) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
 
@@ -27,28 +37,6 @@ export default function ResidentsScreen({ navigation }: ResidentsScreenProps) {
       resident.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return '#2196f3';
-      case 'tenant':
-        return '#4caf50';
-      case 'committee_member':
-        return '#ff9800';
-      default:
-        return '#757575';
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <View style={styles.container}>
       <Searchbar
@@ -63,10 +51,7 @@ export default function ResidentsScreen({ navigation }: ResidentsScreenProps) {
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         renderItem={({ item }) => (
-          <Card
-            style={styles.card}
-            onPress={() => navigation.navigate('ResidentDetail', { residentId: item.id })}
-          >
+          <Card style={styles.card}>
             <Card.Content>
               <View style={styles.row}>
                 <Avatar.Text size={48} label={getInitials(item.name)} />
@@ -76,24 +61,14 @@ export default function ResidentsScreen({ navigation }: ResidentsScreenProps) {
                     {item.email}
                   </Text>
                   <View style={styles.chips}>
-                    <Chip
-                      mode="flat"
-                      style={{ backgroundColor: getRoleColor(item.role) }}
-                      textStyle={{ color: '#fff' }}
-                    >
-                      {item.role.replace('_', ' ')}
-                    </Chip>
+                    <StatusChip status={item.role} getColor={getResidentRoleColor} />
                   </View>
                 </View>
               </View>
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No residents found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No residents found" icon="account-group" />}
       />
     </View>
   );
@@ -126,11 +101,5 @@ const styles = StyleSheet.create({
   chips: {
     flexDirection: 'row',
     marginTop: 8,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
 });
