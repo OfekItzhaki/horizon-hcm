@@ -12,7 +12,7 @@
     "build:web": "npm run build --workspace=@horizon-hcm/web",
     "build:mobile": "npm run build --workspace=@horizon-hcm/mobile",
     "build:shared": "npm run build --workspace=@horizon-hcm/shared",
-    "build": "npm run build:shared && npm run build:web && npm run build:mobile",
+    "build": "npm run build:shared && npm run build:web",
     "test": "npm run test --workspaces --if-present",
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",

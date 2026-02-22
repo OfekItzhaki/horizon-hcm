@@ -1,7 +1,8 @@
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import type { APIError, AuthTokens } from '../types';
 
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3001';
+// Default API base URL - can be overridden via configureAPIClient
+let API_BASE_URL = 'http://localhost:3001';
 
 // Token storage utilities (to be implemented by platform)
 let getTokens: (() => AuthTokens | null) | undefined;
@@ -9,17 +10,25 @@ let saveTokens: ((tokens: AuthTokens) => void) | undefined;
 let clearTokens: (() => void) | undefined;
 let onUnauthorized: (() => void) | undefined;
 
-export const configureTokenStorage = (config: {
+export const configureAPIClient = (config: {
+  baseURL?: string;
   getTokens: () => AuthTokens | null;
   saveTokens: (tokens: AuthTokens) => void;
   clearTokens: () => void;
   onUnauthorized: () => void;
 }) => {
+  if (config.baseURL) {
+    API_BASE_URL = config.baseURL;
+    apiClient.defaults.baseURL = config.baseURL;
+  }
   getTokens = config.getTokens;
   saveTokens = config.saveTokens;
   clearTokens = config.clearTokens;
   onUnauthorized = config.onUnauthorized;
 };
+
+// Legacy alias for backward compatibility
+export const configureTokenStorage = configureAPIClient;
 
 // Create Axios instance
 export const apiClient: AxiosInstance = axios.create({
