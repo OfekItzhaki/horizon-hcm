@@ -37,7 +37,11 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       setIsLoading(true);
 
       // Login and get tokens
-      const loginResponse = await authApi.login({ email: data.email, password: data.password });
+      const loginResponse = await authApi.login({
+        email: data.email,
+        password: data.password,
+        rememberMe: false,
+      });
       const tokens = loginResponse.data;
 
       // Get user profile

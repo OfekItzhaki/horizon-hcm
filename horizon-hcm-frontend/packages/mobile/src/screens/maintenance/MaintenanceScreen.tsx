@@ -6,6 +6,8 @@ import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { maintenanceApi } from '@horizon-hcm/shared/src/api/maintenance';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
+import { EmptyState } from '../../components';
+import { getMaintenanceStatusColor, getPriorityColor } from '../../utils';
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'MaintenanceList'>;
 
@@ -23,36 +25,6 @@ export default function MaintenanceScreen({ navigation }: Props) {
   });
 
   const requests = data?.data || [];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return '#ff9800';
-      case 'in_progress':
-        return '#2196f3';
-      case 'completed':
-        return '#4caf50';
-      case 'cancelled':
-        return '#757575';
-      default:
-        return '#757575';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return '#f44336';
-      case 'high':
-        return '#ff9800';
-      case 'medium':
-        return '#2196f3';
-      case 'low':
-        return '#757575';
-      default:
-        return '#757575';
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -84,7 +56,7 @@ export default function MaintenanceScreen({ navigation }: Props) {
                 </Text>
                 <Chip
                   mode="flat"
-                  style={{ backgroundColor: getStatusColor(item.status) }}
+                  style={{ backgroundColor: getMaintenanceStatusColor(item.status) }}
                   textStyle={{ color: '#fff' }}
                 >
                   {item.status.replace('_', ' ')}
@@ -108,11 +80,7 @@ export default function MaintenanceScreen({ navigation }: Props) {
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No maintenance requests found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No maintenance requests found" />}
       />
 
       <FAB icon="plus" style={styles.fab} onPress={() => navigation.navigate('MaintenanceForm')} />
@@ -154,12 +122,6 @@ const styles = StyleSheet.create({
   },
   tracking: {
     color: '#757575',
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
   fab: {
     position: 'absolute',

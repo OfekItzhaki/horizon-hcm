@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Chip, Searchbar, SegmentedButtons } from 'react-native-paper';
+import { Text, Card, Searchbar, SegmentedButtons } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { invoicesApi } from '@horizon-hcm/shared/src/api/financial';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FinanceStackParamList } from '../../types/navigation';
+import { StatusChip, EmptyState } from '../../components';
+import { getInvoiceStatusColor } from '../../utils';
 
 type Props = NativeStackScreenProps<FinanceStackParamList, 'InvoicesList'>;
 
@@ -28,21 +30,6 @@ export default function InvoicesScreen({ navigation }: Props) {
   const filteredInvoices = invoices.filter((invoice) =>
     invoice.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return '#4caf50';
-      case 'pending':
-        return '#ff9800';
-      case 'overdue':
-        return '#f44336';
-      case 'cancelled':
-        return '#757575';
-      default:
-        return '#757575';
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -77,13 +64,7 @@ export default function InvoicesScreen({ navigation }: Props) {
             <Card.Content>
               <View style={styles.header}>
                 <Text variant="titleMedium">{item.description}</Text>
-                <Chip
-                  mode="flat"
-                  style={{ backgroundColor: getStatusColor(item.status) }}
-                  textStyle={{ color: '#fff' }}
-                >
-                  {item.status}
-                </Chip>
+                <StatusChip status={item.status} getColor={getInvoiceStatusColor} />
               </View>
               <Text variant="headlineSmall" style={styles.amount}>
                 ${item.amount.toFixed(2)}
@@ -94,11 +75,7 @@ export default function InvoicesScreen({ navigation }: Props) {
             </Card.Content>
           </Card>
         )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No invoices found</Text>
-          </View>
-        }
+        ListEmptyComponent={<EmptyState message="No invoices found" />}
       />
     </View>
   );
@@ -134,11 +111,5 @@ const styles = StyleSheet.create({
   date: {
     marginTop: 4,
     color: '#757575',
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
   },
 });
