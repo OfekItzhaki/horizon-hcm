@@ -18,7 +18,6 @@ export const phoneSchema = z.string().min(10, 'Phone number must be at least 10 
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, 'Password is required'),
-  rememberMe: z.boolean().default(false),
 });
 
 // Register schema
