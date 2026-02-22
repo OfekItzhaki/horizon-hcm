@@ -15,13 +15,23 @@ React Native mobile application for Horizon HCM built with Expo.
 ### Core Features
 
 - ✅ Dashboard with role-based content
-- ✅ Buildings management
+- ✅ Buildings management with detail and form screens
 - ✅ Apartments listing and search
 - ✅ Residents directory
-- ✅ Invoices with status filters
-- ✅ Payment history
-- ✅ Announcements with priority filters
-- ✅ Maintenance requests
+- ✅ Invoices with status filters and detail screens
+- ✅ Payment history and payment forms
+- ✅ Announcements with priority filters and detail screens
+- ✅ Maintenance requests with detail and form screens
+- ✅ Settings screen with theme and language toggles
+- ✅ Profile screen with user information
+
+### Reusable Components
+
+- ✅ StatusChip - Consistent status display with color coding
+- ✅ EmptyState - Empty list states with optional icons
+- ✅ ErrorMessage - Error display component
+- ✅ LoadingSpinner - Loading indicator with optional message
+- ✅ ConfirmDialog - Confirmation dialogs with customizable actions
 
 ### Technical Stack
 
@@ -88,8 +98,18 @@ src/
 │   ├── announcements/ # Announcements screens
 │   └── maintenance/   # Maintenance screens
 ├── components/        # Reusable components
+│   ├── StatusChip.tsx
+│   ├── EmptyState.tsx
+│   ├── ErrorMessage.tsx
+│   ├── LoadingSpinner.tsx
+│   ├── ConfirmDialog.tsx
+│   └── index.ts
+├── hooks/            # Custom hooks
+│   └── useAppNavigation.ts
 ├── theme/            # Theme configuration
-└── types/            # TypeScript types
+├── types/            # TypeScript types
+└── utils/            # Utility functions
+    └── colors.ts     # Color mapping utilities
 ```
 
 ## Configuration
@@ -137,6 +157,8 @@ eas submit --platform android
 - ✅ Basic authentication
 - ✅ Core CRUD screens
 - ✅ Navigation structure
+- ✅ Reusable components following HORIZON STANDARD
+- ✅ Settings and Profile screens
 
 ### Phase 2 (Next)
 
