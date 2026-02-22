@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
-import { TextInput, Button, HelperText, Menu, IconButton } from 'react-native-paper';
+import { ScrollView, StyleSheet, View, Image } from 'react-native';
+import { Button, IconButton } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { FormField, SelectField } from '../../components';
 
 const maintenanceSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -19,14 +20,25 @@ type MaintenanceFormData = z.infer<typeof maintenanceSchema>;
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'MaintenanceForm'>;
 
-const categories = ['Plumbing', 'Electrical', 'HVAC', 'Structural', 'Cleaning', 'Other'];
-const priorities = ['low', 'normal', 'high', 'urgent'];
+const categories = [
+  { label: 'Plumbing', value: 'Plumbing' },
+  { label: 'Electrical', value: 'Electrical' },
+  { label: 'HVAC', value: 'HVAC' },
+  { label: 'Structural', value: 'Structural' },
+  { label: 'Cleaning', value: 'Cleaning' },
+  { label: 'Other', value: 'Other' },
+];
+
+const priorities = [
+  { label: 'Low', value: 'low' },
+  { label: 'Normal', value: 'normal' },
+  { label: 'High', value: 'high' },
+  { label: 'Urgent', value: 'urgent' },
+];
 
 export default function MaintenanceFormScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
-  const [categoryMenuVisible, setCategoryMenuVisible] = useState(false);
-  const [priorityMenuVisible, setPriorityMenuVisible] = useState(false);
 
   const {
     control,
@@ -68,141 +80,53 @@ export default function MaintenanceFormScreen({ navigation }: Props) {
 
   return (
     <ScrollView style={styles.container}>
-      <Controller
+      <FormField
         control={control}
         name="title"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <>
-            <TextInput
-              label="Title *"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={!!errors.title}
-              style={styles.input}
-              mode="outlined"
-            />
-            {errors.title && <HelperText type="error">{errors.title.message}</HelperText>}
-          </>
-        )}
+        label="Title *"
+        error={errors.title?.message}
+        style={styles.input}
+        disabled={loading}
       />
 
-      <Controller
+      <FormField
         control={control}
         name="description"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <>
-            <TextInput
-              label="Description *"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={!!errors.description}
-              style={styles.input}
-              mode="outlined"
-              multiline
-              numberOfLines={4}
-            />
-            {errors.description && (
-              <HelperText type="error">{errors.description.message}</HelperText>
-            )}
-          </>
-        )}
+        label="Description *"
+        error={errors.description?.message}
+        style={styles.input}
+        multiline
+        numberOfLines={4}
+        disabled={loading}
       />
 
-      <Controller
+      <SelectField
         control={control}
         name="category"
-        render={({ field: { value } }) => (
-          <>
-            <Menu
-              visible={categoryMenuVisible}
-              onDismiss={() => setCategoryMenuVisible(false)}
-              anchor={
-                <TouchableOpacity onPress={() => setCategoryMenuVisible(true)}>
-                  <TextInput
-                    label="Category *"
-                    value={value}
-                    editable={false}
-                    error={!!errors.category}
-                    style={styles.input}
-                    mode="outlined"
-                    right={<TextInput.Icon icon="chevron-down" />}
-                  />
-                </TouchableOpacity>
-              }
-            >
-              {categories.map((cat) => (
-                <Menu.Item
-                  key={cat}
-                  onPress={() => {
-                    setValue('category', cat);
-                    setCategoryMenuVisible(false);
-                  }}
-                  title={cat}
-                />
-              ))}
-            </Menu>
-            {errors.category && <HelperText type="error">{errors.category.message}</HelperText>}
-          </>
-        )}
+        label="Category *"
+        options={categories}
+        error={errors.category?.message}
+        setValue={setValue}
+        disabled={loading}
       />
 
-      <Controller
+      <SelectField
         control={control}
         name="priority"
-        render={({ field: { value } }) => (
-          <>
-            <Menu
-              visible={priorityMenuVisible}
-              onDismiss={() => setPriorityMenuVisible(false)}
-              anchor={
-                <TouchableOpacity onPress={() => setPriorityMenuVisible(true)}>
-                  <TextInput
-                    label="Priority *"
-                    value={value}
-                    editable={false}
-                    error={!!errors.priority}
-                    style={styles.input}
-                    mode="outlined"
-                    right={<TextInput.Icon icon="chevron-down" />}
-                  />
-                </TouchableOpacity>
-              }
-            >
-              {priorities.map((pri) => (
-                <Menu.Item
-                  key={pri}
-                  onPress={() => {
-                    setValue('priority', pri);
-                    setPriorityMenuVisible(false);
-                  }}
-                  title={pri.charAt(0).toUpperCase() + pri.slice(1)}
-                />
-              ))}
-            </Menu>
-            {errors.priority && <HelperText type="error">{errors.priority.message}</HelperText>}
-          </>
-        )}
+        label="Priority *"
+        options={priorities}
+        error={errors.priority?.message}
+        setValue={setValue}
+        disabled={loading}
       />
 
-      <Controller
+      <FormField
         control={control}
         name="location"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <>
-            <TextInput
-              label="Location *"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={!!errors.location}
-              style={styles.input}
-              mode="outlined"
-            />
-            {errors.location && <HelperText type="error">{errors.location.message}</HelperText>}
-          </>
-        )}
+        label="Location *"
+        error={errors.location?.message}
+        style={styles.input}
+        disabled={loading}
       />
 
       <View style={styles.photoSection}>
@@ -210,7 +134,7 @@ export default function MaintenanceFormScreen({ navigation }: Props) {
           mode="outlined"
           icon="camera"
           onPress={handleAddPhoto}
-          disabled={photos.length >= 5}
+          disabled={photos.length >= 5 || loading}
           style={styles.photoButton}
         >
           Add Photos ({photos.length}/5)
