@@ -23,7 +23,7 @@ export class WebhookProcessor extends WorkerHost {
 
     try {
       // Get delivery and webhook details
-      const delivery = await this.prisma.webhookDelivery.findUnique({
+      const delivery = await this.prisma.webhook_deliveries.findUnique({
         where: { id: deliveryId },
         include: { webhook: true },
       });
@@ -38,7 +38,7 @@ export class WebhookProcessor extends WorkerHost {
       }
 
       // Increment attempt count
-      await this.prisma.webhookDelivery.update({
+      await this.prisma.webhook_deliveries.update({
         where: { id: deliveryId },
         data: { attempts: delivery.attempts + 1 },
       });
@@ -66,7 +66,7 @@ export class WebhookProcessor extends WorkerHost {
       });
 
       // Mark as successful
-      await this.prisma.webhookDelivery.update({
+      await this.prisma.webhook_deliveries.update({
         where: { id: deliveryId },
         data: {
           status: 'success',
@@ -85,7 +85,7 @@ export class WebhookProcessor extends WorkerHost {
       this.logger.error(`Webhook delivery failed: ${deliveryId} - ${error.message}`);
 
       // Get current delivery to check attempts
-      const delivery = await this.prisma.webhookDelivery.findUnique({
+      const delivery = await this.prisma.webhook_deliveries.findUnique({
         where: { id: deliveryId },
       });
 
@@ -93,7 +93,7 @@ export class WebhookProcessor extends WorkerHost {
       const shouldRetry = delivery && delivery.attempts < maxAttempts;
 
       // Update delivery status
-      await this.prisma.webhookDelivery.update({
+      await this.prisma.webhook_deliveries.update({
         where: { id: deliveryId },
         data: {
           status: shouldRetry ? 'pending' : 'failed',

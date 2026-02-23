@@ -23,7 +23,7 @@ export class AddAgendaItemHandler implements ICommandHandler<AddAgendaItemComman
     }
 
     // Create agenda item
-    const agendaItem = await this.prisma.agendaItem.create({
+    const agendaItem = await this.prisma.agenda_items.create({
       data: {
         meeting_id: meetingId,
         title,

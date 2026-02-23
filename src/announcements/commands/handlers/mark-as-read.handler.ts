@@ -19,7 +19,7 @@ export class MarkAsReadHandler implements ICommandHandler<MarkAsReadCommand> {
     }
 
     // Create or update read receipt
-    const readReceipt = await this.prisma.announcementRead.upsert({
+    const readReceipt = await this.prisma.announcement_reads.upsert({
       where: {
         announcement_id_user_id: {
           announcement_id: announcementId,

@@ -55,10 +55,7 @@ export class WebhookService {
   /**
    * Update webhook configuration
    */
-  async updateWebhook(
-    webhookId: string,
-    updates: Partial<WebhookConfig>,
-  ): Promise<void> {
+  async updateWebhook(webhookId: string, updates: Partial<WebhookConfig>): Promise<void> {
     try {
       await this.prisma.webhook.update({
         where: { id: webhookId },
@@ -137,9 +134,7 @@ export class WebhookService {
         return;
       }
 
-      this.logger.log(
-        `Triggering ${webhooks.length} webhooks for event: ${event.type}`,
-      );
+      this.logger.log(`Triggering ${webhooks.length} webhooks for event: ${event.type}`);
 
       // Create delivery records and queue for processing
       for (const webhook of webhooks) {
@@ -153,11 +148,8 @@ export class WebhookService {
   /**
    * Create webhook delivery record
    */
-  private async createDelivery(
-    webhookId: string,
-    event: WebhookEvent,
-  ): Promise<string> {
-    const delivery = await this.prisma.webhookDelivery.create({
+  private async createDelivery(webhookId: string, event: WebhookEvent): Promise<string> {
+    const delivery = await this.prisma.webhook_deliveries.create({
       data: {
         webhook_id: webhookId,
         event_type: event.type,
@@ -177,7 +169,7 @@ export class WebhookService {
    * Get webhook deliveries
    */
   async getDeliveries(webhookId: string, limit: number = 50) {
-    return await this.prisma.webhookDelivery.findMany({
+    return await this.prisma.webhook_deliveries.findMany({
       where: { webhook_id: webhookId },
       orderBy: { created_at: 'desc' },
       take: limit,
@@ -189,7 +181,7 @@ export class WebhookService {
    */
   async retryDelivery(deliveryId: string): Promise<void> {
     try {
-      const delivery = await this.prisma.webhookDelivery.findUnique({
+      const delivery = await this.prisma.webhook_deliveries.findUnique({
         where: { id: deliveryId },
         include: { webhook: true },
       });
@@ -203,7 +195,7 @@ export class WebhookService {
       }
 
       // Reset status to pending for retry
-      await this.prisma.webhookDelivery.update({
+      await this.prisma.webhook_deliveries.update({
         where: { id: deliveryId },
         data: {
           status: 'pending',
@@ -231,10 +223,7 @@ export class WebhookService {
    */
   verifySignature(payload: any, signature: string, secret: string): boolean {
     const expectedSignature = this.signPayload(payload, secret);
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature),
-    );
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
   }
 
   /**
@@ -248,21 +237,20 @@ export class WebhookService {
    * Get webhook statistics
    */
   async getWebhookStats(webhookId: string) {
-    const [totalDeliveries, successCount, failedCount, pendingCount] =
-      await Promise.all([
-        this.prisma.webhookDelivery.count({
-          where: { webhook_id: webhookId },
-        }),
-        this.prisma.webhookDelivery.count({
-          where: { webhook_id: webhookId, status: 'success' },
-        }),
-        this.prisma.webhookDelivery.count({
-          where: { webhook_id: webhookId, status: 'failed' },
-        }),
-        this.prisma.webhookDelivery.count({
-          where: { webhook_id: webhookId, status: 'pending' },
-        }),
-      ]);
+    const [totalDeliveries, successCount, failedCount, pendingCount] = await Promise.all([
+      this.prisma.webhook_deliveries.count({
+        where: { webhook_id: webhookId },
+      }),
+      this.prisma.webhook_deliveries.count({
+        where: { webhook_id: webhookId, status: 'success' },
+      }),
+      this.prisma.webhook_deliveries.count({
+        where: { webhook_id: webhookId, status: 'failed' },
+      }),
+      this.prisma.webhook_deliveries.count({
+        where: { webhook_id: webhookId, status: 'pending' },
+      }),
+    ]);
 
     return {
       totalDeliveries,
@@ -270,9 +258,7 @@ export class WebhookService {
       failedCount,
       pendingCount,
       successRate:
-        totalDeliveries > 0
-          ? ((successCount / totalDeliveries) * 100).toFixed(2)
-          : '0.00',
+        totalDeliveries > 0 ? ((successCount / totalDeliveries) * 100).toFixed(2) : '0.00',
     };
   }
 }

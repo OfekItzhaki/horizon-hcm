@@ -23,7 +23,7 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand> {
     }
 
     // Create comment
-    const announcementComment = await this.prisma.announcementComment.create({
+    const announcementComment = await this.prisma.announcement_comments.create({
       data: {
         announcement_id: announcementId,
         user_id: userId,

@@ -79,7 +79,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
       email: {
         provider: 'custom',
         from: 'noreply@horizon-hcm.com',
-        customSender: async (to: string, subject: string, _html: string) => {
+        customSender: async (to: string, subject: string) => {
           // Email sending will be handled by the application's email service
           console.log(`Email would be sent to ${to} with subject: ${subject}`);
         },
@@ -103,6 +103,8 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     WebhooksModule,
     HealthModule,
   ],
+  providers: [],
+  exports: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
