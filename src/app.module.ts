@@ -84,20 +84,6 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
           console.log(`Email would be sent to ${to} with subject: ${subject}`);
         },
       },
-      features: {
-        twoFactor: {
-          enabled: false,
-        },
-        deviceManagement: {
-          enabled: false,
-        },
-        pushNotifications: {
-          enabled: false,
-        },
-        accountManagement: {
-          enabled: false,
-        },
-      },
     }),
     LoggerModule,
     CommonModule,
