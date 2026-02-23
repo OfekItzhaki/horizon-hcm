@@ -3,6 +3,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AssignTenantCommand } from '../impl/assign-tenant.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(AssignTenantCommand)
 export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand> {
@@ -39,6 +40,7 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
     // Create tenant record
     const tenant = await this.prisma.apartment_tenants.create({
       data: {
+        id: generateId(),
         apartment_id: apartmentId,
         user_id: userId,
         move_in_date: moveInDate || new Date(),

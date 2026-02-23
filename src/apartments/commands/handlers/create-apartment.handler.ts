@@ -3,6 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateApartmentCommand } from '../impl/create-apartment.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(CreateApartmentCommand)
 export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCommand> {
@@ -31,13 +32,14 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
     // Create apartment
     const apartment = await this.prisma.apartments.create({
       data: {
+        id: generateId(),
         building_id: buildingId,
         apartment_number: apartmentNumber,
         area_sqm: areaSqm,
         floor: floor,
         is_vacant: true,
       },
-      include: { apartment_owners: true, tenants: true },
+      include: { apartment_owners: true, apartment_tenants: true },
     });
 
     // Log audit

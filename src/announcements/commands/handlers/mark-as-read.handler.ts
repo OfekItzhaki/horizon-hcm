@@ -1,4 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { generateId } from '../../../common/utils/id-generator';
 import { MarkAsReadCommand } from '../impl/mark-as-read.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 
@@ -30,6 +31,7 @@ export class MarkAsReadHandler implements ICommandHandler<MarkAsReadCommand> {
         read_at: new Date(),
       },
       create: {
+        id: generateId(),
         announcement_id: announcementId,
         user_id: userId,
       },

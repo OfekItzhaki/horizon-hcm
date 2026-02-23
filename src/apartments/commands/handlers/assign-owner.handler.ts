@@ -3,6 +3,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AssignOwnerCommand } from '../impl/assign-owner.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(AssignOwnerCommand)
 export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
@@ -25,14 +26,14 @@ export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
     }
 
     // Check if user already owns this apartment
-    const existingOwner = apartment.owners.find((o) => o.user_id === userId);
+    const existingOwner = apartment.apartment_owners.find((o) => o.user_id === userId);
     if (existingOwner) {
       throw new BadRequestException('User already owns this apartment');
     }
 
     // Validate total ownership shares don't exceed 100%
     if (ownershipShare) {
-      const totalShares = apartment.owners.reduce(
+      const totalShares = apartment.apartment_owners.reduce(
         (sum, owner) => sum + (owner.ownership_share?.toNumber() || 0),
         0,
       );
@@ -60,6 +61,7 @@ export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
     // Create owner record
     const owner = await this.prisma.apartment_owners.create({
       data: {
+        id: generateId(),
         apartment_id: apartmentId,
         user_id: userId,
         ownership_share: ownershipShare,

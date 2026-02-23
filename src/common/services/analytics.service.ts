@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { generateId } from '../../common/utils/id-generator';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Request } from 'express';
 
@@ -20,6 +21,7 @@ export class AnalyticsService {
     try {
       await this.prisma.analytics_events.create({
         data: {
+          id: generateId(),
           user_id: userId,
           event_name: eventName,
           event_data: eventData,
@@ -61,6 +63,7 @@ export class AnalyticsService {
       } else {
         await this.prisma.feature_usage.create({
           data: {
+            id: generateId(),
             user_id: userId,
             feature_name: featureName,
           },

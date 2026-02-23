@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AddCommentCommand } from '../impl/add-comment.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(AddCommentCommand)
 export class AddCommentHandler implements ICommandHandler<AddCommentCommand> {
@@ -25,6 +26,7 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand> {
     // Create comment
     const announcementComment = await this.prisma.announcement_comments.create({
       data: {
+        id: generateId(),
         announcement_id: announcementId,
         user_id: userId,
         comment,

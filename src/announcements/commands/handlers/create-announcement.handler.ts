@@ -1,4 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { generateId } from '../../../common/utils/id-generator';
 import { CreateAnnouncementCommand } from '../impl/create-announcement.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
@@ -25,12 +26,14 @@ export class CreateAnnouncementHandler implements ICommandHandler<CreateAnnounce
     // Create announcement
     const announcement = await this.prisma.announcements.create({
       data: {
+        id: generateId(),
         building_id: buildingId,
         author_id: authorId,
         title,
         content,
         category,
         is_urgent: isUrgent,
+        updated_at: new Date(),
       },
     });
 

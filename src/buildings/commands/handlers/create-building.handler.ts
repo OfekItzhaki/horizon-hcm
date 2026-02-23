@@ -1,4 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { generateId } from '../../../common/utils/id-generator';
 import { CreateBuildingCommand } from '../impl/create-building.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { LoggerService } from '../../../common/logger/logger.service';
@@ -15,6 +16,7 @@ export class CreateBuildingHandler implements ICommandHandler<CreateBuildingComm
 
     const building = await this.prisma.buildings.create({
       data: {
+        id: generateId(),
         name: command.name,
         address_line: command.addressLine,
         city: command.city,
