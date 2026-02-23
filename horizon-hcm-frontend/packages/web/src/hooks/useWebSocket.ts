@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocketStore, useAuthStore, useNotificationStore } from '../store';
 import { queryKeys } from '../lib/query-keys';
@@ -6,49 +6,57 @@ import { WEBSOCKET_EVENTS } from '@horizon-hcm/shared';
 
 export function useWebSocket() {
   const queryClient = useQueryClient();
-  const { connect, disconnect, on, socket } = useWebSocketStore();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { incrementUnreadCount } = useNotificationStore();
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
     // Only connect if authenticated
     if (!isAuthenticated) {
-      disconnect();
+      if (hasInitialized.current) {
+        useWebSocketStore.getState().disconnect();
+        hasInitialized.current = false;
+      }
       return;
     }
 
+    // Prevent multiple initializations
+    if (hasInitialized.current) {
+      return;
+    }
+
+    hasInitialized.current = true;
+
     // Connect to WebSocket
-    connect();
+    useWebSocketStore.getState().connect();
+
+    // Get socket from store
+    const socket = useWebSocketStore.getState().socket;
 
     // Set up event listeners after connection
     if (socket) {
       // New notification event
-      on(WEBSOCKET_EVENTS.NEW_NOTIFICATION, (data) => {
+      socket.on(WEBSOCKET_EVENTS.NEW_NOTIFICATION, (data: any) => {
         console.log('[WebSocket] New notification:', data);
-        // Invalidate notifications query to refetch
         queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
-        // Increment unread count
         incrementUnreadCount();
       });
 
       // New message event
-      on(WEBSOCKET_EVENTS.NEW_MESSAGE, (data) => {
+      socket.on(WEBSOCKET_EVENTS.NEW_MESSAGE, (data: any) => {
         console.log('[WebSocket] New message:', data);
-        // Invalidate messages query to refetch
         queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
       });
 
       // New announcement event
-      on(WEBSOCKET_EVENTS.NEW_ANNOUNCEMENT, (data) => {
+      socket.on(WEBSOCKET_EVENTS.NEW_ANNOUNCEMENT, (data: any) => {
         console.log('[WebSocket] New announcement:', data);
-        // Invalidate announcements query to refetch
         queryClient.invalidateQueries({ queryKey: queryKeys.announcements.all });
       });
 
       // Maintenance update event
-      on(WEBSOCKET_EVENTS.MAINTENANCE_UPDATE, (data) => {
+      socket.on(WEBSOCKET_EVENTS.MAINTENANCE_UPDATE, (data: any) => {
         console.log('[WebSocket] Maintenance update:', data);
-        // Invalidate maintenance queries
         queryClient.invalidateQueries({ queryKey: queryKeys.maintenance.all });
         if (data.id) {
           queryClient.invalidateQueries({ queryKey: queryKeys.maintenance.detail(data.id) });
@@ -56,9 +64,8 @@ export function useWebSocket() {
       });
 
       // Poll update event
-      on(WEBSOCKET_EVENTS.POLL_UPDATE, (data) => {
+      socket.on(WEBSOCKET_EVENTS.POLL_UPDATE, (data: any) => {
         console.log('[WebSocket] Poll update:', data);
-        // Invalidate polls queries
         queryClient.invalidateQueries({ queryKey: queryKeys.polls.all });
         if (data.id) {
           queryClient.invalidateQueries({ queryKey: queryKeys.polls.detail(data.id) });
@@ -66,11 +73,12 @@ export function useWebSocket() {
       });
     }
 
-    // Cleanup on unmount or when authentication changes
+    // Cleanup on unmount
     return () => {
-      disconnect();
+      useWebSocketStore.getState().disconnect();
+      hasInitialized.current = false;
     };
-  }, [isAuthenticated, connect, disconnect, on, socket, queryClient, incrementUnreadCount]);
+  }, [isAuthenticated, queryClient, incrementUnreadCount]);
 
   return useWebSocketStore();
 }
