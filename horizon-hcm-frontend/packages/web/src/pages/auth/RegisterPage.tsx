@@ -30,6 +30,7 @@ export default function RegisterPage() {
     getValues,
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
+    mode: 'onSubmit', // Only validate on submit
     defaultValues: {
       email: '',
       password: '',
@@ -92,7 +93,12 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form
+            onSubmit={(e) => {
+              console.log('Form onSubmit event triggered');
+              handleSubmit(onSubmit)(e);
+            }}
+          >
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller
               name="fullName"
