@@ -66,10 +66,7 @@ export default function LoginPage() {
       const setTokens = useAuthStore.getState().setTokens;
       setTokens(accessToken, refreshToken);
 
-      // Small delay to ensure tokens are persisted
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Fetch user profile (now with token set)
+      // Fetch user profile with token now available in store
       const userResponse = await authApi.getCurrentUser();
       const user = userResponse.data;
 
