@@ -18,7 +18,7 @@ export class AnalyticsService {
     req?: Request,
   ): Promise<void> {
     try {
-      await this.prisma.analyticsEvent.create({
+      await this.prisma.analytics_events.create({
         data: {
           user_id: userId,
           event_name: eventName,
@@ -38,13 +38,10 @@ export class AnalyticsService {
   /**
    * Track feature usage
    */
-  async trackFeatureUsage(
-    featureName: string,
-    userId: string,
-  ): Promise<void> {
+  async trackFeatureUsage(featureName: string, userId: string): Promise<void> {
     try {
       // Try to increment existing usage
-      const existing = await this.prisma.featureUsage.findUnique({
+      const existing = await this.prisma.feature_usage.findUnique({
         where: {
           user_id_feature_name: {
             user_id: userId,
@@ -54,7 +51,7 @@ export class AnalyticsService {
       });
 
       if (existing) {
-        await this.prisma.featureUsage.update({
+        await this.prisma.feature_usage.update({
           where: { id: existing.id },
           data: {
             usage_count: { increment: 1 },
@@ -62,7 +59,7 @@ export class AnalyticsService {
           },
         });
       } else {
-        await this.prisma.featureUsage.create({
+        await this.prisma.feature_usage.create({
           data: {
             user_id: userId,
             feature_name: featureName,
@@ -79,12 +76,8 @@ export class AnalyticsService {
   /**
    * Get events for a user
    */
-  async getUserEvents(
-    userId: string,
-    limit: number = 100,
-    offset: number = 0,
-  ) {
-    return this.prisma.analyticsEvent.findMany({
+  async getUserEvents(userId: string, limit: number = 100, offset: number = 0) {
+    return this.prisma.analytics_events.findMany({
       where: { user_id: userId },
       orderBy: { created_at: 'desc' },
       take: limit,
@@ -98,7 +91,7 @@ export class AnalyticsService {
   async getFeatureUsageStats(featureName?: string) {
     const where = featureName ? { feature_name: featureName } : {};
 
-    const stats = await this.prisma.featureUsage.groupBy({
+    const stats = await this.prisma.feature_usage.groupBy({
       by: ['feature_name'],
       where,
       _count: {
@@ -120,7 +113,7 @@ export class AnalyticsService {
    * Get user's feature usage
    */
   async getUserFeatureUsage(userId: string) {
-    return this.prisma.featureUsage.findMany({
+    return this.prisma.feature_usage.findMany({
       where: { user_id: userId },
       orderBy: { last_used_at: 'desc' },
     });
@@ -141,7 +134,7 @@ export class AnalyticsService {
       if (endDate) where.created_at.lte = endDate;
     }
 
-    const counts = await this.prisma.analyticsEvent.groupBy({
+    const counts = await this.prisma.analytics_events.groupBy({
       by: ['event_name'],
       where,
       _count: {
@@ -163,11 +156,8 @@ export class AnalyticsService {
   /**
    * Get active users count
    */
-  async getActiveUsersCount(
-    startDate: Date,
-    endDate: Date,
-  ): Promise<number> {
-    const result = await this.prisma.analyticsEvent.findMany({
+  async getActiveUsersCount(startDate: Date, endDate: Date): Promise<number> {
+    const result = await this.prisma.analytics_events.findMany({
       where: {
         created_at: {
           gte: startDate,
@@ -203,7 +193,7 @@ export class AnalyticsService {
    * Get performance metrics
    */
   async getPerformanceMetrics(where: any = {}) {
-    const metrics = await this.prisma.performanceMetric.findMany({
+    const metrics = await this.prisma.performance_metrics.findMany({
       where,
       orderBy: { created_at: 'desc' },
       take: 100,
@@ -215,8 +205,7 @@ export class AnalyticsService {
     const avgDatabaseQueries =
       metrics.reduce((sum, m) => sum + m.database_queries, 0) / metrics.length || 0;
     const errorRate =
-      (metrics.filter((m) => m.status_code && m.status_code >= 400).length /
-        metrics.length) *
+      (metrics.filter((m) => m.status_code && m.status_code >= 400).length / metrics.length) *
         100 || 0;
 
     return {
@@ -234,7 +223,7 @@ export class AnalyticsService {
    * Get slow endpoints
    */
   async getSlowEndpoints(thresholdMs: number = 1000) {
-    const slowMetrics = await this.prisma.performanceMetric.findMany({
+    const slowMetrics = await this.prisma.performance_metrics.findMany({
       where: {
         response_time_ms: {
           gte: thresholdMs,
