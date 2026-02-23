@@ -27,7 +27,7 @@ export class ListApartmentsHandler implements IQueryHandler<ListApartmentsQuery>
               id: true,
               ownership_share: true,
               is_primary: true,
-              user_profile: {
+              user_profiles: {
                 select: {
                   id: true,
                   full_name: true,
@@ -39,7 +39,7 @@ export class ListApartmentsHandler implements IQueryHandler<ListApartmentsQuery>
             where: { is_active: true },
             select: {
               id: true,
-              user_profile: {
+              user_profiles: {
                 select: {
                   id: true,
                   full_name: true,

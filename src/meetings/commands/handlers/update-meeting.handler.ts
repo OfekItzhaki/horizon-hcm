@@ -27,7 +27,7 @@ export class UpdateMeetingHandler implements ICommandHandler<UpdateMeetingComman
       where: { id: meetingId },
       data: updates,
       include: {
-        attendees: true,
+        meeting_attendees: true,
       },
     });
 

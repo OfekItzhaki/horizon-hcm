@@ -24,6 +24,7 @@ export class CreateBuildingHandler implements ICommandHandler<CreateBuildingComm
         num_units: command.numUnits,
         current_balance: 0,
         is_active: true,
+        updated_at: new Date(),
       },
     });
 

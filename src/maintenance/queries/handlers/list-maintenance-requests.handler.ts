@@ -31,7 +31,7 @@ export class ListMaintenanceRequestsHandler implements IQueryHandler<ListMainten
               address_line: true,
             },
           },
-          apartment: {
+          apartments: {
             select: {
               id: true,
               apartment_number: true,

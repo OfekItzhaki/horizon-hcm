@@ -38,6 +38,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
         area_sqm: areaSqm,
         floor: floor,
         is_vacant: true,
+        updated_at: new Date(),
       },
       include: { apartment_owners: true, apartment_tenants: true },
     });

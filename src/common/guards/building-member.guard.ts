@@ -46,7 +46,7 @@ export class BuildingMemberGuard implements CanActivate {
     const isOwner = await this.prisma.apartment_owners.findFirst({
       where: {
         user_id: user.id,
-        apartment: {
+        apartments: {
           building_id: buildingId,
         },
       },
@@ -62,7 +62,7 @@ export class BuildingMemberGuard implements CanActivate {
       where: {
         user_id: user.id,
         is_active: true,
-        apartment: {
+        apartments: {
           building_id: buildingId,
         },
       },

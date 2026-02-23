@@ -55,7 +55,7 @@ export class StorageService {
    * Upload file to cloud storage
    */
   async upload(
-    file: Express.Multer.files,
+    file: Express.Multer.File,
     userId: string,
     isPublic: boolean = false,
   ): Promise<UploadResult> {

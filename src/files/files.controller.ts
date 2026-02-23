@@ -63,7 +63,7 @@ export class FilesController {
   @ApiBearerAuth()
   async uploadFile(
     @Request() req,
-    @UploadedFile() file: Express.Multer.files,
+    @UploadedFile() file: Express.Multer.File,
     @Query('isPublic') isPublic: boolean = false,
   ) {
     const userId = req.user?.id || req.user?.sub;
@@ -113,7 +113,7 @@ export class FilesController {
     @Request() req,
     @Param('uploadId') uploadId: string,
     @Param('chunkIndex', ParseIntPipe) chunkIndex: number,
-    @UploadedFile() chunk: Express.Multer.files,
+    @UploadedFile() chunk: Express.Multer.File,
   ) {
     const userId = req.user?.id || req.user?.sub;
 

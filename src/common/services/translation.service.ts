@@ -11,7 +11,7 @@ export class TranslationService {
     value: string,
     namespace: string = 'common',
   ) {
-    return this.prisma.translation.upsert({
+    return this.prisma.translations.upsert({
       where: {
         key_language_namespace: {
           key,
@@ -37,20 +37,20 @@ export class TranslationService {
       where.namespace = namespace;
     }
 
-    return this.prisma.translation.findMany({
+    return this.prisma.translations.findMany({
       where,
       orderBy: { key: 'asc' },
     });
   }
 
   async deleteTranslation(id: string) {
-    return this.prisma.translation.delete({
+    return this.prisma.translations.delete({
       where: { id },
     });
   }
 
   async getAllNamespaces() {
-    const result = await this.prisma.translation.findMany({
+    const result = await this.prisma.translations.findMany({
       distinct: ['namespace'],
       select: { namespace: true },
     });

@@ -58,7 +58,7 @@ export class ImageProcessingProcessor extends WorkerHost {
           originalname: file.filename,
           mimetype: `image/${compressed.format}`,
           size: compressed.size,
-        } as Express.Multer.files,
+        } as Express.Multer.File,
         file.user_id,
         file.is_public,
       );
@@ -83,7 +83,7 @@ export class ImageProcessingProcessor extends WorkerHost {
               originalname: `${file.filename}_${size}`,
               mimetype: `image/${thumbnail.format}`,
               size: thumbnail.size,
-            } as Express.Multer.files,
+            } as Express.Multer.File,
             file.user_id,
             file.is_public,
           );

@@ -14,7 +14,7 @@ export class GetMaintenanceRequestHandler implements IQueryHandler<GetMaintenanc
       where: { id: requestId },
       include: {
         buildings: true,
-        apartment: true,
+        apartments: true,
         announcement_comments: {
           orderBy: { created_at: 'asc' },
         },

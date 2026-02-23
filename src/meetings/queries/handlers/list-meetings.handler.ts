@@ -18,7 +18,7 @@ export class ListMeetingsHandler implements IQueryHandler<ListMeetingsQuery> {
       this.prisma.meetings.findMany({
         where,
         include: {
-          attendees: true,
+          meeting_attendees: true,
           agenda_items: {
             orderBy: { order: 'asc' },
           },

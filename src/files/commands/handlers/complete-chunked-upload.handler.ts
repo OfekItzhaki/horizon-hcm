@@ -51,7 +51,7 @@ export class CompleteChunkedUploadHandler implements ICommandHandler<CompleteChu
         originalname: session.filename,
         mimetype: session.mimeType,
         size: completeFile.length,
-      } as Express.Multer.files,
+      } as Express.Multer.File,
       userId,
       isPublic,
     );

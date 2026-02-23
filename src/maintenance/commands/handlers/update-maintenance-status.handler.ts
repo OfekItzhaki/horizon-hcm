@@ -30,7 +30,7 @@ export class UpdateMaintenanceStatusHandler implements ICommandHandler<UpdateMai
         status,
         completion_date: status === 'completed' ? new Date() : undefined,
       },
-      include: { buildings: true, apartment: true },
+      include: { buildings: true, apartments: true },
     });
 
     // Log audit

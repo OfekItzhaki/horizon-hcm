@@ -13,7 +13,7 @@ export class GetMeetingHandler implements IQueryHandler<GetMeetingQuery> {
       where: { id: meetingId },
       include: {
         buildings: true,
-        attendees: true,
+        meeting_attendees: true,
         agenda_items: {
           orderBy: { order: 'asc' },
         },
