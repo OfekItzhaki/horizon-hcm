@@ -12,7 +12,7 @@ export class GetTemplateHandler implements IQueryHandler<GetTemplateQuery> {
     const { name, language } = query;
 
     // Try to find template in requested language
-    let template = await this.prisma.notificationTemplate.findFirst({
+    let template = await this.prisma.notification_templates.findFirst({
       where: {
         name,
         language,
@@ -22,7 +22,7 @@ export class GetTemplateHandler implements IQueryHandler<GetTemplateQuery> {
 
     // Fallback to English if not found
     if (!template && language !== 'en') {
-      template = await this.prisma.notificationTemplate.findFirst({
+      template = await this.prisma.notification_templates.findFirst({
         where: {
           name,
           language: 'en',
@@ -32,9 +32,7 @@ export class GetTemplateHandler implements IQueryHandler<GetTemplateQuery> {
     }
 
     if (!template) {
-      throw new NotFoundException(
-        `Template '${name}' not found for language '${language}'`,
-      );
+      throw new NotFoundException(`Template '${name}' not found for language '${language}'`);
     }
 
     return template;

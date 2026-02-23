@@ -5,16 +5,14 @@ import { CreateTemplateCommand } from '../impl/create-template.command';
 
 @Injectable()
 @CommandHandler(CreateTemplateCommand)
-export class CreateTemplateHandler
-  implements ICommandHandler<CreateTemplateCommand>
-{
+export class CreateTemplateHandler implements ICommandHandler<CreateTemplateCommand> {
   constructor(private prisma: PrismaService) {}
 
   async execute(command: CreateTemplateCommand) {
     const { name, title, body, language } = command;
 
     // Create notification template
-    const template = await this.prisma.notificationTemplate.create({
+    const template = await this.prisma.notification_templates.create({
       data: {
         name,
         title,

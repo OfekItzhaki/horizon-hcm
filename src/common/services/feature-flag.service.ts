@@ -42,7 +42,7 @@ export class FeatureFlagService {
     }
 
     // Check if user already has an assignment
-    const existing = await this.prisma.featureFlagAssignment.findUnique({
+    const existing = await this.prisma.feature_flag_assignments.findUnique({
       where: {
         feature_flag_id_user_id: {
           feature_flag_id: flag.id,
@@ -59,7 +59,7 @@ export class FeatureFlagService {
     const variant = this.assignVariant(flag.variants, userId);
 
     // Store assignment
-    await this.prisma.featureFlagAssignment.create({
+    await this.prisma.feature_flag_assignments.create({
       data: {
         feature_flag_id: flag.id,
         user_id: userId,
@@ -80,7 +80,7 @@ export class FeatureFlagService {
     variants?: any;
     rules?: any;
   }) {
-    const flag = await this.prisma.featureFlag.upsert({
+    const flag = await this.prisma.feature_flags.upsert({
       where: { name: data.name },
       create: {
         name: data.name,
@@ -107,7 +107,7 @@ export class FeatureFlagService {
    * Get all feature flags
    */
   async getAllFeatureFlags() {
-    return this.prisma.featureFlag.findMany({
+    return this.prisma.feature_flags.findMany({
       orderBy: { name: 'asc' },
     });
   }
@@ -125,7 +125,7 @@ export class FeatureFlagService {
     }
 
     // Fetch from database
-    const flag = await this.prisma.featureFlag.findUnique({
+    const flag = await this.prisma.feature_flags.findUnique({
       where: { name },
     });
 

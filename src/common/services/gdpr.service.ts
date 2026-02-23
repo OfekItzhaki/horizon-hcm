@@ -45,12 +45,12 @@ export class GDPRService {
       });
 
       // Get notification preferences
-      const notificationPreferences = await this.prisma.notificationPreference.findUnique({
+      const notificationPreferences = await this.prisma.notification_preferences.findUnique({
         where: { user_id: userId },
       });
 
       // Get notification logs
-      const notificationLogs = await this.prisma.notificationLog.findMany({
+      const notificationLogs = await this.prisma.notification_logs.findMany({
         where: { user_id: userId },
         orderBy: { created_at: 'desc' },
       });
@@ -126,12 +126,12 @@ export class GDPRService {
       // Use transaction to ensure all-or-nothing deletion
       await this.prisma.$transaction(async (tx) => {
         // Delete notification logs
-        await tx.notificationLog.deleteMany({
+        await tx.notification_logs.deleteMany({
           where: { user_id: userId },
         });
 
         // Delete notification preferences
-        await tx.notificationPreference.deleteMany({
+        await tx.notification_preferences.deleteMany({
           where: { user_id: userId },
         });
 
@@ -236,7 +236,7 @@ export class GDPRService {
       where: { user_id: userId },
     });
 
-    const notificationLogsCount = await this.prisma.notificationLog.count({
+    const notificationLogsCount = await this.prisma.notification_logs.count({
       where: { user_id: userId },
     });
 

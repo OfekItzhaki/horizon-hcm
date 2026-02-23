@@ -5,10 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { FcmProvider } from '../providers/fcm.provider';
 import { ApnsProvider } from '../providers/apns.provider';
 import { WebPushProvider } from '../providers/web-push.provider';
-import {
-  SendNotificationDto,
-  NotificationProvider,
-} from '../interfaces/notification.interface';
+import { SendNotificationDto, NotificationProvider } from '../interfaces/notification.interface';
 
 interface SendTemplatedJobData {
   logId: string;
@@ -53,16 +50,13 @@ export class NotificationProcessor extends WorkerHost {
           throw new Error(`Unknown job type: ${name}`);
       }
     } catch (error) {
-      this.logger.error(
-        `Notification job failed: ${name} (ID: ${job.id})`,
-        error,
-      );
+      this.logger.error(`Notification job failed: ${name} (ID: ${job.id})`, error);
       throw error; // Re-throw to trigger retry
     }
   }
 
   private async handleSendTemplated(data: SendTemplatedJobData) {
-    const { logId, userId, title, body, silent = false } = data;
+    const { logId, userId } = data;
 
     try {
       // TODO: Get user's device tokens from auth package
@@ -74,7 +68,7 @@ export class NotificationProcessor extends WorkerHost {
       // 4. Track delivery status
 
       // Update log to "sent" status
-      await this.prisma.notificationLog.update({
+      await this.prisma.notification_logs.update({
         where: { id: logId },
         data: {
           delivery_status: 'sent',
@@ -82,15 +76,12 @@ export class NotificationProcessor extends WorkerHost {
         },
       });
 
-      this.logger.log(
-        `Templated notification sent for user ${userId}`,
-        'NotificationProcessor',
-      );
+      this.logger.log(`Templated notification sent for user ${userId}`, 'NotificationProcessor');
 
       return { success: true };
     } catch (error) {
       // Update log to "failed" status
-      await this.prisma.notificationLog.update({
+      await this.prisma.notification_logs.update({
         where: { id: logId },
         data: {
           delivery_status: 'failed',
@@ -128,10 +119,7 @@ export class NotificationProcessor extends WorkerHost {
       throw new Error(result.error || 'Notification send failed');
     }
 
-    this.logger.log(
-      `Notification sent successfully via ${provider}`,
-      'NotificationProcessor',
-    );
+    this.logger.log(`Notification sent successfully via ${provider}`, 'NotificationProcessor');
 
     return result;
   }
@@ -139,10 +127,7 @@ export class NotificationProcessor extends WorkerHost {
   private async handleSendToUser(data: SendNotificationDto) {
     // TODO: Query database for user's device tokens and send to all
     // For now, just log
-    this.logger.log(
-      `Send to user not fully implemented: ${data.userId}`,
-      'NotificationProcessor',
-    );
+    this.logger.log(`Send to user not fully implemented: ${data.userId}`, 'NotificationProcessor');
 
     return { success: true };
   }

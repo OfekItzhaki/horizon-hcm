@@ -41,23 +41,16 @@ export class NotificationService {
    * Send templated notification to user
    * Checks preferences, loads template, substitutes variables, and sends
    */
-  async sendTemplatedNotification(
-    dto: SendTemplatedNotificationDto,
-  ): Promise<void> {
+  async sendTemplatedNotification(dto: SendTemplatedNotificationDto): Promise<void> {
     const { userId, templateName, variables, language = 'en', silent = false } = dto;
 
     try {
       // 1. Check user preferences
-      const preferences = await this.queryBus.execute(
-        new GetPreferencesQuery(userId),
-      );
+      const preferences = await this.queryBus.execute(new GetPreferencesQuery(userId));
 
       // Check if push notifications are enabled
       if (!preferences.push_enabled) {
-        this.logger.log(
-          `Push notifications disabled for user ${userId}`,
-          'NotificationService',
-        );
+        this.logger.log(`Push notifications disabled for user ${userId}`, 'NotificationService');
         return;
       }
 
@@ -78,22 +71,14 @@ export class NotificationService {
       }
 
       // 2. Load template
-      const template = await this.queryBus.execute(
-        new GetTemplateQuery(templateName, language),
-      );
+      const template = await this.queryBus.execute(new GetTemplateQuery(templateName, language));
 
       // 3. Substitute variables
-      const title = this.templateService.substituteVariables(
-        template.title,
-        variables,
-      );
-      const body = this.templateService.substituteVariables(
-        template.body,
-        variables,
-      );
+      const title = this.templateService.substituteVariables(template.title, variables);
+      const body = this.templateService.substituteVariables(template.body, variables);
 
       // 4. Create notification log entry
-      const log = await this.prisma.notificationLog.create({
+      const log = await this.prisma.notification_logs.create({
         data: {
           user_id: userId,
           template_name: templateName,
@@ -123,10 +108,7 @@ export class NotificationService {
         },
       );
 
-      this.logger.log(
-        `Templated notification queued for user ${userId}`,
-        'NotificationService',
-      );
+      this.logger.log(`Templated notification queued for user ${userId}`, 'NotificationService');
     } catch (error) {
       this.logger.error(
         `Failed to send templated notification: ${error.message}`,
@@ -149,10 +131,7 @@ export class NotificationService {
       },
     });
 
-    this.logger.log(
-      `Notification queued for device: ${dto.deviceToken}`,
-      'NotificationService',
-    );
+    this.logger.log(`Notification queued for device: ${dto.deviceToken}`, 'NotificationService');
   }
 
   /**
@@ -177,10 +156,7 @@ export class NotificationService {
       },
     );
 
-    this.logger.log(
-      `Notification queued for user: ${userId}`,
-      'NotificationService',
-    );
+    this.logger.log(`Notification queued for user: ${userId}`, 'NotificationService');
   }
 
   /**
@@ -214,10 +190,7 @@ export class NotificationService {
       }
 
       if (result.success) {
-        this.logger.log(
-          `Notification sent successfully via ${provider}`,
-          'NotificationService',
-        );
+        this.logger.log(`Notification sent successfully via ${provider}`, 'NotificationService');
       } else {
         this.logger.error(
           `Notification failed via ${provider}: ${result.error}`,
@@ -243,10 +216,7 @@ export class NotificationService {
       await this.sendToDevice(dto);
     }
 
-    this.logger.log(
-      `Batch of ${dtos.length} notifications queued`,
-      'NotificationService',
-    );
+    this.logger.log(`Batch of ${dtos.length} notifications queued`, 'NotificationService');
   }
 
   /**
@@ -271,7 +241,7 @@ export class NotificationService {
       updateData.error_message = errorMessage;
     }
 
-    await this.prisma.notificationLog.update({
+    await this.prisma.notification_logs.update({
       where: { id: logId },
       data: updateData,
     });

@@ -5,16 +5,14 @@ import { GetPreferencesQuery } from '../impl/get-preferences.query';
 
 @Injectable()
 @QueryHandler(GetPreferencesQuery)
-export class GetPreferencesHandler
-  implements IQueryHandler<GetPreferencesQuery>
-{
+export class GetPreferencesHandler implements IQueryHandler<GetPreferencesQuery> {
   constructor(private prisma: PrismaService) {}
 
   async execute(query: GetPreferencesQuery) {
     const { userId } = query;
 
     // Get preferences or return defaults
-    let preferences = await this.prisma.notificationPreference.findUnique({
+    let preferences = await this.prisma.notification_preferences.findUnique({
       where: { user_id: userId },
     });
 
