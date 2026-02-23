@@ -24,7 +24,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
     }
 
     // Validate file exists
-    const file = await this.prisma.file.findUnique({
+    const file = await this.prisma.files.findUnique({
       where: { id: fileId },
     });
 

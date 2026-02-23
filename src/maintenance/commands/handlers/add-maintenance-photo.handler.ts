@@ -20,7 +20,7 @@ export class AddMaintenancePhotoHandler implements ICommandHandler<AddMaintenanc
     }
 
     // Check if file exists
-    const file = await this.prisma.file.findUnique({
+    const file = await this.prisma.files.findUnique({
       where: { id: fileId },
     });
 

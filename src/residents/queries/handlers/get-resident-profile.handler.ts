@@ -26,7 +26,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
             },
           },
         },
-        owned_apartments: {
+        apartment_owners: {
           include: {
             apartments: {
               select: {
@@ -43,7 +43,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
             },
           },
         },
-        tenant_apartments: {
+        apartment_tenants: {
           where: {
             is_active: true,
           },
@@ -84,7 +84,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
         role: membership.role,
         since: membership.created_at,
       })),
-      owned_apartments: userProfile.owned_apartments.map((ownership) => ({
+      apartment_owners: userProfile.owned_apartments.map((ownership) => ({
         apartment_id: ownership.apartments.id,
         apartment_number: ownership.apartments.apartment_number,
         building_id: ownership.apartments.building_id,
@@ -94,7 +94,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
         is_primary: ownership.is_primary,
         since: ownership.created_at,
       })),
-      tenant_apartments: userProfile.tenant_apartments.map((tenancy) => ({
+      apartment_tenants: userProfile.tenant_apartments.map((tenancy) => ({
         apartment_id: tenancy.apartments.id,
         apartment_number: tenancy.apartments.apartment_number,
         building_id: tenancy.apartments.building_id,

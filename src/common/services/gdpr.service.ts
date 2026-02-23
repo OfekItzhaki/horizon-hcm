@@ -21,14 +21,14 @@ export class GDPRService {
           building_committee_members: {
             include: { buildings: true },
           },
-          owned_apartments: {
+          apartment_owners: {
             include: {
               apartments: {
                 include: { buildings: true },
               },
             },
           },
-          tenant_apartments: {
+          apartment_tenants: {
             include: {
               apartments: {
                 include: { buildings: true },
@@ -50,7 +50,7 @@ export class GDPRService {
       });
 
       // Get files
-      const files = await this.prisma.file.findMany({
+      const files = await this.prisma.files.findMany({
         where: { user_id: userId },
         orderBy: { created_at: 'desc' },
       });
@@ -131,7 +131,7 @@ export class GDPRService {
 
         // Delete files
         // Note: Should also delete from cloud storage
-        await tx.file.deleteMany({
+        await tx.files.deleteMany({
           where: { user_id: userId },
         });
 
@@ -234,7 +234,7 @@ export class GDPRService {
       where: { user_id: userId },
     });
 
-    const filesCount = await this.prisma.file.count({
+    const filesCount = await this.prisma.files.count({
       where: { user_id: userId },
     });
 

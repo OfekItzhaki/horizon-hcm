@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { Request } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
+import { generateId } from '../utils/id-generator';
 
 export interface DeviceFingerprintData {
   userAgent: string;
@@ -79,6 +80,7 @@ export class DeviceFingerprintService {
     // Create new fingerprint
     return this.prisma.device_fingerprints.create({
       data: {
+        id: generateId(),
         user_id: userId,
         fingerprint_hash: fingerprintHash,
         user_agent: data.userAgent,

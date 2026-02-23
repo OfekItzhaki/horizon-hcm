@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { LoggerService } from '../logger/logger.service';
@@ -103,18 +98,13 @@ export class PerformanceInterceptor implements NestInterceptor {
     this.logger.logWithMetadata('info', 'Performance Metrics', performanceData);
 
     // Store metrics in database (async, don't block response)
-    this.storeMetrics(
-      method,
-      url,
-      responseTime,
-      metrics,
-      statusCode,
-      errorMessage,
-    ).catch((error) => {
-      this.logger.logWithMetadata('error', 'Failed to store performance metrics', {
-        error: error.message,
-      });
-    });
+    this.storeMetrics(method, url, responseTime, metrics, statusCode, errorMessage).catch(
+      (error) => {
+        this.logger.logWithMetadata('error', 'Failed to store performance metrics', {
+          error: error.message,
+        });
+      },
+    );
 
     // Warn if response time is slow
     if (responseTime > 1000) {
@@ -146,7 +136,7 @@ export class PerformanceInterceptor implements NestInterceptor {
     errorMessage?: string,
   ): Promise<void> {
     try {
-      await this.prisma.performanceMetric.create({
+      await this.prisma.performance_metrics.create({
         data: {
           endpoint: `${method} ${url}`,
           response_time_ms: responseTime,

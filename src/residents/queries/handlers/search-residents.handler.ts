@@ -23,14 +23,14 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
           },
           OR: [
             {
-              committee_memberships: {
+              building_committee_members: {
                 some: {
                   building_id: buildingId,
                 },
               },
             },
             {
-              owned_apartments: {
+              apartment_owners: {
                 some: {
                   apartment: {
                     building_id: buildingId,
@@ -39,7 +39,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
               },
             },
             {
-              tenant_apartments: {
+              apartment_tenants: {
                 some: {
                   is_active: true,
                   apartment: {
@@ -68,14 +68,14 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
           },
           OR: [
             {
-              committee_memberships: {
+              building_committee_members: {
                 some: {
                   building_id: buildingId,
                 },
               },
             },
             {
-              owned_apartments: {
+              apartment_owners: {
                 some: {
                   apartment: {
                     building_id: buildingId,
@@ -84,7 +84,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
               },
             },
             {
-              tenant_apartments: {
+              apartment_tenants: {
                 some: {
                   is_active: true,
                   apartment: {

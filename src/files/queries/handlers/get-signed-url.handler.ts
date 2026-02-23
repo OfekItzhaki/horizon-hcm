@@ -15,7 +15,7 @@ export class GetSignedUrlHandler implements IQueryHandler<GetSignedUrlQuery> {
   async execute(query: GetSignedUrlQuery) {
     const { fileId, userId, expiresIn } = query;
 
-    const file = await this.prisma.file.findUnique({
+    const file = await this.prisma.files.findUnique({
       where: { id: fileId },
     });
 
@@ -29,10 +29,7 @@ export class GetSignedUrlHandler implements IQueryHandler<GetSignedUrlQuery> {
     }
 
     // Generate signed URL
-    const signedUrl = await this.storageService.getSignedUrl(
-      file.storage_key,
-      expiresIn,
-    );
+    const signedUrl = await this.storageService.getSignedUrl(file.storage_key, expiresIn);
 
     return {
       url: signedUrl,

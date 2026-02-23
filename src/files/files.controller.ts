@@ -29,7 +29,6 @@ import { CompleteChunkedUploadCommand } from './commands/impl/complete-chunked-u
 import { GetFileQuery } from './queries/impl/get-file.query';
 import { GetSignedUrlQuery } from './queries/impl/get-signed-url.query';
 import { GetUploadProgressQuery } from './queries/impl/get-upload-progress.query';
-import { UploadFileDto } from './dto/upload-file.dto';
 import { InitializeChunkedUploadDto } from './dto/initialize-chunked-upload.dto';
 
 @ApiTags('files')
@@ -64,7 +63,7 @@ export class FilesController {
   @ApiBearerAuth()
   async uploadFile(
     @Request() req,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.files,
     @Query('isPublic') isPublic: boolean = false,
   ) {
     const userId = req.user?.id || req.user?.sub;
@@ -78,10 +77,7 @@ export class FilesController {
   @ApiResponse({ status: 201, description: 'Chunked upload initialized' })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiBearerAuth()
-  async initializeChunkedUpload(
-    @Request() req,
-    @Body() dto: InitializeChunkedUploadDto,
-  ) {
+  async initializeChunkedUpload(@Request() req, @Body() dto: InitializeChunkedUploadDto) {
     const userId = req.user?.id || req.user?.sub;
 
     const command = new InitializeChunkedUploadCommand(
@@ -117,16 +113,11 @@ export class FilesController {
     @Request() req,
     @Param('uploadId') uploadId: string,
     @Param('chunkIndex', ParseIntPipe) chunkIndex: number,
-    @UploadedFile() chunk: Express.Multer.File,
+    @UploadedFile() chunk: Express.Multer.files,
   ) {
     const userId = req.user?.id || req.user?.sub;
 
-    const command = new UploadChunkCommand(
-      userId,
-      uploadId,
-      chunkIndex,
-      chunk.buffer,
-    );
+    const command = new UploadChunkCommand(userId, uploadId, chunkIndex, chunk.buffer);
 
     return this.commandBus.execute(command);
   }
@@ -152,10 +143,7 @@ export class FilesController {
   @ApiResponse({ status: 200, description: 'Progress retrieved' })
   @ApiResponse({ status: 404, description: 'Upload session not found' })
   @ApiBearerAuth()
-  async getUploadProgress(
-    @Request() req,
-    @Param('uploadId') uploadId: string,
-  ) {
+  async getUploadProgress(@Request() req, @Param('uploadId') uploadId: string) {
     const userId = req.user?.id || req.user?.sub;
 
     const query = new GetUploadProgressQuery(uploadId, userId);

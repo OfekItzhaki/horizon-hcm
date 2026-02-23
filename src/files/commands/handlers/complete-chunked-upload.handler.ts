@@ -1,5 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ChunkedUploadService } from '../../services/chunked-upload.service';
 import { StorageService } from '../../services/storage.service';
@@ -8,9 +13,7 @@ import { CompleteChunkedUploadCommand } from '../impl/complete-chunked-upload.co
 
 @Injectable()
 @CommandHandler(CompleteChunkedUploadCommand)
-export class CompleteChunkedUploadHandler
-  implements ICommandHandler<CompleteChunkedUploadCommand>
-{
+export class CompleteChunkedUploadHandler implements ICommandHandler<CompleteChunkedUploadCommand> {
   constructor(
     private prisma: PrismaService,
     private chunkedUploadService: ChunkedUploadService,
@@ -47,13 +50,13 @@ export class CompleteChunkedUploadHandler
         originalname: session.filename,
         mimetype: session.mimeType,
         size: completeFile.length,
-      } as Express.Multer.File,
+      } as Express.Multer.files,
       userId,
       isPublic,
     );
 
     // Create file record
-    const fileRecord = await this.prisma.file.create({
+    const fileRecord = await this.prisma.files.create({
       data: {
         user_id: userId,
         filename: session.filename,
@@ -68,14 +71,10 @@ export class CompleteChunkedUploadHandler
 
     // Queue image processing if it's an image
     if (this.imageProcessingService.isImage(session.mimeType)) {
-      await this.imageProcessingService.queueImageProcessing(
-        fileRecord.id,
-        completeFile,
-        {
-          quality: 85,
-          generateThumbnails: true,
-        },
-      );
+      await this.imageProcessingService.queueImageProcessing(fileRecord.id, completeFile, {
+        quality: 85,
+        generateThumbnails: true,
+      });
     }
 
     // Clean up upload session

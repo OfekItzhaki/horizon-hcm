@@ -31,7 +31,7 @@ export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCo
         floor: floor !== undefined ? floor : undefined,
         is_vacant: isVacant !== undefined ? isVacant : undefined,
       },
-      include: { apartment_owners: true, tenants: true },
+      include: { apartment_apartment_owners: true, apartment_tenants: true },
     });
 
     // Log audit

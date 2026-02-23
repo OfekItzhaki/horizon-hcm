@@ -19,9 +19,7 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
 
     // Validate file type
     if (!this.storageService.validateFileType(file.mimetype)) {
-      throw new BadRequestException(
-        `File type ${file.mimetype} is not allowed`,
-      );
+      throw new BadRequestException(`File type ${file.mimetype} is not allowed`);
     }
 
     // Validate file size
@@ -31,14 +29,10 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
     }
 
     // Upload to cloud storage
-    const { storageKey, url } = await this.storageService.upload(
-      file,
-      userId,
-      isPublic,
-    );
+    const { storageKey, url } = await this.storageService.upload(file, userId, isPublic);
 
     // Create file record in database
-    const fileRecord = await this.prisma.file.create({
+    const fileRecord = await this.prisma.files.create({
       data: {
         user_id: userId,
         filename: file.originalname,
@@ -53,14 +47,10 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
 
     // Queue image processing if it's an image
     if (this.imageProcessingService.isImage(file.mimetype)) {
-      await this.imageProcessingService.queueImageProcessing(
-        fileRecord.id,
-        file.buffer,
-        {
-          quality: 85,
-          generateThumbnails: true,
-        },
-      );
+      await this.imageProcessingService.queueImageProcessing(fileRecord.id, file.buffer, {
+        quality: 85,
+        generateThumbnails: true,
+      });
     }
 
     return fileRecord;

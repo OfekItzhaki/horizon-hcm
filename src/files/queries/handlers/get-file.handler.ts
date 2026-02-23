@@ -11,7 +11,7 @@ export class GetFileHandler implements IQueryHandler<GetFileQuery> {
   async execute(query: GetFileQuery) {
     const { fileId, userId } = query;
 
-    const file = await this.prisma.file.findUnique({
+    const file = await this.prisma.files.findUnique({
       where: { id: fileId },
     });
 

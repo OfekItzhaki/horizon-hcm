@@ -14,7 +14,7 @@ export class GetApartmentHandler implements IQueryHandler<GetApartmentQuery> {
       where: { id: apartmentId },
       include: {
         buildings: true,
-        owners: {
+        apartment_owners: {
           include: {
             user_profiles: {
               select: {
@@ -26,7 +26,7 @@ export class GetApartmentHandler implements IQueryHandler<GetApartmentQuery> {
             },
           },
         },
-        tenants: {
+        apartment_tenants: {
           where: { is_active: true },
           include: {
             user_profiles: {

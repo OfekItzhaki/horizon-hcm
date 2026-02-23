@@ -16,7 +16,7 @@ export class GetPaymentHandler implements IQueryHandler<GetPaymentQuery> {
         apartments: {
           include: {
             buildings: true,
-            owners: {
+            apartment_owners: {
               include: {
                 user_profiles: {
                   select: {

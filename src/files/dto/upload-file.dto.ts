@@ -7,7 +7,7 @@ export class UploadFileDto {
     format: 'binary',
     description: 'File to upload',
   })
-  file: Express.Multer.File;
+  file: Express.Multer.files;
 
   @ApiProperty({
     description: 'Make file publicly accessible',

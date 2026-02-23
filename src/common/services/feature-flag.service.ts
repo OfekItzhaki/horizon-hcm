@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from './cache.service';
+import { generateId } from '../utils/id-generator';
 
 @Injectable()
 export class FeatureFlagService {
@@ -61,6 +62,7 @@ export class FeatureFlagService {
     // Store assignment
     await this.prisma.feature_flag_assignments.create({
       data: {
+        id: generateId(),
         feature_flag_id: flag.id,
         user_id: userId,
         variant,
@@ -83,6 +85,7 @@ export class FeatureFlagService {
     const flag = await this.prisma.feature_flags.upsert({
       where: { name: data.name },
       create: {
+        id: generateId(),
         name: data.name,
         description: data.description,
         is_enabled: data.isEnabled,

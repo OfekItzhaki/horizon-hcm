@@ -27,7 +27,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
               full_name: true,
               phone_number: true,
               user_type: true,
-              owned_apartments: {
+              apartment_owners: {
                 where: {
                   apartments: {
                     building_id: buildingId,

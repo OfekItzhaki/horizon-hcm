@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Request } from 'express';
+import { generateId } from '../utils/id-generator';
 
 export interface AuditLogEntry {
   userId?: string;
@@ -25,6 +26,7 @@ export class AuditLogService {
     try {
       await this.prisma.audit_logs.create({
         data: {
+          id: generateId(),
           user_id: entry.userId,
           action: entry.action,
           resource_type: entry.resourceType,

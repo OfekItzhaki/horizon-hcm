@@ -128,7 +128,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     const buffer = Buffer.from(csvContent, 'utf-8');
 
     // Create a mock Multer file object for the upload method
-    const mockFile: Express.Multer.File = {
+    const mockFile: Express.Multer.files = {
       buffer,
       originalname: fileName,
       mimetype: 'text/csv',

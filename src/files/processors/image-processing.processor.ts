@@ -29,17 +29,14 @@ export class ImageProcessingProcessor extends WorkerHost {
   async process(job: Job<ImageProcessingJobData>): Promise<any> {
     const { fileId, buffer: base64Buffer, options } = job.data;
 
-    this.logger.log(
-      `Processing image job for file: ${fileId}`,
-      'ImageProcessingProcessor',
-    );
+    this.logger.log(`Processing image job for file: ${fileId}`, 'ImageProcessingProcessor');
 
     try {
       // Convert base64 back to buffer
       const buffer = Buffer.from(base64Buffer, 'base64');
 
       // Get file record
-      const file = await this.prisma.file.findUnique({
+      const file = await this.prisma.files.findUnique({
         where: { id: fileId },
       });
 
@@ -48,8 +45,10 @@ export class ImageProcessingProcessor extends WorkerHost {
       }
 
       // Process image (compress and generate thumbnails)
-      const { compressed, thumbnails } =
-        await this.imageProcessingService.processImage(buffer, options);
+      const { compressed, thumbnails } = await this.imageProcessingService.processImage(
+        buffer,
+        options,
+      );
 
       // Upload compressed version (replace original)
       // In production, you might want to keep the original
@@ -59,7 +58,7 @@ export class ImageProcessingProcessor extends WorkerHost {
           originalname: file.filename,
           mimetype: `image/${compressed.format}`,
           size: compressed.size,
-        } as Express.Multer.File,
+        } as Express.Multer.files,
         file.user_id,
         file.is_public,
       );
@@ -77,8 +76,6 @@ export class ImageProcessingProcessor extends WorkerHost {
         const thumbnailUrls: any = {};
 
         for (const [size, thumbnail] of Object.entries(thumbnails)) {
-          const thumbnailKey = `${file.storage_key}_thumb_${size}`;
-          
           // Upload thumbnail
           const thumbResult = await this.storageService.upload(
             {
@@ -86,7 +83,7 @@ export class ImageProcessingProcessor extends WorkerHost {
               originalname: `${file.filename}_${size}`,
               mimetype: `image/${thumbnail.format}`,
               size: thumbnail.size,
-            } as Express.Multer.File,
+            } as Express.Multer.files,
             file.user_id,
             file.is_public,
           );
@@ -98,7 +95,7 @@ export class ImageProcessingProcessor extends WorkerHost {
       }
 
       // Update file record
-      await this.prisma.file.update({
+      await this.prisma.files.update({
         where: { id: fileId },
         data: {
           storage_key: uploadResult.storageKey,
@@ -108,10 +105,7 @@ export class ImageProcessingProcessor extends WorkerHost {
         },
       });
 
-      this.logger.log(
-        `Image processing completed for file: ${fileId}`,
-        'ImageProcessingProcessor',
-      );
+      this.logger.log(`Image processing completed for file: ${fileId}`, 'ImageProcessingProcessor');
 
       return { success: true, fileId };
     } catch (error) {

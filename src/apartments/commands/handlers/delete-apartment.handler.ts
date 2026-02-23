@@ -17,7 +17,10 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
     // Check if apartment exists
     const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
-      include: { apartment_tenants: { where: { is_active: true } }, owners: true },
+      include: {
+        apartment_apartment_tenants: { where: { is_active: true } },
+        apartment_owners: true,
+      },
     });
 
     if (!apartment) {

@@ -16,7 +16,7 @@ export class DeleteFileHandler implements ICommandHandler<DeleteFileCommand> {
     const { fileId, userId } = command;
 
     // Get file record
-    const file = await this.prisma.file.findUnique({
+    const file = await this.prisma.files.findUnique({
       where: { id: fileId },
     });
 
@@ -33,7 +33,7 @@ export class DeleteFileHandler implements ICommandHandler<DeleteFileCommand> {
     await this.storageService.delete(file.storage_key);
 
     // Delete from database
-    await this.prisma.file.delete({
+    await this.prisma.files.delete({
       where: { id: fileId },
     });
 
