@@ -23,5 +23,5 @@ export const authApi = {
 
   disable2FA: (password: string) => apiClient.post('/auth/2fa/disable', { password }),
 
-  getCurrentUser: () => apiClient.get<User>('/auth/me'),
+  getCurrentUser: () => apiClient.get<User>('/auth/profile'),
 };

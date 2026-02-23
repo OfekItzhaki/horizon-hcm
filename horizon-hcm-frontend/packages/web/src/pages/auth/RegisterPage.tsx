@@ -26,29 +26,37 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     mode: 'onSubmit',
     defaultValues: {
       email: '',
       password: '',
+      confirmPassword: '',
       fullName: '',
       phone: '',
       acceptedTerms: false,
     },
   });
 
+  const password = watch('password');
+
   const onSubmit = async (data: RegisterInput) => {
     try {
       setError(null);
       setIsLoading(true);
 
-      await authApi.register(data);
+      // Remove confirmPassword before sending to API
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword, ...registerData } = data;
+      await authApi.register(registerData);
 
       // Redirect to login page with success message
       navigate('/login', {
@@ -179,6 +187,41 @@ export default function RegisterPage() {
                 />
               )}
             />
+
+            {/* Show confirm password field only when password has been entered */}
+            {password && password.length > 0 && (
+              <Controller
+                name="confirmPassword"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Confirm Password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle confirm password visibility"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            onMouseDown={(e) => e.preventDefault()}
+                            edge="end"
+                          >
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            )}
 
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller

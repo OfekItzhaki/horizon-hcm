@@ -21,15 +21,21 @@ export const loginSchema = z.object({
 });
 
 // Register schema
-export const registerSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-  fullName: z.string().min(1, 'Full name is required'),
-  phone: phoneSchema,
-  acceptedTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
-});
+export const registerSchema = z
+  .object({
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    fullName: z.string().min(1, 'Full name is required'),
+    phone: phoneSchema,
+    acceptedTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the terms and conditions',
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 // Password reset request schema
 export const passwordResetRequestSchema = z.object({
