@@ -26,6 +26,7 @@ import { HealthModule } from './health/health.module';
 import { RegistrationModule } from './registration/registration.module';
 import { UsersModule } from './users/users.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { MessagesModule } from './messages/messages.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { ApiVersioningMiddleware } from './common/middleware/api-versioning.middleware';
 
@@ -90,6 +91,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     RegistrationModule,
     UsersModule,
     InvoicesModule,
+    MessagesModule,
     BuildingsModule,
     ApartmentsModule,
     PaymentsModule,
