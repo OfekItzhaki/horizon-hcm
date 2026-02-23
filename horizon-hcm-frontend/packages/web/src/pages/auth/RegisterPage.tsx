@@ -12,26 +12,28 @@ import {
   FormControlLabel,
   Alert,
   CircularProgress,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
-// import { zodResolver } from '@hookform/resolvers/zod';
-import { type RegisterInput } from '@horizon-hcm/shared';
-// import { registerSchema } from '@horizon-hcm/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { registerSchema, type RegisterInput } from '@horizon-hcm/shared';
 import { authApi } from '@horizon-hcm/shared';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<RegisterInput>({
-    // resolver: zodResolver(registerSchema), // Temporarily disabled for debugging
-    mode: 'onSubmit', // Only validate on submit
+    resolver: zodResolver(registerSchema),
+    mode: 'onSubmit',
     defaultValues: {
       email: '',
       password: '',
@@ -41,25 +43,18 @@ export default function RegisterPage() {
     },
   });
 
-  console.log('Form errors:', errors);
-  console.log('Form values:', getValues());
-
   const onSubmit = async (data: RegisterInput) => {
-    console.log('Form submitted with data:', data);
     try {
       setError(null);
       setIsLoading(true);
 
-      console.log('Calling authApi.register...');
-      const response = await authApi.register(data);
-      console.log('Registration response:', response);
+      await authApi.register(data);
 
       // Redirect to login page with success message
       navigate('/login', {
         state: { message: 'Registration successful! Please log in.' },
       });
     } catch (err) {
-      console.error('Registration error:', err);
       const error = err as Error & { response?: { data?: { message?: string } } };
       const message = error.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
@@ -94,12 +89,7 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <form
-            onSubmit={(e) => {
-              console.log('Form onSubmit event triggered');
-              handleSubmit(onSubmit)(e);
-            }}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller
               name="fullName"
@@ -142,22 +132,19 @@ export default function RegisterPage() {
             <Controller
               name="phone"
               control={control}
-              render={({ field }) => {
-                console.log('Phone field value:', field.value, 'Type:', typeof field.value);
-                return (
-                  <TextField
-                    {...field}
-                    label="Phone Number"
-                    type="tel"
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.phone}
-                    helperText={errors.phone?.message}
-                    disabled={isLoading}
-                    autoComplete="tel"
-                  />
-                );
-              }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Phone Number"
+                  type="tel"
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.phone}
+                  helperText={errors.phone?.message}
+                  disabled={isLoading}
+                  autoComplete="tel"
+                />
+              )}
             />
 
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
@@ -168,13 +155,27 @@ export default function RegisterPage() {
                 <TextField
                   {...field}
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   fullWidth
                   margin="normal"
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   disabled={isLoading}
                   autoComplete="new-password"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          onMouseDown={(e) => e.preventDefault()}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />
@@ -222,10 +223,6 @@ export default function RegisterPage() {
               size="large"
               disabled={isLoading}
               sx={{ mt: 3, mb: 2 }}
-              onClick={() => {
-                console.log('Button clicked, form values:', getValues());
-                console.log('Form errors before submit:', errors);
-              }}
             >
               {isLoading ? <CircularProgress size={24} /> : 'Create Account'}
             </Button>
