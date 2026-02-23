@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
+import { generateId } from '../../common/utils/id-generator';
 
 export interface SyncDelta {
   entityType: string;
@@ -305,9 +306,11 @@ export class SyncService {
     if (!syncState) {
       syncState = await this.prisma.sync_states.create({
         data: {
+          id: generateId(),
           user_id: userId,
           entity_type: entityType,
           last_sync_timestamp: new Date(0), // Epoch start for first sync
+          updated_at: new Date(),
         },
       });
     }
@@ -328,6 +331,7 @@ export class SyncService {
       },
       data: {
         last_sync_timestamp: newTimestamp,
+        updated_at: new Date(),
       },
     });
   }

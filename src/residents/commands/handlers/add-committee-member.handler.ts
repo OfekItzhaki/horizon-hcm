@@ -4,6 +4,7 @@ import { AddCommitteeMemberCommand } from '../impl/add-committee-member.command'
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { CacheService } from '../../../common/services/cache.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @Injectable()
 @CommandHandler(AddCommitteeMemberCommand)
@@ -52,6 +53,7 @@ export class AddCommitteeMemberHandler implements ICommandHandler<AddCommitteeMe
     // Create committee membership
     const committeeMember = await this.prisma.building_committee_members.create({
       data: {
+        id: generateId(),
         building_id: buildingId,
         user_id: userId,
         role: role,

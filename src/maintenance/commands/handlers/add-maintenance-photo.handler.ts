@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AddMaintenancePhotoCommand } from '../impl/add-maintenance-photo.command';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(AddMaintenancePhotoCommand)
 export class AddMaintenancePhotoHandler implements ICommandHandler<AddMaintenancePhotoCommand> {
@@ -31,6 +32,7 @@ export class AddMaintenancePhotoHandler implements ICommandHandler<AddMaintenanc
     // Add photo
     const photo = await this.prisma.maintenance_photos.create({
       data: {
+        id: generateId(),
         maintenance_request_id: requestId,
         file_id: fileId,
       },

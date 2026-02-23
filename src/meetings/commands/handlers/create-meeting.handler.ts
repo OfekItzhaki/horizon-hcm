@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateMeetingCommand } from '../impl/create-meeting.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(CreateMeetingCommand)
 export class CreateMeetingHandler implements ICommandHandler<CreateMeetingCommand> {
@@ -26,6 +27,7 @@ export class CreateMeetingHandler implements ICommandHandler<CreateMeetingComman
     // Create meeting
     const meeting = await this.prisma.meetings.create({
       data: {
+        id: generateId(),
         building_id: buildingId,
         created_by: organizerId,
         title,
@@ -33,15 +35,18 @@ export class CreateMeetingHandler implements ICommandHandler<CreateMeetingComman
         meeting_date: scheduledAt,
         location,
         status: 'scheduled',
-        attendees: {
+        updated_at: new Date(),
+        meeting_attendees: {
           create: attendeeIds.map((user_id) => ({
+            id: generateId(),
             user_id,
             rsvp_status: 'pending',
+            updated_at: new Date(),
           })),
         },
       },
       include: {
-        attendees: true,
+        meeting_attendees: true,
       },
     });
 

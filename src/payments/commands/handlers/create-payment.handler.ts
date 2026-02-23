@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreatePaymentCommand } from '../impl/create-payment.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(CreatePaymentCommand)
 export class CreatePaymentHandler implements ICommandHandler<CreatePaymentCommand> {
@@ -27,6 +28,7 @@ export class CreatePaymentHandler implements ICommandHandler<CreatePaymentComman
     // Create payment
     const payment = await this.prisma.payments.create({
       data: {
+        id: generateId(),
         apartment_id: apartmentId,
         amount,
         due_date: dueDate,
@@ -35,6 +37,7 @@ export class CreatePaymentHandler implements ICommandHandler<CreatePaymentComman
         description,
         reference_number: referenceNumber,
         created_by: createdBy,
+        updated_at: new Date(),
       },
       include: {
         apartments: {

@@ -18,7 +18,7 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
     const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
       include: {
-        apartment_apartment_tenants: { where: { is_active: true } },
+        apartment_tenants: { where: { is_active: true } },
         apartment_owners: true,
       },
     });
@@ -28,7 +28,7 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
     }
 
     // Check for active tenants
-    if (apartment.tenants.length > 0) {
+    if (apartment.apartment_tenants.length > 0) {
       throw new BadRequestException('Cannot delete apartment with active tenants');
     }
 

@@ -22,7 +22,7 @@ export class ListApartmentsHandler implements IQueryHandler<ListApartmentsQuery>
         skip,
         take: limit,
         include: {
-          apartment_apartment_owners: {
+          apartment_owners: {
             select: {
               id: true,
               ownership_share: true,

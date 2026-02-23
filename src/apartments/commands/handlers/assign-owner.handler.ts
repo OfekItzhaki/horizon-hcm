@@ -18,7 +18,7 @@ export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
     // Check if apartment exists
     const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
-      include: { apartment_apartment_owners: true },
+      include: { apartment_owners: true },
     });
 
     if (!apartment) {

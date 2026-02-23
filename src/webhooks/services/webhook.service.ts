@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CommandBus } from '@nestjs/cqrs';
 import * as crypto from 'crypto';
+import { generateId } from '../../common/utils/id-generator';
 
 export interface WebhookConfig {
   url: string;
@@ -33,13 +34,15 @@ export class WebhookService {
       // Generate secret if not provided
       const secret = config.secret || this.generateSecret();
 
-      const webhook = await this.prisma.webhook.create({
+      const webhook = await this.prisma.webhooks.create({
         data: {
+          id: generateId(),
           url: config.url,
           events: config.events,
           secret,
           created_by: config.createdBy,
           is_active: true,
+          updated_at: new Date(),
         },
       });
 
@@ -57,12 +60,13 @@ export class WebhookService {
    */
   async updateWebhook(webhookId: string, updates: Partial<WebhookConfig>): Promise<void> {
     try {
-      await this.prisma.webhook.update({
+      await this.prisma.webhooks.update({
         where: { id: webhookId },
         data: {
           url: updates.url,
           events: updates.events,
           is_active: updates.secret !== undefined ? true : undefined,
+          updated_at: new Date(),
         },
       });
 
@@ -78,7 +82,7 @@ export class WebhookService {
    */
   async deleteWebhook(webhookId: string): Promise<void> {
     try {
-      await this.prisma.webhook.delete({
+      await this.prisma.webhooks.delete({
         where: { id: webhookId },
       });
 
@@ -93,10 +97,10 @@ export class WebhookService {
    * Get webhook by ID
    */
   async getWebhook(webhookId: string) {
-    return await this.prisma.webhook.findUnique({
+    return await this.prisma.webhooks.findUnique({
       where: { id: webhookId },
       include: {
-        deliveries: {
+        webhook_deliveries: {
           orderBy: { created_at: 'desc' },
           take: 10,
         },
@@ -108,7 +112,7 @@ export class WebhookService {
    * List all webhooks for a user
    */
   async listWebhooks(userId: string) {
-    return await this.prisma.webhook.findMany({
+    return await this.prisma.webhooks.findMany({
       where: { created_by: userId },
       orderBy: { created_at: 'desc' },
     });
@@ -120,7 +124,7 @@ export class WebhookService {
   async triggerWebhook(event: WebhookEvent): Promise<void> {
     try {
       // Find all active webhooks subscribed to this event type
-      const webhooks = await this.prisma.webhook.findMany({
+      const webhooks = await this.prisma.webhooks.findMany({
         where: {
           is_active: true,
           events: {
@@ -151,6 +155,7 @@ export class WebhookService {
   private async createDelivery(webhookId: string, event: WebhookEvent): Promise<string> {
     const delivery = await this.prisma.webhook_deliveries.create({
       data: {
+        id: generateId(),
         webhook_id: webhookId,
         event_type: event.type,
         payload: event.data,
@@ -183,7 +188,7 @@ export class WebhookService {
     try {
       const delivery = await this.prisma.webhook_deliveries.findUnique({
         where: { id: deliveryId },
-        include: { webhook: true },
+        include: { webhooks: true },
       });
 
       if (!delivery) {

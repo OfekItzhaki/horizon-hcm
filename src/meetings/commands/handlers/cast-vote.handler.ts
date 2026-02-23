@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CastVoteCommand } from '../impl/cast-vote.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(CastVoteCommand)
 export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
@@ -50,6 +51,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     // Create vote record
     const voteRecord = await this.prisma.vote_records.create({
       data: {
+        id: generateId(),
         vote_id: voteId,
         user_id: userId,
         option: selectedOption,

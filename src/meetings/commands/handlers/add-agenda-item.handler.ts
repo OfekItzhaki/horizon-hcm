@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AddAgendaItemCommand } from '../impl/add-agenda-item.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(AddAgendaItemCommand)
 export class AddAgendaItemHandler implements ICommandHandler<AddAgendaItemCommand> {
@@ -25,6 +26,7 @@ export class AddAgendaItemHandler implements ICommandHandler<AddAgendaItemComman
     // Create agenda item
     const agendaItem = await this.prisma.agenda_items.create({
       data: {
+        id: generateId(),
         meeting_id: meetingId,
         title,
         description,

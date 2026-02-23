@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateTemplateCommand } from '../impl/create-template.command';
+import { generateId } from '../../../common/utils/id-generator';
 
 @Injectable()
 @CommandHandler(CreateTemplateCommand)
@@ -14,11 +15,13 @@ export class CreateTemplateHandler implements ICommandHandler<CreateTemplateComm
     // Create notification template
     const template = await this.prisma.notification_templates.create({
       data: {
+        id: generateId(),
         name,
         title,
         body,
         language,
         is_active: true,
+        updated_at: new Date(),
       },
     });
 

@@ -4,6 +4,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { StorageService } from '../../services/storage.service';
 import { ImageProcessingService } from '../../services/image-processing.service';
 import { UploadFileCommand } from '../impl/upload-file.command';
+import { generateId } from '../../../common/utils/id-generator';
 
 @Injectable()
 @CommandHandler(UploadFileCommand)
@@ -34,6 +35,7 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
     // Create file record in database
     const fileRecord = await this.prisma.files.create({
       data: {
+        id: generateId(),
         user_id: userId,
         filename: file.originalname,
         storage_key: storageKey,
@@ -42,6 +44,7 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
         url,
         is_public: isPublic,
         is_scanned: false, // Will be updated by malware scanner
+        updated_at: new Date(),
       },
     });
 

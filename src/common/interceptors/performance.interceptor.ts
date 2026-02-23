@@ -4,6 +4,7 @@ import { tap } from 'rxjs/operators';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getCorrelationId } from '../middleware/correlation-id.middleware';
+import { generateId } from '../utils/id-generator';
 
 interface PerformanceMetrics {
   correlationId?: string;
@@ -138,6 +139,7 @@ export class PerformanceInterceptor implements NestInterceptor {
     try {
       await this.prisma.performance_metrics.create({
         data: {
+          id: generateId(),
           endpoint: `${method} ${url}`,
           response_time_ms: responseTime,
           database_queries: metrics.databaseQueries || 0,

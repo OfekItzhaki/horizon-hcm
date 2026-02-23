@@ -128,7 +128,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
         this.prisma.apartment_tenants.findMany({
           where: {
             is_active: true,
-            apartment: {
+            apartments: {
               building_id: buildingId,
               apartment_number: searchTerm,
             },
@@ -149,7 +149,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
       // Deduplicate and combine
       const residentsMap = new Map();
       [...owners, ...tenants].forEach((record) => {
-        const user = record.user_profile;
+        const user = record.user_profiles;
         if (!residentsMap.has(user.id)) {
           residentsMap.set(user.id, user);
         }

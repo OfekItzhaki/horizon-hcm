@@ -15,6 +15,7 @@ import {
   NotificationProvider,
   NotificationResult,
 } from '../interfaces/notification.interface';
+import { generateId } from '../../common/utils/id-generator';
 
 export interface SendTemplatedNotificationDto {
   userId: string;
@@ -80,6 +81,7 @@ export class NotificationService {
       // 4. Create notification log entry
       const log = await this.prisma.notification_logs.create({
         data: {
+          id: generateId(),
           user_id: userId,
           template_name: templateName,
           title,

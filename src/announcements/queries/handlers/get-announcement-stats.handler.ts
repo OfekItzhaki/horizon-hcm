@@ -20,7 +20,7 @@ export class GetAnnouncementStatsHandler implements IQueryHandler<GetAnnouncemen
 
     // TODO: Get total residents count for the building to calculate percentage
     const totalResidents = 100; // Placeholder
-    const readCount = announcement.read_receipts.length;
+    const readCount = announcement.announcement_reads.length;
     const readPercentage = (readCount / totalResidents) * 100;
 
     return {

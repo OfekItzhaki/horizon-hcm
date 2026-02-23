@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AddMaintenanceCommentCommand } from '../impl/add-maintenance-comment.command';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(AddMaintenanceCommentCommand)
 export class AddMaintenanceCommentHandler implements ICommandHandler<AddMaintenanceCommentCommand> {
@@ -22,6 +23,7 @@ export class AddMaintenanceCommentHandler implements ICommandHandler<AddMaintena
     // Add comment
     const maintenanceComment = await this.prisma.maintenance_comments.create({
       data: {
+        id: generateId(),
         maintenance_request_id: requestId,
         user_id: userId,
         comment,

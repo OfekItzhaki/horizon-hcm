@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UploadDocumentCommand } from '../impl/upload-document.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(UploadDocumentCommand)
 export class UploadDocumentHandler implements ICommandHandler<UploadDocumentCommand> {
@@ -46,6 +47,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
     // Create document
     const document = await this.prisma.documents.create({
       data: {
+        id: generateId(),
         building_id: buildingId,
         file_id: fileId,
         title,
@@ -54,6 +56,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
         version,
         previous_version_id: previousVersionId,
         uploaded_by: uploadedBy,
+        updated_at: new Date(),
       },
     });
 

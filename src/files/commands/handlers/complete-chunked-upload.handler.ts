@@ -10,6 +10,7 @@ import { ChunkedUploadService } from '../../services/chunked-upload.service';
 import { StorageService } from '../../services/storage.service';
 import { ImageProcessingService } from '../../services/image-processing.service';
 import { CompleteChunkedUploadCommand } from '../impl/complete-chunked-upload.command';
+import { generateId } from '../../../common/utils/id-generator';
 
 @Injectable()
 @CommandHandler(CompleteChunkedUploadCommand)
@@ -58,6 +59,7 @@ export class CompleteChunkedUploadHandler implements ICommandHandler<CompleteChu
     // Create file record
     const fileRecord = await this.prisma.files.create({
       data: {
+        id: generateId(),
         user_id: userId,
         filename: session.filename,
         storage_key: storageKey,
@@ -66,6 +68,7 @@ export class CompleteChunkedUploadHandler implements ICommandHandler<CompleteChu
         url,
         is_public: isPublic,
         is_scanned: false,
+        updated_at: new Date(),
       },
     });
 

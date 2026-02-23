@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateMaintenanceRequestCommand } from '../impl/create-maintenance-request.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(CreateMaintenanceRequestCommand)
 export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMaintenanceRequestCommand> {
@@ -38,6 +39,7 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
     // Create maintenance request
     const request = await this.prisma.maintenance_requests.create({
       data: {
+        id: generateId(),
         building_id: buildingId,
         apartment_id: apartmentId,
         requester_id: requesterId,
@@ -46,8 +48,9 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
         category,
         priority,
         status: 'pending',
+        updated_at: new Date(),
       },
-      include: { buildings: true, apartment: true },
+      include: { buildings: true, apartments: true },
     });
 
     // Log audit

@@ -39,7 +39,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
         floor: floor,
         is_vacant: true,
       },
-      include: { apartment_apartment_owners: true, apartment_apartment_tenants: true },
+      include: { apartment_owners: true, apartment_tenants: true },
     });
 
     // Log audit
