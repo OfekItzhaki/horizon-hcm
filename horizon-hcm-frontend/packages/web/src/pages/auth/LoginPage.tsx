@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -29,7 +29,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Get success message from navigation state
-  const successMessage = (location.state as any)?.message;
+  const successMessage = (location.state as { message?: string })?.message || null;
+
+  // Clear the navigation state after reading it
+  useEffect(() => {
+    if (location.state) {
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   const {
     control,
@@ -52,14 +59,42 @@ export default function LoginPage() {
       const loginResponse = await authApi.login(data);
       const { accessToken, refreshToken } = loginResponse.data;
 
-      // Fetch user profile
+      // Set tokens first so they're available for the next request
+      login(
+        {
+          id: '',
+          email: data.email,
+          name: '',
+          phone: '',
+          avatar: '',
+          role: 'tenant',
+          buildings: [],
+          apartments: [],
+          language: 'en',
+          theme: 'light',
+          notificationPreferences: {
+            emailNotifications: true,
+            pushNotifications: true,
+            enabledTypes: [],
+          },
+          twoFactorEnabled: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        accessToken,
+        refreshToken
+      );
+
+      // Fetch user profile (now with token set)
       const userResponse = await authApi.getCurrentUser();
       const user = userResponse.data;
 
+      // Update with real user data
       login(user, accessToken, refreshToken);
       navigate('/dashboard');
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Login failed. Please try again.';
+    } catch (err) {
+      const error = err as Error & { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message || 'Login failed. Please try again.';
       setError(message);
     } finally {
       setIsLoading(false);
