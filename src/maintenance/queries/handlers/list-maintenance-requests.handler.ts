@@ -37,13 +37,13 @@ export class ListMaintenanceRequestsHandler implements IQueryHandler<ListMainten
               apartment_number: true,
             },
           },
-          announcement_comments: {
+          maintenance_comments: {
             select: {
               id: true,
               created_at: true,
             },
           },
-          photos: {
+          maintenance_photos: {
             select: {
               id: true,
             },

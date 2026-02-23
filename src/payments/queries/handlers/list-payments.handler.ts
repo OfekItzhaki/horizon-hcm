@@ -32,7 +32,7 @@ export class ListPaymentsHandler implements IQueryHandler<ListPaymentsQuery> {
             select: {
               id: true,
               apartment_number: true,
-              building: {
+              buildings: {
                 select: {
                   id: true,
                   name: true,

@@ -60,7 +60,7 @@ export class RemoveCommitteeMemberHandler implements ICommandHandler<RemoveCommi
         buildingId,
         userId,
         role: committeeMember.role,
-        removedUserName: committeeMember.user_profile.full_name,
+        removedUserName: committeeMember.user_profiles.full_name,
       },
     });
 

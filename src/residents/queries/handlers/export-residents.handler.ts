@@ -29,7 +29,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
         },
         include: {
           user_profiles: true,
-          apartment: {
+          apartments: {
             select: {
               apartment_number: true,
             },
@@ -39,13 +39,13 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
       this.prisma.apartment_tenants.findMany({
         where: {
           is_active: true,
-          apartment: {
+          apartments: {
             building_id: buildingId,
           },
         },
         include: {
           user_profiles: true,
-          apartment: {
+          apartments: {
             select: {
               apartment_number: true,
             },
@@ -58,12 +58,12 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     const residentsMap = new Map();
 
     committeeMembers.forEach((member) => {
-      const userId = member.user_profile.id;
+      const userId = member.user_profiles.id;
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
-          full_name: member.user_profile.full_name,
-          phone_number: member.user_profile.phone_number || '',
-          user_type: member.user_profile.user_type,
+          full_name: member.user_profiles.full_name,
+          phone_number: member.user_profiles.phone_number || '',
+          user_type: member.user_profiles.user_type,
           apartments: [],
           committee_role: member.role || '',
         });
@@ -73,12 +73,12 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     });
 
     owners.forEach((owner) => {
-      const userId = owner.user_profile.id;
+      const userId = owner.user_profiles.id;
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
-          full_name: owner.user_profile.full_name,
-          phone_number: owner.user_profile.phone_number || '',
-          user_type: owner.user_profile.user_type,
+          full_name: owner.user_profiles.full_name,
+          phone_number: owner.user_profiles.phone_number || '',
+          user_type: owner.user_profiles.user_type,
           apartments: [],
           committee_role: '',
         });
@@ -87,12 +87,12 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     });
 
     tenants.forEach((tenant) => {
-      const userId = tenant.user_profile.id;
+      const userId = tenant.user_profiles.id;
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
-          full_name: tenant.user_profile.full_name,
-          phone_number: tenant.user_profile.phone_number || '',
-          user_type: tenant.user_profile.user_type,
+          full_name: tenant.user_profiles.full_name,
+          phone_number: tenant.user_profiles.phone_number || '',
+          user_type: tenant.user_profiles.user_type,
           apartments: [],
           committee_role: '',
         });
@@ -128,7 +128,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     const buffer = Buffer.from(csvContent, 'utf-8');
 
     // Create a mock Multer file object for the upload method
-    const mockFile: Express.Multer.files = {
+    const mockFile: Express.Multer.File = {
       buffer,
       originalname: fileName,
       mimetype: 'text/csv',

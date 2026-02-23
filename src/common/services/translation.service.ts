@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { generateId } from '../utils/id-generator';
 
 @Injectable()
 export class TranslationService {
@@ -20,13 +21,16 @@ export class TranslationService {
         },
       },
       create: {
+        id: generateId(),
         key,
         language,
         value,
         namespace,
+        updated_at: new Date(),
       },
       update: {
         value,
+        updated_at: new Date(),
       },
     });
   }

@@ -91,12 +91,14 @@ export class FeatureFlagService {
         is_enabled: data.isEnabled,
         variants: data.variants,
         rules: data.rules,
+        updated_at: new Date(),
       },
       update: {
         description: data.description,
         is_enabled: data.isEnabled,
         variants: data.variants,
         rules: data.rules,
+        updated_at: new Date(),
       },
     });
 

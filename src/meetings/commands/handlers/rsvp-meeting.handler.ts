@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RsvpMeetingCommand } from '../impl/rsvp-meeting.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { generateId } from '../../../common/utils/id-generator';
 
 @CommandHandler(RsvpMeetingCommand)
 export class RsvpMeetingHandler implements ICommandHandler<RsvpMeetingCommand> {
@@ -32,11 +33,14 @@ export class RsvpMeetingHandler implements ICommandHandler<RsvpMeetingCommand> {
       },
       update: {
         rsvp_status: status,
+        updated_at: new Date(),
       },
       create: {
+        id: generateId(),
         meeting_id: meetingId,
         user_id: userId,
         rsvp_status: status,
+        updated_at: new Date(),
       },
     });
 

@@ -169,7 +169,7 @@ export class StorageService {
     };
 
     const isImage = mimetype.startsWith('image/');
-    const maxSize = isImage ? maxSizes.image : maxSizes.documents;
+    const maxSize = isImage ? maxSizes.image : maxSizes.document;
 
     return size <= maxSize;
   }

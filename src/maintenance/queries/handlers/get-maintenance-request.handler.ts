@@ -15,10 +15,10 @@ export class GetMaintenanceRequestHandler implements IQueryHandler<GetMaintenanc
       include: {
         buildings: true,
         apartments: true,
-        announcement_comments: {
+        maintenance_comments: {
           orderBy: { created_at: 'asc' },
         },
-        photos: {
+        maintenance_photos: {
           orderBy: { created_at: 'asc' },
         },
       },
