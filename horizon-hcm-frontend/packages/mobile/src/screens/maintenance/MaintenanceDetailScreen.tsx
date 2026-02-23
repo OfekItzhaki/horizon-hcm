@@ -74,19 +74,14 @@ export default function MaintenanceDetailScreen({ route }: Props) {
             left={(props) => <List.Icon {...props} icon="tag" />}
           />
           <List.Item
-            title="Location"
-            description={request.location}
-            left={(props) => <List.Icon {...props} icon="map-marker" />}
-          />
-          <List.Item
             title="Submitted"
-            description={new Date(request.submittedDate).toLocaleDateString()}
+            description={new Date(request.createdAt).toLocaleDateString()}
             left={(props) => <List.Icon {...props} icon="calendar" />}
           />
-          {request.completedDate && (
+          {request.resolvedAt && (
             <List.Item
-              title="Completed"
-              description={new Date(request.completedDate).toLocaleDateString()}
+              title="Resolved"
+              description={new Date(request.resolvedAt).toLocaleDateString()}
               left={(props) => <List.Icon {...props} icon="calendar-check" />}
             />
           )}

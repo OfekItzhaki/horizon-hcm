@@ -58,7 +58,7 @@ export default function AnnouncementsScreen({ navigation }: Props) {
                 <Text variant="titleMedium" style={styles.title}>
                   {item.title}
                 </Text>
-                <StatusChip status={item.priority} getColor={getPriorityColor} />
+                <StatusChip status={item.priority} color={getPriorityColor(item.priority)} />
               </View>
               <Text variant="bodyMedium" numberOfLines={2} style={styles.content}>
                 {item.content}

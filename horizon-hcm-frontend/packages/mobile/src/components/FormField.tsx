@@ -4,7 +4,7 @@ import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 
 interface FormFieldProps<T extends FieldValues> extends Omit<
   TextInputProps,
-  'value' | 'onChangeText'
+  'value' | 'onChangeText' | 'error'
 > {
   control: Control<T>;
   name: Path<T>;

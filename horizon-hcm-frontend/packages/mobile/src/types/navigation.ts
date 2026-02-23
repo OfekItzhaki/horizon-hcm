@@ -20,7 +20,30 @@ export type BuildingsStackParamList = {
   };
   BuildingForm: { building?: { id: string; name: string; address: unknown; yearBuilt?: number } };
   ApartmentsList: { buildingId?: string };
+  ApartmentForm: {
+    apartment?: {
+      id: string;
+      number: string;
+      floor: number;
+      size?: number;
+      bedrooms?: number;
+      bathrooms?: number;
+      occupancyStatus: string;
+    };
+    buildingId?: string;
+  };
   ResidentsList: { buildingId?: string };
+  ResidentForm: {
+    resident?: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      role: string;
+      moveInDate?: string;
+    };
+    apartmentId?: string;
+  };
 };
 
 export type FinanceStackParamList = {
@@ -28,16 +51,20 @@ export type FinanceStackParamList = {
   InvoiceDetail: {
     invoice: {
       id: string;
-      number: string;
-      description: string;
+      buildingId: string;
+      apartmentId: string;
       amount: number;
+      currency: string;
+      description: string;
+      dueDate: string | Date;
       status: string;
-      issueDate: string;
-      dueDate: string;
-      paidDate?: string;
+      createdAt: string | Date;
+      updatedAt: string | Date;
+      paidAt?: string | Date;
+      paymentId?: string;
     };
   };
-  PaymentForm: { invoice: { id: string; number: string; description: string; amount: number } };
+  PaymentForm: { invoice: { id: string; description: string; amount: number } };
   PaymentsList: undefined;
   ReportsList: undefined;
 };
@@ -47,12 +74,17 @@ export type CommunicationStackParamList = {
   AnnouncementDetail: {
     announcement: {
       id: string;
+      buildingId: string;
       title: string;
       content: string;
-      author: string;
-      date: string;
       priority: string;
-      isRead?: boolean;
+      requiresConfirmation: boolean;
+      createdBy: string;
+      createdAt: string | Date;
+      updatedAt: string | Date;
+      publishedAt?: string | Date;
+      readBy: string[];
+      confirmedBy: string[];
     };
   };
   MaintenanceList: undefined;
@@ -64,16 +96,27 @@ export type CommunicationStackParamList = {
       category: string;
       priority: string;
       status: string;
-      location: string;
       trackingNumber: string;
-      submittedDate: string;
-      completedDate?: string;
+      createdAt: string | Date;
+      updatedAt: string | Date;
+      resolvedAt?: string | Date;
       photos?: string[];
     };
   };
   MaintenanceForm: undefined;
+  PollsList: undefined;
+  PollDetail: { pollId: string };
+  PollForm: Record<string, never>;
+  MeetingsList: undefined;
+  MeetingDetail: { meetingId: string };
+  MeetingForm: Record<string, never>;
+  DocumentsList: undefined;
+  NotificationsList: undefined;
+  Chat: undefined;
   Settings: undefined;
   Profile: undefined;
+  ProfileEdit: undefined;
+  ChangePassword: undefined;
 };
 
 export type MainTabParamList = {

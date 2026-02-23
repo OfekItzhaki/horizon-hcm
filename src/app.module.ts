@@ -65,6 +65,9 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     ]),
     // HorizonAuthModule - uses global PrismaService from PrismaModule
     HorizonAuthModule.forRoot({
+      database: {
+        url: process.env.DATABASE_URL,
+      },
       jwt: {
         publicKey: process.env.JWT_PUBLIC_KEY,
         privateKey: process.env.JWT_PRIVATE_KEY,
@@ -72,6 +75,28 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
       redis: {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT) || 6379,
+      },
+      email: {
+        provider: 'custom',
+        from: 'noreply@horizon-hcm.com',
+        customSender: async (to: string, subject: string, _html: string) => {
+          // Email sending will be handled by the application's email service
+          console.log(`Email would be sent to ${to} with subject: ${subject}`);
+        },
+      },
+      features: {
+        twoFactor: {
+          enabled: false,
+        },
+        deviceManagement: {
+          enabled: false,
+        },
+        pushNotifications: {
+          enabled: false,
+        },
+        accountManagement: {
+          enabled: false,
+        },
       },
     }),
     LoggerModule,

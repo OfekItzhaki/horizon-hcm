@@ -64,7 +64,7 @@ export default function InvoicesScreen({ navigation }: Props) {
             <Card.Content>
               <View style={styles.header}>
                 <Text variant="titleMedium">{item.description}</Text>
-                <StatusChip status={item.status} getColor={getInvoiceStatusColor} />
+                <StatusChip status={item.status} color={getInvoiceStatusColor(item.status)} />
               </View>
               <Text variant="headlineSmall" style={styles.amount}>
                 ${item.amount.toFixed(2)}

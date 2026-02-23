@@ -14,7 +14,6 @@ interface SelectFieldProps<T extends FieldValues> {
   label: string;
   options: SelectOption[];
   error?: string;
-  setValue: (name: Path<T>, value: string) => void;
   disabled?: boolean;
 }
 
@@ -24,7 +23,6 @@ export default function SelectField<T extends FieldValues>({
   label,
   options,
   error,
-  setValue,
   disabled,
 }: SelectFieldProps<T>) {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -34,7 +32,7 @@ export default function SelectField<T extends FieldValues>({
       <Controller
         control={control}
         name={name}
-        render={({ field: { value } }) => (
+        render={({ field: { value, onChange } }) => (
           <Menu
             visible={menuVisible}
             onDismiss={() => setMenuVisible(false)}
@@ -42,7 +40,7 @@ export default function SelectField<T extends FieldValues>({
               <TouchableOpacity onPress={() => !disabled && setMenuVisible(true)}>
                 <TextInput
                   label={label}
-                  value={value}
+                  value={options.find((opt: SelectOption) => opt.value === value)?.label || value}
                   editable={false}
                   error={!!error}
                   mode="outlined"
@@ -52,11 +50,11 @@ export default function SelectField<T extends FieldValues>({
               </TouchableOpacity>
             }
           >
-            {options.map((option) => (
+            {options.map((option: SelectOption) => (
               <Menu.Item
                 key={option.value}
                 onPress={() => {
-                  setValue(name, option.value);
+                  onChange(option.value);
                   setMenuVisible(false);
                 }}
                 title={option.label}

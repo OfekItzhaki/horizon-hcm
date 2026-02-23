@@ -27,6 +27,7 @@ export interface AppState {
 
 export interface AppActions {
   setSelectedBuilding: (buildingId: string) => void;
+  setSelectedBuildingId: (buildingId: string) => void;
   setLanguage: (language: 'en' | 'he') => void;
   setTheme: (theme: 'light' | 'dark') => void;
   toggleSidebar: () => void;

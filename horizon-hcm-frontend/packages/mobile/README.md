@@ -5,54 +5,107 @@ React Native mobile application for Horizon HCM built with Expo.
 ## Features
 
 ### Authentication
-
-- ✅ Login with email/password
-- ✅ User registration
-- ✅ Password reset flow
-- 🔄 Two-factor authentication (planned)
-- 🔄 Biometric authentication (planned)
+- Email/password login
+- User registration
+- Password reset
+- Biometric authentication (Face ID, Touch ID, Fingerprint)
+- Automatic credential saving for biometric login
 
 ### Core Features
+- **Dashboard**: Role-based dashboard with quick stats and actions
+- **Buildings**: View and manage buildings
+- **Apartments**: View and manage apartments
+- **Residents**: View and manage residents
+- **Invoices**: View invoices and payment status
+- **Payments**: Make payments with card details
+- **Reports**: Financial reports with charts (balance, income/expense, category breakdown)
+- **Announcements**: View and read announcements
+- **Maintenance**: Create and track maintenance requests with photo uploads
+- **Meetings**: View meetings and RSVP
+- **Polls**: View and vote on polls
+- **Documents**: View and upload documents
+- **Notifications**: Push notifications with badge counts and real-time updates
+- **Chat**: Real-time messaging with WebSocket
+- **Profile**: View, edit profile, and change password
+- **Settings**: Theme, language, biometric settings
 
-- ✅ Dashboard with role-based content
-- ✅ Buildings management with detail and form screens
-- ✅ Apartments listing and search
-- ✅ Residents directory
-- ✅ Invoices with status filters and detail screens
-- ✅ Payment history and payment forms
-- ✅ Announcements with priority filters and detail screens
-- ✅ Maintenance requests with detail and form screens
-- ✅ Settings screen with theme and language toggles
-- ✅ Profile screen with user information
+### Native Features
+- **Camera Integration**: Take photos for maintenance requests
+- **Image Picker**: Select photos from gallery
+- **Document Picker**: Upload documents from device
+- **Push Notifications**: Receive real-time notifications
+- **Biometric Authentication**: Face ID, Touch ID, Fingerprint support
+- **Offline Support**: Cache data for offline viewing
 
-### Reusable Components
+## Tech Stack
 
-- ✅ StatusChip - Consistent status display with color coding
-- ✅ EmptyState - Empty list states with optional icons
-- ✅ ErrorMessage - Error display component
-- ✅ LoadingSpinner - Loading indicator with optional message
-- ✅ ConfirmDialog - Confirmation dialogs with customizable actions
+- **React Native**: 0.81.5
+- **Expo**: ~54.0
+- **TypeScript**: ~5.9
+- **React Navigation**: v6 (Bottom tabs + Stack navigation)
+- **React Native Paper**: v5 (Material Design components)
+- **React Query**: v5 (Server state management)
+- **Zustand**: v4 (Client state management)
+- **React Hook Form**: v7 (Form management)
+- **Zod**: v3 (Validation)
+- **Axios**: v1 (HTTP client)
+- **Socket.io**: v4 (WebSocket)
+- **React Native Chart Kit**: v6 (Data visualization)
 
-### Technical Stack
+## Project Structure
 
-- **Framework**: React Native with Expo SDK 54
-- **UI Library**: React Native Paper (Material Design)
-- **Navigation**: React Navigation v6 (Stack + Bottom Tabs)
-- **State Management**:
-  - Zustand (client state)
-  - React Query (server state)
-- **Forms**: React Hook Form + Zod validation
-- **API**: Axios with shared package integration
-- **Real-time**: Socket.io-client (ready for WebSocket)
+```
+src/
+├── components/          # Reusable components
+│   ├── EmptyState.tsx
+│   ├── ErrorMessage.tsx
+│   ├── FormField.tsx
+│   ├── LoadingSpinner.tsx
+│   ├── SelectField.tsx
+│   └── StatusChip.tsx
+├── navigation/          # Navigation configuration
+│   ├── AuthNavigator.tsx
+│   ├── MainNavigator.tsx
+│   └── RootNavigator.tsx
+├── screens/            # Screen components
+│   ├── auth/          # Authentication screens
+│   ├── dashboard/     # Dashboard screen
+│   ├── buildings/     # Building management
+│   ├── apartments/    # Apartment management
+│   ├── residents/     # Resident management
+│   ├── invoices/      # Invoice screens
+│   ├── payments/      # Payment screens
+│   ├── reports/       # Financial reports
+│   ├── announcements/ # Announcements
+│   ├── maintenance/   # Maintenance requests
+│   ├── meetings/      # Meetings
+│   ├── polls/         # Polls
+│   ├── documents/     # Document library
+│   ├── notifications/ # Notifications
+│   ├── profile/       # User profile
+│   └── settings/      # App settings
+├── theme/             # Theme configuration
+├── types/             # TypeScript types
+└── utils/             # Utility functions
+    ├── biometric.ts   # Biometric authentication
+    ├── camera.ts      # Camera and image picker
+    ├── filePicker.ts  # Document picker
+    ├── notifications.ts # Push notifications
+    ├── websocket.ts   # WebSocket service
+    ├── responsive.ts  # Responsive utilities
+    ├── gestures.ts    # Gesture handlers
+    └── colors.ts      # Color utilities
+```
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- npm 9+
+- npm or yarn
 - Expo CLI
-- iOS Simulator (Mac) or Android Emulator
+- iOS Simulator (Mac only) or Android Emulator
+- Physical device for testing camera and biometric features
 
 ### Installation
 
@@ -68,118 +121,239 @@ npm run ios
 
 # Run on Android
 npm run android
-
-# Run on web (for testing)
-npm run web
 ```
 
-### Development with Expo Go
+### Environment Variables
 
-1. Install Expo Go app on your phone
-2. Run `npm start`
-3. Scan the QR code with your phone
+The mobile app uses the shared package configuration. Ensure the backend API is running on `http://localhost:3001`.
 
-## Project Structure
+## Development
 
-```
-src/
-├── navigation/          # Navigation configuration
-│   ├── RootNavigator.tsx
-│   ├── AuthNavigator.tsx
-│   └── MainNavigator.tsx
-├── screens/            # Screen components
-│   ├── auth/          # Authentication screens
-│   ├── dashboard/     # Dashboard screen
-│   ├── buildings/     # Buildings screens
-│   ├── apartments/    # Apartments screens
-│   ├── residents/     # Residents screens
-│   ├── invoices/      # Invoices screens
-│   ├── payments/      # Payments screens
-│   ├── announcements/ # Announcements screens
-│   └── maintenance/   # Maintenance screens
-├── components/        # Reusable components
-│   ├── StatusChip.tsx
-│   ├── EmptyState.tsx
-│   ├── ErrorMessage.tsx
-│   ├── LoadingSpinner.tsx
-│   ├── ConfirmDialog.tsx
-│   └── index.ts
-├── hooks/            # Custom hooks
-│   └── useAppNavigation.ts
-├── theme/            # Theme configuration
-├── types/            # TypeScript types
-└── utils/            # Utility functions
-    └── colors.ts     # Color mapping utilities
+### Type Checking
+
+```bash
+npm run type-check
 ```
 
-## Configuration
+### Code Style
 
-### API Endpoint
+The project uses ESLint and Prettier for code formatting. Configuration is inherited from the root workspace.
 
-The API endpoint is configured in `App.tsx`:
+## Native Features Setup
 
-```typescript
-configureAPIClient('http://localhost:3001/api');
+### Biometric Authentication
+
+Biometric authentication works automatically on devices with Face ID, Touch ID, or Fingerprint sensors. No additional setup required.
+
+**Supported platforms:**
+- iOS: Face ID, Touch ID
+- Android: Fingerprint, Face Recognition
+
+### Camera and Photos
+
+Camera access requires permissions. The app will request permissions automatically when needed.
+
+**Features:**
+- Take photos with camera
+- Select photos from gallery
+- Multiple photo selection
+- Photo compression before upload
+
+### Push Notifications
+
+Push notifications are configured using Expo Notifications. The app requests notification permissions on first launch.
+
+**Features:**
+- Local notifications
+- Push notifications (requires Expo push token)
+- Badge counts
+- Notification taps with deep linking
+
+### Document Picker
+
+Document picker allows users to select files from their device.
+
+**Supported file types:**
+- PDF documents
+- Images
+- Word documents
+- Excel spreadsheets
+- All file types
+
+## Navigation Structure
+
+```
+Root Navigator
+├── Auth Stack (Unauthenticated)
+│   ├── Login
+│   ├── Register
+│   └── Forgot Password
+└── Main Navigator (Authenticated)
+    ├── Dashboard Tab
+    ├── Finance Tab
+    │   ├── Invoices
+    │   ├── Payments
+    │   └── Reports
+    ├── Communication Tab
+    │   ├── Announcements
+    │   ├── Meetings
+    │   ├── Polls
+    │   └── Notifications
+    └── More Tab
+        ├── Buildings
+        ├── Apartments
+        ├── Residents
+        ├── Maintenance
+        ├── Documents
+        ├── Profile
+        └── Settings
 ```
 
-For production, update this to your production API URL.
+## State Management
 
-### Theme
+### Client State (Zustand)
+- Authentication state (user, tokens)
+- App state (selected building, theme, language)
 
-Theme configuration is in `src/theme/index.ts`. Customize colors, typography, and spacing there.
+### Server State (React Query)
+- API data caching
+- Automatic refetching
+- Optimistic updates
+- Error handling
+
+## Testing
+
+### Manual Testing
+
+Test on physical devices for:
+- Camera functionality
+- Biometric authentication
+- Push notifications
+- Performance
+
+### Expo Go
+
+For rapid testing, use Expo Go app:
+
+```bash
+npm start
+# Scan QR code with Expo Go app
+```
 
 ## Building for Production
+
+### Prerequisites
+
+1. Install EAS CLI:
+```bash
+npm install -g eas-cli
+```
+
+2. Login to Expo:
+```bash
+eas login
+```
+
+3. Configure your project:
+```bash
+eas build:configure
+```
 
 ### iOS
 
 ```bash
-# Build for iOS
-eas build --platform ios
+# Build for iOS (development)
+eas build --platform ios --profile development
+
+# Build for iOS (preview)
+eas build --platform ios --profile preview
+
+# Build for iOS (production)
+eas build --platform ios --profile production
 
 # Submit to App Store
 eas submit --platform ios
 ```
 
+**Requirements:**
+- Apple Developer account
+- iOS 13.0 or higher support
+- iPad support enabled (supportsTablet: true)
+- Split-screen multitasking support
+
 ### Android
 
 ```bash
-# Build for Android
-eas build --platform android
+# Build for Android (development)
+eas build --platform android --profile development
 
-# Submit to Play Store
+# Build for Android (preview)
+eas build --platform android --profile preview
+
+# Build for Android (production)
+eas build --platform android --profile production
+
+# Submit to Google Play
 eas submit --platform android
 ```
 
-## Features Roadmap
+**Requirements:**
+- Google Play Developer account
+- Android 6.0 (API 23) or higher support
+- Tablet support enabled
+- Split-screen multitasking support
 
-### Phase 1 (Current)
+## Platform-Specific Features
 
-- ✅ Basic authentication
-- ✅ Core CRUD screens
-- ✅ Navigation structure
-- ✅ Reusable components following HORIZON STANDARD
-- ✅ Settings and Profile screens
+### iOS
+- Face ID and Touch ID support
+- iOS Human Interface Guidelines compliance
+- iPad optimization with split-screen support
+- Automatic orientation handling
+- iOS 13.0+ support
 
-### Phase 2 (Next)
+### Android
+- Fingerprint and Face Recognition support
+- Material Design guidelines compliance
+- Tablet optimization with split-screen support
+- Automatic orientation handling
+- Android 6.0 (API 23)+ support
 
-- 🔄 Biometric authentication
-- 🔄 Push notifications
-- 🔄 Camera integration for maintenance photos
-- 🔄 Offline support with AsyncStorage
-- 🔄 Pull-to-refresh on all lists
+### Responsive Design
+- Automatic orientation detection
+- Tablet-optimized layouts
+- Responsive spacing and font sizes
+- Platform-specific UI adjustments
+- Native gesture support (swipe, long press)
 
-### Phase 3 (Future)
+## Known Issues
 
-- 🔄 Real-time updates via WebSocket
-- 🔄 Document viewer
-- 🔄 Meeting calendar
-- 🔄 Polls and voting
-- 🔄 Reports and analytics
+- Camera and biometric features require physical device (not available in simulator)
+- Push notifications require Expo push token setup
+- File downloads need native implementation
+
+## Future Enhancements
+
+- [ ] Offline mode with data synchronization
+- [x] Real-time chat with WebSocket
+- [ ] Advanced search and filtering
+- [ ] Multi-language support (Hebrew RTL)
+- [ ] Dark mode improvements
+- [ ] Accessibility enhancements
+- [ ] Performance optimizations
+- [x] App lifecycle handling
+- [x] Responsive layouts for tablets
+- [x] Native gesture support
 
 ## Contributing
 
-This is part of the Horizon HCM monorepo. See the root README for contribution guidelines.
+Follow the HORIZON STANDARD:
+- Keep files small and focused
+- Keep functions short and single-purpose
+- Avoid code duplication
+- Use TypeScript strict mode
+- Write meaningful commit messages
 
 ## License
 
-Proprietary - All rights reserved
+Proprietary - Horizon HCM

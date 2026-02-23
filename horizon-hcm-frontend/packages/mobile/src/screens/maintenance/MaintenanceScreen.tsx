@@ -24,7 +24,7 @@ export default function MaintenanceScreen({ navigation }: Props) {
     enabled: !!selectedBuildingId,
   });
 
-  const requests = data?.data || [];
+  const requests = data?.data?.data || [];
 
   return (
     <View style={styles.container}>

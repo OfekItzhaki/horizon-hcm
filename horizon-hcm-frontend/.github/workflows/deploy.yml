@@ -1,0 +1,148 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-web-production:
+    name: Deploy Web to Production
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build shared package
+        run: npm run build:shared
+      
+      - name: Build web application
+        run: npm run build:web
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_ENV: production
+          VITE_ENABLE_ANALYTICS: true
+          VITE_ENABLE_ERROR_TRACKING: true
+          VITE_GA_TRACKING_ID: ${{ secrets.VITE_GA_TRACKING_ID }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+      
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: packages/web
+      
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Web application deployed successfully to production"
+      
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Web application deployment failed"
+
+  deploy-mobile-production:
+    name: Build Mobile for Production
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build shared package
+        run: npm run build:shared
+      
+      - name: Build iOS app
+        run: eas build --platform ios --profile production --non-interactive
+        working-directory: packages/mobile
+      
+      - name: Build Android app
+        run: eas build --platform android --profile production --non-interactive
+        working-directory: packages/mobile
+      
+      - name: Notify build success
+        if: success()
+        run: |
+          echo "✅ Mobile applications built successfully"
+          echo "📱 Check Expo dashboard for build artifacts"
+      
+      - name: Notify build failure
+        if: failure()
+        run: |
+          echo "❌ Mobile application build failed"
+
+  deploy-web-staging:
+    name: Deploy Web to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build shared package
+        run: npm run build:shared
+      
+      - name: Build web application
+        run: npm run build:web
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_STAGING }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL_STAGING }}
+          VITE_ENV: staging
+      
+      - name: Deploy to Vercel (Staging)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: packages/web
+      
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Web application deployed successfully to staging"

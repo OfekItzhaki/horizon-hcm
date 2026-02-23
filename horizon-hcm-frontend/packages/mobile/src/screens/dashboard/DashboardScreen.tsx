@@ -6,9 +6,8 @@ import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
 import { useQuery } from '@tanstack/react-query';
 import { buildingsApi } from '@horizon-hcm/shared/src/api/buildings';
 
-export default function DashboardScreen() {
+function DashboardScreen() {
   const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
   const { selectedBuildingId, setSelectedBuildingId } = useAppStore();
   const [buildingMenuVisible, setBuildingMenuVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -18,12 +17,34 @@ export default function DashboardScreen() {
     queryFn: () => buildingsApi.getAll(),
   });
 
+  // Fetch dashboard stats
+  const { data: statsData, refetch: refetchStats } = useQuery({
+    queryKey: ['dashboard-stats', selectedBuildingId],
+    queryFn: async () => {
+      if (!selectedBuildingId) return null;
+      // Mock stats - replace with actual API call
+      return {
+        pendingInvoices: 3,
+        pendingMaintenance: 5,
+        upcomingMeetings: 2,
+        unreadAnnouncements: 4,
+      };
+    },
+    enabled: !!selectedBuildingId,
+  });
+
   const buildings = buildingsData?.data || [];
   const selectedBuilding = buildings.find((b) => b.id === selectedBuildingId);
+  const stats = statsData || {
+    pendingInvoices: 0,
+    pendingMaintenance: 0,
+    upcomingMeetings: 0,
+    unreadAnnouncements: 0,
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await refetchBuildings();
+    await Promise.all([refetchBuildings(), refetchStats()]);
     setRefreshing(false);
   };
 
@@ -79,54 +100,101 @@ export default function DashboardScreen() {
         </Card>
       )}
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="titleLarge">Quick Stats</Text>
-          <Text variant="bodyMedium" style={styles.cardText}>
-            {selectedBuilding
-              ? `Managing ${selectedBuilding.name}`
-              : 'Select a building to view stats'}
-          </Text>
-        </Card.Content>
-      </Card>
+      {selectedBuildingId && (
+        <>
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleLarge" style={styles.sectionTitle}>
+                Quick Stats
+              </Text>
+              <View style={styles.statsGrid}>
+                <View style={styles.statItem}>
+                  <Text variant="headlineMedium" style={styles.statNumber}>
+                    {stats.pendingInvoices}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.statLabel}>
+                    Pending Invoices
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text variant="headlineMedium" style={styles.statNumber}>
+                    {stats.pendingMaintenance}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.statLabel}>
+                    Maintenance
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text variant="headlineMedium" style={styles.statNumber}>
+                    {stats.upcomingMeetings}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.statLabel}>
+                    Meetings
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text variant="headlineMedium" style={styles.statNumber}>
+                    {stats.unreadAnnouncements}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.statLabel}>
+                    Announcements
+                  </Text>
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
 
-      {user?.role === 'committee_member' && (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleLarge" style={styles.sectionTitle}>
+                Quick Actions
+              </Text>
+              <View style={styles.actionsGrid}>
+                <Button
+                  mode="contained"
+                  icon="cash"
+                  style={styles.actionButton}
+                  onPress={() => {}}
+                >
+                  Pay Invoice
+                </Button>
+                <Button
+                  mode="contained"
+                  icon="wrench"
+                  style={styles.actionButton}
+                  onPress={() => {}}
+                >
+                  New Request
+                </Button>
+                <Button
+                  mode="contained"
+                  icon="bullhorn"
+                  style={styles.actionButton}
+                  onPress={() => {}}
+                >
+                  Announcements
+                </Button>
+                <Button
+                  mode="contained"
+                  icon="file-document"
+                  style={styles.actionButton}
+                  onPress={() => {}}
+                >
+                  Documents
+                </Button>
+              </View>
+            </Card.Content>
+          </Card>
+        </>
+      )}
+
+      {!selectedBuildingId && buildings.length > 0 && (
         <Card style={styles.card}>
           <Card.Content>
-            <Text variant="titleMedium">Committee Dashboard</Text>
-            <Text variant="bodySmall" style={styles.cardText}>
-              • Pending maintenance requests
-            </Text>
-            <Text variant="bodySmall" style={styles.cardText}>
-              • Upcoming meetings
-            </Text>
-            <Text variant="bodySmall" style={styles.cardText}>
-              • Recent announcements
-            </Text>
+            <Text variant="titleMedium">Please select a building to continue</Text>
           </Card.Content>
         </Card>
       )}
-
-      {(user?.role === 'owner' || user?.role === 'tenant') && (
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Resident Dashboard</Text>
-            <Text variant="bodySmall" style={styles.cardText}>
-              • Payment status
-            </Text>
-            <Text variant="bodySmall" style={styles.cardText}>
-              • Announcements
-            </Text>
-            <Text variant="bodySmall" style={styles.cardText}>
-              • Maintenance requests
-            </Text>
-          </Card.Content>
-        </Card>
-      )}
-
-      <Button mode="outlined" onPress={logout} style={styles.logoutButton}>
-        Logout
-      </Button>
     </ScrollView>
   );
 }
@@ -154,10 +222,40 @@ const styles = StyleSheet.create({
   buildingSelector: {
     gap: 8,
   },
-  cardText: {
-    marginTop: 8,
+  sectionTitle: {
+    marginBottom: 16,
   },
-  logoutButton: {
-    margin: 16,
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  statItem: {
+    flex: 1,
+    minWidth: '45%',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#e3f2fd',
+    borderRadius: 8,
+  },
+  statNumber: {
+    color: '#1976d2',
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    marginTop: 4,
+    color: '#666',
+    textAlign: 'center',
+  },
+  actionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    minWidth: '45%',
   },
 });
+
+export default DashboardScreen;

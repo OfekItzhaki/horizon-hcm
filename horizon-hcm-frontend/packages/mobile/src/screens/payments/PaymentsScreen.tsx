@@ -33,7 +33,7 @@ export default function PaymentsScreen({ navigation: _navigation }: Props) {
             <Card.Content>
               <View style={styles.header}>
                 <Text variant="titleMedium">Payment #{item.transactionId}</Text>
-                <StatusChip status={item.method} getColor={getPaymentMethodColor} />
+                <StatusChip status={item.method} color={getPaymentMethodColor(item.method)} />
               </View>
               <Text variant="headlineSmall" style={styles.amount}>
                 ${item.amount.toFixed(2)}

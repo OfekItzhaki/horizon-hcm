@@ -6,11 +6,17 @@ export interface Meeting {
   id: string;
   buildingId: string;
   title: string;
+  description?: string;
   date: Date;
+  scheduledAt: Date;
   location: string;
-  agenda: string;
+  duration?: number; // in minutes
+  agenda: string | string[];
   agendaDocuments: string[]; // Document IDs
   attendees: Attendee[];
+  attendeeCount?: number;
+  status: number; // 0 = scheduled, 1 = in_progress, 2 = completed, 3 = cancelled
+  userRsvp?: RSVPStatus;
   minutes?: string;
   minutesDocuments: string[]; // Document IDs
   minutesPublishedAt?: Date;

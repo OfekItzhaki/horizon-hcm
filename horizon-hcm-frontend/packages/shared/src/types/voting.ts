@@ -6,13 +6,17 @@ export interface Poll {
   id: string;
   buildingId: string;
   question: string;
+  description?: string;
   options: PollOption[];
   type: 'single_choice' | 'multiple_choice';
   startDate: Date;
   endDate: Date;
+  endsAt?: Date;
   allowedRoles: string[];
   anonymous: boolean;
   status: PollStatus;
+  totalVotes?: number;
+  userVote?: string | null;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

@@ -5,9 +5,9 @@ import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
 
-type Props = NativeStackScreenProps<CommunicationStackParamList, 'Settings'>;
+type Props = NativeStackScreenProps<CommunicationStackParamList, 'Profile'>;
 
-export default function ProfileScreen({ navigation: _navigation }: Props) {
+export default function ProfileScreen({ navigation }: Props) {
   const user = useAuthStore((state) => state.user);
 
   const getInitials = (name: string) => {
@@ -54,10 +54,20 @@ export default function ProfileScreen({ navigation: _navigation }: Props) {
       <Divider style={styles.divider} />
 
       <View style={styles.actions}>
-        <Button mode="outlined" style={styles.button} icon="pencil">
+        <Button
+          mode="outlined"
+          style={styles.button}
+          icon="pencil"
+          onPress={() => navigation.navigate('ProfileEdit')}
+        >
           Edit Profile
         </Button>
-        <Button mode="outlined" style={styles.button} icon="lock-reset">
+        <Button
+          mode="outlined"
+          style={styles.button}
+          icon="lock-reset"
+          onPress={() => navigation.navigate('ChangePassword')}
+        >
           Change Password
         </Button>
       </View>

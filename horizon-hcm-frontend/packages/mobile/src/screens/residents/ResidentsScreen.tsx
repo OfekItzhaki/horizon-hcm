@@ -61,7 +61,7 @@ export default function ResidentsScreen({ navigation: _navigation }: Props) {
                     {item.email}
                   </Text>
                   <View style={styles.chips}>
-                    <StatusChip status={item.role} getColor={getResidentRoleColor} />
+                    <StatusChip status={item.role} color={getResidentRoleColor(item.role)} />
                   </View>
                 </View>
               </View>

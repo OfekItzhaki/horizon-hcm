@@ -21,6 +21,14 @@ export default function BuildingFormScreen({ route, navigation }: Props) {
   const { building } = route.params || {};
   const [loading, setLoading] = useState(false);
 
+  const formatAddressForForm = (address: unknown): string => {
+    if (typeof address === 'string') return address;
+    if (typeof address === 'object' && address !== null) {
+      return JSON.stringify(address);
+    }
+    return '';
+  };
+
   const {
     control,
     handleSubmit,
@@ -29,7 +37,7 @@ export default function BuildingFormScreen({ route, navigation }: Props) {
     resolver: zodResolver(buildingSchema),
     defaultValues: {
       name: building?.name || '',
-      address: building?.address || '',
+      address: formatAddressForForm(building?.address) || '',
       yearBuilt: building?.yearBuilt?.toString() || '',
     },
   });

@@ -9,12 +9,20 @@ type Props = NativeStackScreenProps<BuildingsStackParamList, 'BuildingDetail'>;
 export default function BuildingDetailScreen({ route, navigation }: Props) {
   const { building } = route.params;
 
+  const formatAddress = (address: unknown): string => {
+    if (typeof address === 'string') return address;
+    if (typeof address === 'object' && address !== null) {
+      return JSON.stringify(address);
+    }
+    return 'N/A';
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Card style={styles.card}>
         <Card.Content>
           <Title>{building.name}</Title>
-          <Paragraph>{building.address}</Paragraph>
+          <Paragraph>{formatAddress(building.address)}</Paragraph>
         </Card.Content>
       </Card>
 

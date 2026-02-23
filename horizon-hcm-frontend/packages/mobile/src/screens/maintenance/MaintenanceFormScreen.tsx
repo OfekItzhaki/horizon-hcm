@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Image } from 'react-native';
-import { Button, IconButton } from 'react-native-paper';
+import { ScrollView, StyleSheet, View, Image, Alert } from 'react-native';
+import { Button, IconButton, Text, Card } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormField, SelectField } from '../../components';
+import { showImagePickerOptions } from '../../utils/camera';
 
 const maintenanceSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -69,9 +70,16 @@ export default function MaintenanceFormScreen({ navigation }: Props) {
     }
   };
 
-  const handleAddPhoto = () => {
-    // TODO: Implement camera/gallery picker
-    console.log('Add photo');
+  const handleAddPhoto = async () => {
+    if (photos.length >= 5) {
+      Alert.alert('Limit Reached', 'You can only add up to 5 photos');
+      return;
+    }
+
+    const result = await showImagePickerOptions();
+    if (result) {
+      setPhotos([...photos, result.uri]);
+    }
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -106,7 +114,6 @@ export default function MaintenanceFormScreen({ navigation }: Props) {
         label="Category *"
         options={categories}
         error={errors.category?.message}
-        setValue={setValue}
         disabled={loading}
       />
 
@@ -116,7 +123,6 @@ export default function MaintenanceFormScreen({ navigation }: Props) {
         label="Priority *"
         options={priorities}
         error={errors.priority?.message}
-        setValue={setValue}
         disabled={loading}
       />
 

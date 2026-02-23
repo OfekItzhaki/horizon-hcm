@@ -27,6 +27,7 @@ export const useAppStore = create<AppStore>()(
 
       // Actions
       setSelectedBuilding: (buildingId) => set({ selectedBuildingId: buildingId }),
+      setSelectedBuildingId: (buildingId) => set({ selectedBuildingId: buildingId }),
 
       setLanguage: (language) => set({ language }),
 

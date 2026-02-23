@@ -6,7 +6,7 @@ import { FinanceStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<FinanceStackParamList, 'InvoiceDetail'>;
 
-export default function InvoiceDetailScreen({ route, navigation }: Props) {
+function InvoiceDetailScreen({ route, navigation }: Props) {
   const { invoice } = route.params;
 
   const getStatusColor = (status: string) => {
@@ -29,7 +29,7 @@ export default function InvoiceDetailScreen({ route, navigation }: Props) {
       <Card style={styles.card}>
         <Card.Content>
           <View style={styles.header}>
-            <Title>Invoice #{invoice.number}</Title>
+            <Title>Invoice #{invoice.id.slice(0, 8)}</Title>
             <Chip
               style={[styles.statusChip, { backgroundColor: getStatusColor(invoice.status) }]}
               textStyle={styles.statusText}
@@ -47,12 +47,12 @@ export default function InvoiceDetailScreen({ route, navigation }: Props) {
           <Divider style={styles.divider} />
           <List.Item
             title="Amount"
-            description={`$${invoice.amount.toFixed(2)}`}
+            description={`${invoice.currency || '$'} ${invoice.amount.toFixed(2)}`}
             left={(props) => <List.Icon {...props} icon="currency-usd" />}
           />
           <List.Item
-            title="Issue Date"
-            description={new Date(invoice.issueDate).toLocaleDateString()}
+            title="Created Date"
+            description={new Date(invoice.createdAt).toLocaleDateString()}
             left={(props) => <List.Icon {...props} icon="calendar" />}
           />
           <List.Item
@@ -60,10 +60,10 @@ export default function InvoiceDetailScreen({ route, navigation }: Props) {
             description={new Date(invoice.dueDate).toLocaleDateString()}
             left={(props) => <List.Icon {...props} icon="calendar-alert" />}
           />
-          {invoice.paidDate && (
+          {invoice.paidAt && (
             <List.Item
               title="Paid Date"
-              description={new Date(invoice.paidDate).toLocaleDateString()}
+              description={new Date(invoice.paidAt).toLocaleDateString()}
               left={(props) => <List.Icon {...props} icon="calendar-check" />}
             />
           )}
@@ -140,3 +140,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
+
+export default InvoiceDetailScreen;

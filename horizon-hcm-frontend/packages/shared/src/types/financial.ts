@@ -34,6 +34,7 @@ export interface Payment {
   status: PaymentStatus;
   paidBy: string;
   paidAt: Date;
+  createdAt: Date;
   receiptUrl: string;
 }
 

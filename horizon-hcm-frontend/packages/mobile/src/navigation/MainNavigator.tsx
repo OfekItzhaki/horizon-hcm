@@ -7,7 +7,9 @@ import BuildingsScreen from '../screens/buildings/BuildingsScreen';
 import BuildingDetailScreen from '../screens/buildings/BuildingDetailScreen';
 import BuildingFormScreen from '../screens/buildings/BuildingFormScreen';
 import ApartmentsScreen from '../screens/apartments/ApartmentsScreen';
+import ApartmentFormScreen from '../screens/apartments/ApartmentFormScreen';
 import ResidentsScreen from '../screens/residents/ResidentsScreen';
+import ResidentFormScreen from '../screens/residents/ResidentFormScreen';
 import InvoicesScreen from '../screens/invoices/InvoicesScreen';
 import InvoiceDetailScreen from '../screens/invoices/InvoiceDetailScreen';
 import PaymentsScreen from '../screens/payments/PaymentsScreen';
@@ -20,101 +22,165 @@ import MaintenanceDetailScreen from '../screens/maintenance/MaintenanceDetailScr
 import MaintenanceFormScreen from '../screens/maintenance/MaintenanceFormScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import PollsScreen from '../screens/polls/PollsScreen';
+import PollDetailScreen from '../screens/polls/PollDetailScreen';
+import DocumentsScreen from '../screens/documents/DocumentsScreen';
+import MeetingsScreen from '../screens/meetings/MeetingsScreen';
+import MeetingDetailScreen from '../screens/meetings/MeetingDetailScreen';
+import NotificationsScreen from '../screens/notifications/NotificationsScreen';
+import ChatScreen from '../screens/chat/ChatScreen';
+import ProfileEditScreen from '../screens/profile/ProfileEditScreen';
+import ChangePasswordScreen from '../screens/profile/ChangePasswordScreen';
+import {
+  BuildingsStackParamList,
+  CommunicationStackParamList,
+  FinanceStackParamList,
+  MainTabParamList,
+} from '../types/navigation';
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+const BuildingsStackNav = createNativeStackNavigator<BuildingsStackParamList>();
+const CommunicationStackNav = createNativeStackNavigator<CommunicationStackParamList>();
+const FinanceStackNav = createNativeStackNavigator<FinanceStackParamList>();
 
 function BuildingsStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
+    <BuildingsStackNav.Navigator>
+      <BuildingsStackNav.Screen
         name="BuildingsList"
         component={BuildingsScreen}
         options={{ title: 'Buildings' }}
       />
-      <Stack.Screen
+      <BuildingsStackNav.Screen
         name="BuildingDetail"
         component={BuildingDetailScreen}
         options={{ title: 'Building Details' }}
       />
-      <Stack.Screen
+      <BuildingsStackNav.Screen
         name="BuildingForm"
         component={BuildingFormScreen}
         options={{ title: 'Building Form' }}
       />
-      <Stack.Screen
+      <BuildingsStackNav.Screen
         name="ApartmentsList"
         component={ApartmentsScreen}
         options={{ title: 'Apartments' }}
       />
-      <Stack.Screen
+      <BuildingsStackNav.Screen
+        name="ApartmentForm"
+        component={ApartmentFormScreen}
+        options={{ title: 'Apartment Form' }}
+      />
+      <BuildingsStackNav.Screen
         name="ResidentsList"
         component={ResidentsScreen}
         options={{ title: 'Residents' }}
       />
-    </Stack.Navigator>
+      <BuildingsStackNav.Screen
+        name="ResidentForm"
+        component={ResidentFormScreen}
+        options={{ title: 'Resident Form' }}
+      />
+    </BuildingsStackNav.Navigator>
   );
 }
 
 function CommunicationStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
+    <CommunicationStackNav.Navigator>
+      <CommunicationStackNav.Screen
         name="AnnouncementsList"
         component={AnnouncementsScreen}
         options={{ title: 'Announcements' }}
       />
-      <Stack.Screen
+      <CommunicationStackNav.Screen
         name="AnnouncementDetail"
         component={AnnouncementDetailScreen}
         options={{ title: 'Announcement' }}
       />
-      <Stack.Screen
+      <CommunicationStackNav.Screen
         name="MaintenanceList"
         component={MaintenanceScreen}
         options={{ title: 'Maintenance' }}
       />
-      <Stack.Screen
+      <CommunicationStackNav.Screen
         name="MaintenanceDetail"
         component={MaintenanceDetailScreen}
         options={{ title: 'Request Details' }}
       />
-      <Stack.Screen
+      <CommunicationStackNav.Screen
         name="MaintenanceForm"
         component={MaintenanceFormScreen}
         options={{ title: 'New Request' }}
       />
-      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
-      <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
-    </Stack.Navigator>
+      <CommunicationStackNav.Screen name="PollsList" component={PollsScreen} options={{ title: 'Polls' }} />
+      <CommunicationStackNav.Screen
+        name="PollDetail"
+        component={PollDetailScreen}
+        options={{ title: 'Poll Details' }}
+      />
+      <CommunicationStackNav.Screen
+        name="MeetingsList"
+        component={MeetingsScreen}
+        options={{ title: 'Meetings' }}
+      />
+      <CommunicationStackNav.Screen
+        name="MeetingDetail"
+        component={MeetingDetailScreen}
+        options={{ title: 'Meeting Details' }}
+      />
+      <CommunicationStackNav.Screen
+        name="DocumentsList"
+        component={DocumentsScreen}
+        options={{ title: 'Documents' }}
+      />
+      <CommunicationStackNav.Screen
+        name="NotificationsList"
+        component={NotificationsScreen}
+        options={{ title: 'Notifications' }}
+      />
+      <CommunicationStackNav.Screen name="Chat" component={ChatScreen} options={{ title: 'Chat' }} />
+      <CommunicationStackNav.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <CommunicationStackNav.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
+      <CommunicationStackNav.Screen
+        name="ProfileEdit"
+        component={ProfileEditScreen}
+        options={{ title: 'Edit Profile' }}
+      />
+      <CommunicationStackNav.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={{ title: 'Change Password' }}
+      />
+    </CommunicationStackNav.Navigator>
   );
 }
 
 function FinanceStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
+    <FinanceStackNav.Navigator>
+      <FinanceStackNav.Screen
         name="InvoicesList"
         component={InvoicesScreen}
         options={{ title: 'Invoices' }}
       />
-      <Stack.Screen
+      <FinanceStackNav.Screen
         name="InvoiceDetail"
         component={InvoiceDetailScreen}
         options={{ title: 'Invoice Details' }}
       />
-      <Stack.Screen
+      <FinanceStackNav.Screen
         name="PaymentForm"
         component={PaymentFormScreen}
         options={{ title: 'Make Payment' }}
       />
-      <Stack.Screen
+      <FinanceStackNav.Screen
         name="PaymentsList"
         component={PaymentsScreen}
         options={{ title: 'Payments' }}
       />
-      <Stack.Screen name="ReportsList" component={ReportsScreen} options={{ title: 'Reports' }} />
-    </Stack.Navigator>
+      <FinanceStackNav.Screen name="ReportsList" component={ReportsScreen} options={{ title: 'Reports' }} />
+    </FinanceStackNav.Navigator>
   );
 }
 

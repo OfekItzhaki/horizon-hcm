@@ -6,7 +6,7 @@ import { CommunicationStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'AnnouncementDetail'>;
 
-export default function AnnouncementDetailScreen({ route, navigation }: Props) {
+function AnnouncementDetailScreen({ route, navigation }: Props) {
   const { announcement } = route.params;
 
   const getPriorityColor = (priority: string) => {
@@ -30,6 +30,8 @@ export default function AnnouncementDetailScreen({ route, navigation }: Props) {
     navigation.goBack();
   };
 
+  const isRead = announcement.readBy && announcement.readBy.length > 0;
+
   return (
     <ScrollView style={styles.container}>
       <Card style={styles.card}>
@@ -47,7 +49,7 @@ export default function AnnouncementDetailScreen({ route, navigation }: Props) {
           </View>
           <Title style={styles.title}>{announcement.title}</Title>
           <Paragraph style={styles.meta}>
-            By {announcement.author} • {new Date(announcement.date).toLocaleDateString()}
+            By {announcement.createdBy} • {new Date(announcement.createdAt).toLocaleDateString()}
           </Paragraph>
         </Card.Content>
       </Card>
@@ -58,7 +60,7 @@ export default function AnnouncementDetailScreen({ route, navigation }: Props) {
         </Card.Content>
       </Card>
 
-      {!announcement.isRead && (
+      {!isRead && (
         <Card style={styles.card}>
           <Card.Content>
             <Button mode="contained" icon="check" onPress={handleMarkAsRead} style={styles.button}>
@@ -110,3 +112,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
+
+export default AnnouncementDetailScreen;

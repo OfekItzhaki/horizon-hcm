@@ -59,7 +59,7 @@ export default function ApartmentsScreen({ navigation: _navigation }: Props) {
             <Card.Content>
               <View style={styles.header}>
                 <Text variant="titleLarge">Unit {item.unitNumber}</Text>
-                <StatusChip status={item.occupancyStatus} getColor={getApartmentStatusColor} />
+                <StatusChip status={item.occupancyStatus} color={getApartmentStatusColor(item.occupancyStatus)} />
               </View>
               <Text variant="bodyMedium" style={styles.floor}>
                 Floor {item.floor}

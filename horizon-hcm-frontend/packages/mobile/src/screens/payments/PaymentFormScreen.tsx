@@ -53,7 +53,7 @@ export default function PaymentFormScreen({ route, navigation }: Props) {
     <ScrollView style={styles.container}>
       <Card style={styles.card}>
         <Card.Content>
-          <Title>Invoice #{invoice.number}</Title>
+          <Title>Invoice #{invoice.id.slice(0, 8)}</Title>
           <Paragraph style={styles.amount}>Amount: ${invoice.amount.toFixed(2)}</Paragraph>
           <Paragraph>{invoice.description}</Paragraph>
         </Card.Content>

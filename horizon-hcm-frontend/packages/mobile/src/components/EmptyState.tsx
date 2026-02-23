@@ -11,7 +11,7 @@ export default function EmptyState({ message, icon }: EmptyStateProps) {
   return (
     <View style={styles.container}>
       {icon && <Icon source={icon} size={48} color="#9e9e9e" />}
-      <Text variant="bodyLarge" style={styles.message}>
+      <Text variant="bodyLarge" style={[styles.message, { marginTop: icon ? 16 : 0 }]}>
         {message}
       </Text>
     </View>
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   message: {
-    marginTop: icon ? 16 : 0,
+    textAlign: 'center',
+    color: '#666',
   },
 });

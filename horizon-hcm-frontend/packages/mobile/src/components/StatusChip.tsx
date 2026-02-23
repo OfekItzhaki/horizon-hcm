@@ -3,14 +3,14 @@ import { Chip } from 'react-native-paper';
 
 interface StatusChipProps {
   status: string;
-  getColor: (status: string) => string;
+  color?: string;
 }
 
-export default function StatusChip({ status, getColor }: StatusChipProps) {
+export default function StatusChip({ status, color = '#757575' }: StatusChipProps) {
   return (
     <Chip
       mode="flat"
-      style={{ backgroundColor: getColor(status) }}
+      style={{ backgroundColor: color }}
       textStyle={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}
     >
       {status.replace('_', ' ').toUpperCase()}
