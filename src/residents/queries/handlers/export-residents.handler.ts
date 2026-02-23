@@ -19,18 +19,16 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
     const [committeeMembers, owners, tenants] = await Promise.all([
       this.prisma.building_committee_members.findMany({
         where: { building_id: buildingId },
-        include: {
-          user_profile: true,
-        },
+        include: { user_profiles: true },
       }),
       this.prisma.apartment_owners.findMany({
         where: {
-          apartment: {
+          apartments: {
             building_id: buildingId,
           },
         },
         include: {
-          user_profile: true,
+          user_profiles: true,
           apartment: {
             select: {
               apartment_number: true,
@@ -46,7 +44,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
           },
         },
         include: {
-          user_profile: true,
+          user_profiles: true,
           apartment: {
             select: {
               apartment_number: true,

@@ -18,26 +18,20 @@ export class GDPRService {
       const userProfile = await this.prisma.user_profiles.findUnique({
         where: { user_id: userId },
         include: {
-          committee_memberships: {
-            include: {
-              building: true,
-            },
+          building_committee_members: {
+            include: { buildings: true },
           },
           owned_apartments: {
             include: {
-              apartment: {
-                include: {
-                  building: true,
-                },
+              apartments: {
+                include: { buildings: true },
               },
             },
           },
           tenant_apartments: {
             include: {
-              apartment: {
-                include: {
-                  building: true,
-                },
+              apartments: {
+                include: { buildings: true },
               },
             },
           },

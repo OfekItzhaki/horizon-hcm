@@ -30,10 +30,7 @@ export class AssignMaintenanceRequestHandler implements ICommandHandler<AssignMa
         assigned_to: assignedTo,
         status: 'in_progress',
       },
-      include: {
-        building: true,
-        apartment: true,
-      },
+      include: { buildings: true, apartment: true },
     });
 
     // Log audit

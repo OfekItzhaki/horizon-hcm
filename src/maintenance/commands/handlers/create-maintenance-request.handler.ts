@@ -47,10 +47,7 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
         priority,
         status: 'pending',
       },
-      include: {
-        building: true,
-        apartment: true,
-      },
+      include: { buildings: true, apartment: true },
     });
 
     // Log audit

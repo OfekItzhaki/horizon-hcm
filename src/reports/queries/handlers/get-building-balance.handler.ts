@@ -23,7 +23,7 @@ export class GetBuildingBalanceHandler implements IQueryHandler<GetBuildingBalan
     // Calculate total income (paid payments via apartments)
     const totalIncome = await this.prisma.payments.aggregate({
       where: {
-        apartment: {
+        apartments: {
           building_id: buildingId,
         },
         status: 'paid',

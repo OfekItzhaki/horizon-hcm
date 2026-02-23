@@ -11,11 +11,7 @@ export class GetAnnouncementHandler implements IQueryHandler<GetAnnouncementQuer
 
     const announcement = await this.prisma.announcements.findUnique({
       where: { id: announcementId },
-      include: {
-        building: true,
-        read_receipts: true,
-        comments: true,
-      },
+      include: { buildings: true, read_receipts: true, comments: true },
     });
 
     if (!announcement) {

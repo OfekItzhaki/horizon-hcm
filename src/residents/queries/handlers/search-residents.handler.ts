@@ -109,13 +109,13 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
       const [owners, tenants] = await Promise.all([
         this.prisma.apartment_owners.findMany({
           where: {
-            apartment: {
+            apartments: {
               building_id: buildingId,
               apartment_number: searchTerm,
             },
           },
           include: {
-            user_profile: {
+            user_profiles: {
               select: {
                 id: true,
                 full_name: true,
@@ -134,7 +134,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
             },
           },
           include: {
-            user_profile: {
+            user_profiles: {
               select: {
                 id: true,
                 full_name: true,

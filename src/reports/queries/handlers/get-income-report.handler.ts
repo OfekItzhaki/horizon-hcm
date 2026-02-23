@@ -20,7 +20,7 @@ export class GetIncomeReportHandler implements IQueryHandler<GetIncomeReportQuer
     // Get all paid payments in date range
     const payments = await this.prisma.payments.findMany({
       where: {
-        apartment: {
+        apartments: {
           building_id: buildingId,
         },
         status: 'paid',

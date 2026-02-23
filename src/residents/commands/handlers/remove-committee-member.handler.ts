@@ -21,7 +21,7 @@ export class RemoveCommitteeMemberHandler implements ICommandHandler<RemoveCommi
     const committeeMember = await this.prisma.building_committee_members.findUnique({
       where: { id: memberId },
       include: {
-        user_profile: {
+        user_profiles: {
           select: {
             id: true,
             full_name: true,

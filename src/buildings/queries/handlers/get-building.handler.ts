@@ -11,10 +11,8 @@ export class GetBuildingHandler implements IQueryHandler<GetBuildingQuery> {
     const building = await this.prisma.buildings.findUnique({
       where: { id: query.buildingId },
       include: {
-        committee_members: {
-          include: {
-            user_profile: true,
-          },
+        building_committee_members: {
+          include: { user_profiles: true },
         },
         apartments: true,
       },

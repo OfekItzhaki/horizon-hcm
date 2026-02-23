@@ -12,7 +12,7 @@ export class GetApartmentTenantsHandler implements IQueryHandler<GetApartmentTen
     const tenants = await this.prisma.apartment_tenants.findMany({
       where: { apartment_id: apartmentId },
       include: {
-        user_profile: {
+        user_profiles: {
           select: {
             id: true,
             user_id: true,

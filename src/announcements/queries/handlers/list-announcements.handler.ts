@@ -23,10 +23,7 @@ export class ListAnnouncementsHandler implements IQueryHandler<ListAnnouncements
     const [announcements, total] = await Promise.all([
       this.prisma.announcements.findMany({
         where,
-        include: {
-          read_receipts: true,
-          comments: true,
-        },
+        include: { announcement_reads: true, comments: true },
         orderBy: { created_at: 'desc' },
         skip: (page - 1) * limit,
         take: limit,

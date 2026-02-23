@@ -13,7 +13,7 @@ export class GetMaintenanceRequestHandler implements IQueryHandler<GetMaintenanc
     const request = await this.prisma.maintenance_requests.findUnique({
       where: { id: requestId },
       include: {
-        building: true,
+        buildings: true,
         apartment: true,
         comments: {
           orderBy: { created_at: 'asc' },

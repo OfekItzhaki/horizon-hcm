@@ -15,9 +15,7 @@ export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
 
     const document = await this.prisma.documents.findUnique({
       where: { id: documentId },
-      include: {
-        building: true,
-      },
+      include: { buildings: true },
     });
 
     if (!document) {

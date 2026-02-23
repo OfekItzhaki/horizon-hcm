@@ -87,7 +87,7 @@ export class ResourceOwnerGuard implements CanActivate {
       case 'Payment':
         const payment = await this.prisma.payments.findUnique({
           where: { id: resourceId },
-          include: { apartment: { select: { building_id: true } } },
+          include: { apartments: { select: { building_id: true } } },
         });
         return payment?.apartments?.building_id || null;
 

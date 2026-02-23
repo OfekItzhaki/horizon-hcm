@@ -18,10 +18,8 @@ export class MarkPaymentPaidHandler implements ICommandHandler<MarkPaymentPaidCo
     const payment = await this.prisma.payments.findUnique({
       where: { id: paymentId },
       include: {
-        apartment: {
-          include: {
-            building: true,
-          },
+        apartments: {
+          include: { buildings: true },
         },
       },
     });

@@ -37,10 +37,8 @@ export class CreatePaymentHandler implements ICommandHandler<CreatePaymentComman
         created_by: createdBy,
       },
       include: {
-        apartment: {
-          include: {
-            building: true,
-          },
+        apartments: {
+          include: { buildings: true },
         },
       },
     });

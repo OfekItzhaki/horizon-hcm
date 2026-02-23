@@ -15,9 +15,9 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
     const userProfile = await this.prisma.user_profiles.findUnique({
       where: { id: residentId },
       include: {
-        committee_memberships: {
+        building_committee_members: {
           include: {
-            building: {
+            buildings: {
               select: {
                 id: true,
                 name: true,
@@ -28,7 +28,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
         },
         owned_apartments: {
           include: {
-            apartment: {
+            apartments: {
               select: {
                 id: true,
                 apartment_number: true,
@@ -48,7 +48,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
             is_active: true,
           },
           include: {
-            apartment: {
+            apartments: {
               select: {
                 id: true,
                 apartment_number: true,

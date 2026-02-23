@@ -20,7 +20,7 @@ export class GetBudgetComparisonHandler implements IQueryHandler<GetBudgetCompar
     // Calculate actual income
     const actualIncome = await this.prisma.payments.aggregate({
       where: {
-        apartment: { building_id: buildingId },
+        apartments: { building_id: buildingId },
         status: 'paid',
         paid_date: { gte: start, lte: end },
       },

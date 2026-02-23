@@ -13,10 +13,10 @@ export class GetApartmentHandler implements IQueryHandler<GetApartmentQuery> {
     const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
       include: {
-        building: true,
+        buildings: true,
         owners: {
           include: {
-            user_profile: {
+            user_profiles: {
               select: {
                 id: true,
                 full_name: true,
@@ -29,7 +29,7 @@ export class GetApartmentHandler implements IQueryHandler<GetApartmentQuery> {
         tenants: {
           where: { is_active: true },
           include: {
-            user_profile: {
+            user_profiles: {
               select: {
                 id: true,
                 full_name: true,

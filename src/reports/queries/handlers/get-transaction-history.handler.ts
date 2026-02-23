@@ -39,7 +39,7 @@ export class GetTransactionHistoryHandler implements IQueryHandler<GetTransactio
     const transactions = await this.prisma.payments.findMany({
       where,
       include: {
-        apartment: {
+        apartments: {
           select: {
             apartment_number: true,
             building_id: true,

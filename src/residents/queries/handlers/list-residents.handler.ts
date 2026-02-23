@@ -21,7 +21,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       this.prisma.building_committee_members.findMany({
         where: { building_id: buildingId },
         include: {
-          user_profile: {
+          user_profiles: {
             select: {
               id: true,
               full_name: true,
@@ -29,12 +29,12 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
               user_type: true,
               owned_apartments: {
                 where: {
-                  apartment: {
+                  apartments: {
                     building_id: buildingId,
                   },
                 },
                 include: {
-                  apartment: {
+                  apartments: {
                     select: {
                       apartment_number: true,
                     },
@@ -48,12 +48,12 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       // Apartment owners
       this.prisma.apartment_owners.findMany({
         where: {
-          apartment: {
+          apartments: {
             building_id: buildingId,
           },
         },
         include: {
-          user_profile: {
+          user_profiles: {
             select: {
               id: true,
               full_name: true,
@@ -77,7 +77,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
           },
         },
         include: {
-          user_profile: {
+          user_profiles: {
             select: {
               id: true,
               full_name: true,

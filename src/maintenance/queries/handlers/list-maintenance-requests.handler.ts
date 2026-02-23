@@ -24,7 +24,7 @@ export class ListMaintenanceRequestsHandler implements IQueryHandler<ListMainten
         skip,
         take: limit,
         include: {
-          building: {
+          buildings: {
             select: {
               id: true,
               name: true,

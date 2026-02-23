@@ -13,12 +13,12 @@ export class GetPaymentHandler implements IQueryHandler<GetPaymentQuery> {
     const payment = await this.prisma.payments.findUnique({
       where: { id: paymentId },
       include: {
-        apartment: {
+        apartments: {
           include: {
-            building: true,
+            buildings: true,
             owners: {
               include: {
-                user_profile: {
+                user_profiles: {
                   select: {
                     id: true,
                     full_name: true,

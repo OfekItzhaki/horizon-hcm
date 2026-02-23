@@ -28,7 +28,7 @@ export class ListPaymentsHandler implements IQueryHandler<ListPaymentsQuery> {
         skip,
         take: limit,
         include: {
-          apartment: {
+          apartments: {
             select: {
               id: true,
               apartment_number: true,

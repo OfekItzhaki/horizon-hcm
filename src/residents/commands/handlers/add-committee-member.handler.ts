@@ -57,7 +57,7 @@ export class AddCommitteeMemberHandler implements ICommandHandler<AddCommitteeMe
         role: role,
       },
       include: {
-        user_profile: {
+        user_profiles: {
           select: {
             id: true,
             full_name: true,

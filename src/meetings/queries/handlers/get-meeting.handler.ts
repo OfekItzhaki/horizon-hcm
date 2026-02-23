@@ -12,7 +12,7 @@ export class GetMeetingHandler implements IQueryHandler<GetMeetingQuery> {
     const meeting = await this.prisma.meetings.findUnique({
       where: { id: meetingId },
       include: {
-        building: true,
+        buildings: true,
         attendees: true,
         agenda_items: {
           orderBy: { order: 'asc' },
