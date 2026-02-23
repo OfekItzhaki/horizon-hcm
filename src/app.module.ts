@@ -25,6 +25,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { HealthModule } from './health/health.module';
 import { RegistrationModule } from './registration/registration.module';
 import { UsersModule } from './users/users.module';
+import { InvoicesModule } from './invoices/invoices.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { ApiVersioningMiddleware } from './common/middleware/api-versioning.middleware';
 
@@ -88,6 +89,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     CommonModule,
     RegistrationModule,
     UsersModule,
+    InvoicesModule,
     BuildingsModule,
     ApartmentsModule,
     PaymentsModule,
