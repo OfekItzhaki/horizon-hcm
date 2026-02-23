@@ -77,25 +77,9 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
         port: parseInt(process.env.REDIS_PORT) || 6379,
       },
       email: {
-        // Use Resend for email delivery (get API key from https://resend.com)
-        // For development: falls back to console logging if RESEND_API_KEY is not set
-        provider: process.env.RESEND_API_KEY ? 'resend' : 'custom',
+        provider: 'resend',
         apiKey: process.env.RESEND_API_KEY,
         from: process.env.EMAIL_FROM || 'Horizon HCM <noreply@horizon-hcm.com>',
-        customSender: async (to: string, subject: string, html: string) => {
-          // Development fallback: log email to console
-          console.log(`\n📧 EMAIL (Development Mode):`);
-          console.log(`   To: ${to}`);
-          console.log(`   Subject: ${subject}`);
-
-          // Extract reset token from HTML if present
-          const tokenMatch = html.match(/token=([a-f0-9-]+)/i);
-          if (tokenMatch) {
-            console.log(
-              `\n🔗 RESET LINK: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${tokenMatch[1]}\n`,
-            );
-          }
-        },
       },
     }),
     LoggerModule,
