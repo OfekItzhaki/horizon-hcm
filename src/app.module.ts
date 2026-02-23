@@ -23,6 +23,7 @@ import { SyncModule } from './sync/sync.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { HealthModule } from './health/health.module';
+import { RegistrationModule } from './registration/registration.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { ApiVersioningMiddleware } from './common/middleware/api-versioning.middleware';
 
@@ -84,6 +85,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     }),
     LoggerModule,
     CommonModule,
+    RegistrationModule,
     BuildingsModule,
     ApartmentsModule,
     PaymentsModule,

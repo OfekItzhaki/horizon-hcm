@@ -8,6 +8,7 @@ import type { AuthNavigationProp } from '../../types/navigation';
 interface RegisterFormData {
   fullName: string;
   email: string;
+  phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -29,6 +30,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
     defaultValues: {
       fullName: '',
       email: '',
+      phone: '',
       password: '',
       confirmPassword: '',
     },
@@ -44,7 +46,9 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
       await authApi.register({
         fullName: data.fullName,
         email: data.email,
+        phone: data.phone,
         password: data.password,
+        acceptedTerms: true, // Mobile users implicitly accept terms by registering
       });
 
       navigation.navigate('Login');
@@ -113,6 +117,26 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
           )}
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+
+        <Controller
+          control={control}
+          name="phone"
+          rules={{ required: 'Phone is required' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Phone Number"
+              mode="outlined"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={!!errors.phone}
+              keyboardType="phone-pad"
+              disabled={isLoading}
+              style={styles.input}
+            />
+          )}
+        />
+        {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
 
         <Controller
           control={control}

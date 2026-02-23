@@ -4,7 +4,7 @@ import type { AuthTokens, User, LoginCredentials, RegisterData } from '../types'
 export const authApi = {
   login: (credentials: LoginCredentials) => apiClient.post<AuthTokens>('/auth/login', credentials),
 
-  register: (data: RegisterData) => apiClient.post<User>('/auth/register', data),
+  register: (data: RegisterData) => apiClient.post<User>('/api/register', data),
 
   logout: () => apiClient.post('/auth/logout'),
 
