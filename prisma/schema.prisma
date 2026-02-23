@@ -479,11 +479,13 @@ model user_profiles {
   full_name                  String
   national_id                String?
   phone_number               String?
+  avatar_url                 String?
   user_type                  UserType
   preferred_language         String                       @default("en")
   signing_key                String?
   created_at                 DateTime                     @default(now())
   updated_at                 DateTime
+  user                       User                         @relation(fields: [user_id], references: [id], onDelete: Cascade)
   apartment_owners           apartment_owners[]
   apartment_tenants          apartment_tenants[]
   building_committee_members building_committee_members[]
@@ -574,6 +576,7 @@ model User {
   roles              String[]        @default(["user"])
   isActive           Boolean         @default(true)
   deactivationReason String?
+  profile            user_profiles?
   refreshTokens      RefreshToken[]
   socialAccounts     SocialAccount[]
   devices            Device[]

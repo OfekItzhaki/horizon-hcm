@@ -1,7 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@ofeklabs/horizon-auth';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard, CurrentUser } from '@ofeklabs/horizon-auth';
 import { PrismaService } from '../prisma/prisma.service';
 
 @ApiTags('users')
@@ -18,7 +17,7 @@ export class UsersController {
     const userWithProfile = await this.prisma.user.findUnique({
       where: { id: user.id },
       include: {
-        user_profiles: true,
+        profile: true,
       },
     });
 
@@ -26,7 +25,7 @@ export class UsersController {
       return null;
     }
 
-    const profile = userWithProfile.user_profiles[0];
+    const profile = userWithProfile.profile;
 
     // Return user data in the format expected by frontend
     return {
@@ -45,7 +44,7 @@ export class UsersController {
         pushNotifications: true,
         enabledTypes: [],
       },
-      twoFactorEnabled: userWithProfile.twoFactorEnabled || false,
+      twoFactorEnabled: false, // TODO: Check if user has 2FA enabled
       createdAt: userWithProfile.createdAt,
       updatedAt: userWithProfile.updatedAt,
     };
