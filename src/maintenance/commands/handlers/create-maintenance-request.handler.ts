@@ -54,7 +54,7 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'maintenance_request.created',
       resourceType: 'MaintenanceRequest',
       resourceId: request.id,

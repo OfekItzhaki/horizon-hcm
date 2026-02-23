@@ -32,7 +32,7 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand> {
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId,
       action: 'announcement.commented',
       resourceType: 'announcement',

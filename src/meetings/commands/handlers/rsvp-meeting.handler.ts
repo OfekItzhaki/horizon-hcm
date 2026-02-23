@@ -41,7 +41,7 @@ export class RsvpMeetingHandler implements ICommandHandler<RsvpMeetingCommand> {
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId,
       action: 'meeting.rsvp',
       resourceType: 'meeting',

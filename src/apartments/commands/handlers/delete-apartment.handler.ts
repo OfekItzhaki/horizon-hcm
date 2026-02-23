@@ -29,9 +29,7 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
 
     // Check for active tenants
     if (apartment.tenants.length > 0) {
-      throw new BadRequestException(
-        'Cannot delete apartment with active tenants',
-      );
+      throw new BadRequestException('Cannot delete apartment with active tenants');
     }
 
     // Delete apartment (cascade will handle owners and tenants)
@@ -40,7 +38,7 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'apartment.deleted',
       resourceType: 'Apartment',
       resourceId: apartmentId,

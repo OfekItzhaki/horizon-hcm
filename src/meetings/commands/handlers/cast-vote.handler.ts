@@ -57,7 +57,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId,
       action: 'vote.cast',
       resourceType: 'vote',

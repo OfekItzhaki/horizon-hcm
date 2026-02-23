@@ -62,7 +62,7 @@ export class GDPRService {
       });
 
       // Get sync states
-      const syncStates = await this.prisma.syncState.findMany({
+      const syncStates = await this.prisma.sync_states.findMany({
         where: { user_id: userId },
       });
 
@@ -73,7 +73,7 @@ export class GDPRService {
       });
 
       // Get audit logs
-      const auditLogs = await this.prisma.auditLog.findMany({
+      const auditLogs = await this.prisma.audit_logs.findMany({
         where: { user_id: userId },
         orderBy: { created_at: 'desc' },
       });
@@ -142,7 +142,7 @@ export class GDPRService {
         });
 
         // Delete sync states
-        await tx.syncState.deleteMany({
+        await tx.sync_states.deleteMany({
           where: { user_id: userId },
         });
 
@@ -152,7 +152,7 @@ export class GDPRService {
         });
 
         // Delete audit logs
-        await tx.auditLog.deleteMany({
+        await tx.audit_logs.deleteMany({
           where: { user_id: userId },
         });
 
@@ -212,7 +212,7 @@ export class GDPRService {
         });
 
         // Anonymize audit logs (keep for compliance but remove PII)
-        await tx.auditLog.updateMany({
+        await tx.audit_logs.updateMany({
           where: { user_id: userId },
           data: {
             ip_address: 'anonymized',
@@ -248,7 +248,7 @@ export class GDPRService {
       where: { user_id: userId },
     });
 
-    const auditLogsCount = await this.prisma.auditLog.count({
+    const auditLogsCount = await this.prisma.audit_logs.count({
       where: { user_id: userId },
     });
 

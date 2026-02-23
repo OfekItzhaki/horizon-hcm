@@ -293,7 +293,7 @@ export class SyncService {
    * Get or create sync state for user and entity type
    */
   async getSyncState(userId: string, entityType: string) {
-    let syncState = await this.prisma.syncState.findUnique({
+    let syncState = await this.prisma.sync_states.findUnique({
       where: {
         user_id_entity_type: {
           user_id: userId,
@@ -303,7 +303,7 @@ export class SyncService {
     });
 
     if (!syncState) {
-      syncState = await this.prisma.syncState.create({
+      syncState = await this.prisma.sync_states.create({
         data: {
           user_id: userId,
           entity_type: entityType,
@@ -319,7 +319,7 @@ export class SyncService {
    * Update sync state after successful sync
    */
   async updateSyncState(userId: string, entityType: string, newTimestamp: Date) {
-    return this.prisma.syncState.update({
+    return this.prisma.sync_states.update({
       where: {
         user_id_entity_type: {
           user_id: userId,
@@ -336,7 +336,7 @@ export class SyncService {
    * Increment pending operations count
    */
   async incrementPendingOperations(userId: string, entityType: string) {
-    return this.prisma.syncState.update({
+    return this.prisma.sync_states.update({
       where: {
         user_id_entity_type: {
           user_id: userId,
@@ -355,7 +355,7 @@ export class SyncService {
    * Decrement pending operations count
    */
   async decrementPendingOperations(userId: string, entityType: string) {
-    return this.prisma.syncState.update({
+    return this.prisma.sync_states.update({
       where: {
         user_id_entity_type: {
           user_id: userId,
@@ -384,7 +384,7 @@ export class SyncService {
 
     for (const [entityType, count] of entityTypeCounts) {
       const syncState = await this.getSyncState(userId, entityType);
-      await this.prisma.syncState.update({
+      await this.prisma.sync_states.update({
         where: { id: syncState.id },
         data: {
           pending_operations: {

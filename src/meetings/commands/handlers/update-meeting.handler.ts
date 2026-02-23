@@ -32,7 +32,7 @@ export class UpdateMeetingHandler implements ICommandHandler<UpdateMeetingComman
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: meeting.created_by,
       action: 'meeting.updated',
       resourceType: 'meeting',

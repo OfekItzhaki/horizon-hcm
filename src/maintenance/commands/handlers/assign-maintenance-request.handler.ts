@@ -37,7 +37,7 @@ export class AssignMaintenanceRequestHandler implements ICommandHandler<AssignMa
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'maintenance_request.assigned',
       resourceType: 'MaintenanceRequest',
       resourceId: requestId,

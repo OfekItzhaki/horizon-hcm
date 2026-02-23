@@ -23,7 +23,7 @@ export class AuditLogService {
    */
   async log(entry: AuditLogEntry): Promise<void> {
     try {
-      await this.prisma.auditLog.create({
+      await this.prisma.audit_logs.create({
         data: {
           user_id: entry.userId,
           action: entry.action,
@@ -35,9 +35,7 @@ export class AuditLogService {
         },
       });
 
-      this.logger.log(
-        `Audit: ${entry.action} by user ${entry.userId || 'system'}`,
-      );
+      this.logger.log(`Audit: ${entry.action} by user ${entry.userId || 'system'}`);
     } catch (error) {
       this.logger.error(`Failed to create audit log: ${error.message}`);
     }
@@ -129,12 +127,8 @@ export class AuditLogService {
   /**
    * Get audit logs for a user
    */
-  async getUserAuditLogs(
-    userId: string,
-    limit: number = 100,
-    offset: number = 0,
-  ) {
-    return this.prisma.auditLog.findMany({
+  async getUserAuditLogs(userId: string, limit: number = 100, offset: number = 0) {
+    return this.prisma.audit_logs.findMany({
       where: { user_id: userId },
       orderBy: { created_at: 'desc' },
       take: limit,
@@ -151,7 +145,7 @@ export class AuditLogService {
     limit: number = 100,
     offset: number = 0,
   ) {
-    return this.prisma.auditLog.findMany({
+    return this.prisma.audit_logs.findMany({
       where: {
         resource_type: resourceType,
         resource_id: resourceId,
@@ -200,7 +194,7 @@ export class AuditLogService {
       }
     }
 
-    return this.prisma.auditLog.findMany({
+    return this.prisma.audit_logs.findMany({
       where,
       orderBy: { created_at: 'desc' },
       take: limit,

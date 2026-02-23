@@ -73,7 +73,7 @@ export class AddCommitteeMemberHandler implements ICommandHandler<AddCommitteeMe
     await this.cache.delete(`building-member:${userId}:${buildingId}`);
 
     // Log audit entry
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: currentUserId,
       action: 'committee_member.added',
       resourceType: 'BuildingCommitteeMember',

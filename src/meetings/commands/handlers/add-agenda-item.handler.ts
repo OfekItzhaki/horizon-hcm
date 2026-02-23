@@ -33,7 +33,7 @@ export class AddAgendaItemHandler implements ICommandHandler<AddAgendaItemComman
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: meeting.created_by,
       action: 'agenda_item.created',
       resourceType: 'agenda_item',

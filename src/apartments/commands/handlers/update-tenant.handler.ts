@@ -54,7 +54,7 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantCommand>
     }
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'apartment.tenant_updated',
       resourceType: 'Apartment',
       resourceId: tenant.apartment_id,

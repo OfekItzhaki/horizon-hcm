@@ -38,7 +38,7 @@ export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCo
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'apartment.updated',
       resourceType: 'Apartment',
       resourceId: apartment.id,

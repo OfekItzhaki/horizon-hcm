@@ -32,7 +32,7 @@ export class CreateVoteHandler implements ICommandHandler<CreateVoteCommand> {
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: meeting.created_by,
       action: 'vote.created',
       resourceType: 'vote',

@@ -12,7 +12,8 @@ export class CreatePaymentHandler implements ICommandHandler<CreatePaymentComman
   ) {}
 
   async execute(command: CreatePaymentCommand) {
-    const { apartmentId, amount, dueDate, paymentType, createdBy, description, referenceNumber } = command;
+    const { apartmentId, amount, dueDate, paymentType, createdBy, description, referenceNumber } =
+      command;
 
     // Verify apartment exists
     const apartment = await this.prisma.apartment.findUnique({
@@ -45,7 +46,7 @@ export class CreatePaymentHandler implements ICommandHandler<CreatePaymentComman
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'payment.created',
       resourceType: 'Payment',
       resourceId: payment.id,

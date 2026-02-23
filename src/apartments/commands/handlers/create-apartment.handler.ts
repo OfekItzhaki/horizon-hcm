@@ -25,9 +25,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
     });
 
     if (existing) {
-      throw new BadRequestException(
-        `Apartment ${apartmentNumber} already exists in this building`,
-      );
+      throw new BadRequestException(`Apartment ${apartmentNumber} already exists in this building`);
     }
 
     // Create apartment
@@ -46,7 +44,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'apartment.created',
       resourceType: 'Apartment',
       resourceId: apartment.id,

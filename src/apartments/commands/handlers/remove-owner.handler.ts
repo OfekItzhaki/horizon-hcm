@@ -45,7 +45,7 @@ export class RemoveOwnerHandler implements ICommandHandler<RemoveOwnerCommand> {
     }
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'apartment.owner_removed',
       resourceType: 'Apartment',
       resourceId: apartmentId,

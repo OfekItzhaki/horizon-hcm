@@ -45,7 +45,7 @@ export class ResourceOwnerGuard implements CanActivate {
     const isOwner = await this.checkResourceOwnership(resourceType, resourceId, user.id);
 
     if (!isOwner) {
-      await this.auditLog.log({
+      await this.audit_logs.log({
         userId: user.id,
         action: 'authorization.failed',
         resourceType,

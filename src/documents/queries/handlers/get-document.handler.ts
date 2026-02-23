@@ -26,7 +26,7 @@ export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
 
     // Log document access
     // TODO: Get userId from context
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: 'system',
       action: 'document.accessed',
       resourceType: 'document',

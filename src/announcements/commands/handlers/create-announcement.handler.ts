@@ -35,7 +35,7 @@ export class CreateAnnouncementHandler implements ICommandHandler<CreateAnnounce
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: authorId,
       action: 'announcement.created',
       resourceType: 'announcement',

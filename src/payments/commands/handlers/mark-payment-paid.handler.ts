@@ -50,7 +50,7 @@ export class MarkPaymentPaidHandler implements ICommandHandler<MarkPaymentPaidCo
     ]);
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'payment.marked_paid',
       resourceType: 'Payment',
       resourceId: paymentId,

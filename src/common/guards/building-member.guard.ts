@@ -74,7 +74,7 @@ export class BuildingMemberGuard implements CanActivate {
     await this.cache.set(cacheKey, isMember ? 'true' : 'false', 900);
 
     if (!isMember) {
-      await this.auditLog.log({
+      await this.audit_logs.log({
         userId: user.id,
         action: 'authorization.failed',
         resourceType: 'Building',

@@ -28,7 +28,7 @@ export class DeleteDocumentHandler implements ICommandHandler<DeleteDocumentComm
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId,
       action: 'document.deleted',
       resourceType: 'document',

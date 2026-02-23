@@ -53,7 +53,7 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       action: 'apartment.tenant_assigned',
       resourceType: 'Apartment',
       resourceId: apartmentId,

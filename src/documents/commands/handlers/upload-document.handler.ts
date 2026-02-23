@@ -11,7 +11,8 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
   ) {}
 
   async execute(command: UploadDocumentCommand) {
-    const { buildingId, fileId, title, category, accessLevel, uploadedBy, previousVersionId } = command;
+    const { buildingId, fileId, title, category, accessLevel, uploadedBy, previousVersionId } =
+      command;
 
     // Validate building exists
     const building = await this.prisma.building.findUnique({
@@ -57,7 +58,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
     });
 
     // Log audit
-    await this.auditLog.log({
+    await this.audit_logs.log({
       userId: uploadedBy,
       action: 'document.uploaded',
       resourceType: 'document',
