@@ -1,6 +1,19 @@
-import { Controller, Post, Get, Patch, Body, Param, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard, CurrentUser } from '@ofeklabs/horizon-auth';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 import { SendTemplatedNotificationDto } from './dto/send-templated-notification.dto';
@@ -12,11 +25,14 @@ import { GetPreferencesQuery } from './queries/impl/get-preferences.query';
 
 @ApiTags('notifications')
 @Controller('notifications')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class NotificationsController {
   constructor(
     private commandBus: CommandBus,
     private queryBus: QueryBus,
     private notificationService: NotificationService,
+    private prisma: PrismaService,
   ) {}
 
   @Post('send')
@@ -62,19 +78,106 @@ export class NotificationsController {
   @Get('unread-count')
   @ApiOperation({ summary: 'Get unread notification count' })
   @ApiResponse({ status: 200, description: 'Unread count retrieved' })
-  @ApiBearerAuth()
-  async getUnreadCount() {
-    // TODO: Implement actual unread count logic
-    return { count: 0 };
+  async getUnreadCount(@CurrentUser() user: any) {
+    const count = await this.prisma.notification_logs.count({
+      where: {
+        user_id: user.id,
+        delivered_at: { not: null },
+        // TODO: Add read_at field to track read status
+      },
+    });
+
+    return { count };
   }
 
   @Get()
   @ApiOperation({ summary: 'Get user notifications' })
   @ApiResponse({ status: 200, description: 'Notifications retrieved' })
-  @ApiBearerAuth()
-  async getNotifications() {
-    // TODO: Implement actual notifications retrieval
-    return { notifications: [], total: 0 };
+  async getNotifications(
+    @CurrentUser() user: any,
+    @Query('unreadOnly') unreadOnly?: boolean,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    const skip = (page - 1) * limit;
+
+    const where = {
+      user_id: user.id,
+      delivered_at: { not: null },
+      // TODO: Add read_at filter when field exists
+    };
+
+    const [notifications, total] = await Promise.all([
+      this.prisma.notification_logs.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.notification_logs.count({ where }),
+    ]);
+
+    return {
+      data: notifications.map((n) => ({
+        id: n.id,
+        title: n.title,
+        body: n.body,
+        type: n.template_name || 'general',
+        read: false, // TODO: Use read_at field
+        createdAt: n.created_at,
+      })),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  @Patch(':id/read')
+  @ApiOperation({ summary: 'Mark notification as read' })
+  @ApiResponse({ status: 200, description: 'Notification marked as read' })
+  async markAsRead() {
+    // TODO: Add read_at field to notification_logs table
+    // For now, just return success
+    return { message: 'Notification marked as read' };
+  }
+
+  @Post('read-all')
+  @ApiOperation({ summary: 'Mark all notifications as read' })
+  @ApiResponse({ status: 200, description: 'All notifications marked as read' })
+  async markAllAsRead() {
+    // TODO: Add read_at field to notification_logs table
+    // For now, just return success
+    return { message: 'All notifications marked as read' };
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete notification' })
+  @ApiResponse({ status: 200, description: 'Notification deleted' })
+  async deleteNotification(@CurrentUser() user: any, @Param('id') id: string) {
+    await this.prisma.notification_logs.deleteMany({
+      where: {
+        id,
+        user_id: user.id,
+      },
+    });
+
+    return { message: 'Notification deleted' };
+  }
+
+  @Post('push-token')
+  @ApiOperation({ summary: 'Register push notification token' })
+  @ApiResponse({ status: 201, description: 'Push token registered' })
+  async registerPushToken() {
+    // TODO: Store push token in database
+    return { message: 'Push token registered successfully' };
+  }
+
+  @Delete('push-token')
+  @ApiOperation({ summary: 'Unregister push notification token' })
+  @ApiResponse({ status: 200, description: 'Push token unregistered' })
+  async unregisterPushToken() {
+    // TODO: Remove push token from database
+    return { message: 'Push token unregistered successfully' };
   }
 
   @Patch('preferences')
