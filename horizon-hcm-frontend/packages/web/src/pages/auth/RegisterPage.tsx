@@ -14,8 +14,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterInput } from '@horizon-hcm/shared';
+// import { zodResolver } from '@hookform/resolvers/zod';
+import { type RegisterInput } from '@horizon-hcm/shared';
+// import { registerSchema } from '@horizon-hcm/shared';
 import { authApi } from '@horizon-hcm/shared';
 
 export default function RegisterPage() {
@@ -29,7 +30,7 @@ export default function RegisterPage() {
     formState: { errors },
     getValues,
   } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
+    // resolver: zodResolver(registerSchema), // Temporarily disabled for debugging
     mode: 'onSubmit', // Only validate on submit
     defaultValues: {
       email: '',
