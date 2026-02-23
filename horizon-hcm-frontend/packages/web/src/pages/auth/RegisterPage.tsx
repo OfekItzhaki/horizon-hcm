@@ -27,6 +27,7 @@ export default function RegisterPage() {
     control,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -39,6 +40,7 @@ export default function RegisterPage() {
   });
 
   console.log('Form errors:', errors);
+  console.log('Form values:', getValues());
 
   const onSubmit = async (data: RegisterInput) => {
     console.log('Form submitted with data:', data);
@@ -133,19 +135,22 @@ export default function RegisterPage() {
             <Controller
               name="phone"
               control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Phone Number"
-                  type="tel"
-                  fullWidth
-                  margin="normal"
-                  error={!!errors.phone}
-                  helperText={errors.phone?.message}
-                  disabled={isLoading}
-                  autoComplete="tel"
-                />
-              )}
+              render={({ field }) => {
+                console.log('Phone field value:', field.value, 'Type:', typeof field.value);
+                return (
+                  <TextField
+                    {...field}
+                    label="Phone Number"
+                    type="tel"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.phone}
+                    helperText={errors.phone?.message}
+                    disabled={isLoading}
+                    autoComplete="tel"
+                  />
+                );
+              }}
             />
 
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
@@ -210,6 +215,10 @@ export default function RegisterPage() {
               size="large"
               disabled={isLoading}
               sx={{ mt: 3, mb: 2 }}
+              onClick={() => {
+                console.log('Button clicked, form values:', getValues());
+                console.log('Form errors before submit:', errors);
+              }}
             >
               {isLoading ? <CircularProgress size={24} /> : 'Create Account'}
             </Button>
