@@ -38,18 +38,24 @@ export default function RegisterPage() {
     },
   });
 
+  console.log('Form errors:', errors);
+
   const onSubmit = async (data: RegisterInput) => {
+    console.log('Form submitted with data:', data);
     try {
       setError(null);
       setIsLoading(true);
 
-      await authApi.register(data);
+      console.log('Calling authApi.register...');
+      const response = await authApi.register(data);
+      console.log('Registration response:', response);
 
       // Redirect to login page with success message
       navigate('/login', {
         state: { message: 'Registration successful! Please log in.' },
       });
     } catch (err) {
+      console.error('Registration error:', err);
       const error = err as Error & { response?: { data?: { message?: string } } };
       const message = error.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
@@ -165,9 +171,16 @@ export default function RegisterPage() {
             <Controller
               name="acceptedTerms"
               control={control}
-              render={({ field }) => (
+              render={({ field: { value, onChange, ...field } }) => (
                 <FormControlLabel
-                  control={<Checkbox {...field} checked={field.value} disabled={isLoading} />}
+                  control={
+                    <Checkbox
+                      {...field}
+                      checked={value}
+                      onChange={(e) => onChange(e.target.checked)}
+                      disabled={isLoading}
+                    />
+                  }
                   label={
                     <Typography variant="body2">
                       I accept the{' '}
