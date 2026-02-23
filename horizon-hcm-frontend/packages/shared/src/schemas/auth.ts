@@ -24,11 +24,8 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  name: z.string().min(1, 'Name is required'),
-  phone: phoneSchema,
-  acceptedTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
+  fullName: z.string().optional(),
+  tenantId: z.string().optional(),
 });
 
 // Password reset request schema

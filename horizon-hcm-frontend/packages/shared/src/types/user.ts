@@ -36,9 +36,8 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  name: string;
-  phone: string;
-  acceptedTerms: boolean;
+  fullName?: string;
+  tenantId?: string;
 }
 
 export interface AuthTokens {

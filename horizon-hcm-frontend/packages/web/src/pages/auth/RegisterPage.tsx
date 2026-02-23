@@ -8,8 +8,6 @@ import {
   Button,
   Typography,
   Link,
-  Checkbox,
-  FormControlLabel,
   Alert,
   CircularProgress,
 } from '@mui/material';
@@ -32,9 +30,7 @@ export default function RegisterPage() {
     defaultValues: {
       email: '',
       password: '',
-      name: '',
-      phone: '',
-      acceptedTerms: false,
+      fullName: '',
     },
   });
 
@@ -49,8 +45,9 @@ export default function RegisterPage() {
       navigate('/login', {
         state: { message: 'Registration successful! Please log in.' },
       });
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Registration failed. Please try again.';
+    } catch (err) {
+      const error = err as Error & { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
     } finally {
       setIsLoading(false);
@@ -86,7 +83,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller
-              name="name"
+              name="fullName"
               control={control}
               render={({ field }) => (
                 <TextField
@@ -94,8 +91,8 @@ export default function RegisterPage() {
                   label="Full Name"
                   fullWidth
                   margin="normal"
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
+                  error={!!errors.fullName}
+                  helperText={errors.fullName?.message}
                   disabled={isLoading}
                   autoComplete="name"
                   autoFocus
@@ -124,25 +121,6 @@ export default function RegisterPage() {
 
             {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
             <Controller
-              name="phone"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Phone Number"
-                  type="tel"
-                  fullWidth
-                  margin="normal"
-                  error={!!errors.phone}
-                  helperText={errors.phone?.message}
-                  disabled={isLoading}
-                  autoComplete="tel"
-                />
-              )}
-            />
-
-            {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
-            <Controller
               name="password"
               control={control}
               render={({ field }) => (
@@ -159,35 +137,6 @@ export default function RegisterPage() {
                 />
               )}
             />
-
-            {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
-            <Controller
-              name="acceptedTerms"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={<Checkbox {...field} checked={field.value} disabled={isLoading} />}
-                  label={
-                    <Typography variant="body2">
-                      I accept the{' '}
-                      <Link href="/terms" target="_blank" underline="hover">
-                        Terms of Service
-                      </Link>{' '}
-                      and{' '}
-                      <Link href="/privacy" target="_blank" underline="hover">
-                        Privacy Policy
-                      </Link>
-                    </Typography>
-                  }
-                  sx={{ mt: 1 }}
-                />
-              )}
-            />
-            {errors.acceptedTerms && (
-              <Typography variant="caption" color="error" display="block" sx={{ mt: 0.5 }}>
-                {errors.acceptedTerms.message}
-              </Typography>
-            )}
 
             <Button
               type="submit"

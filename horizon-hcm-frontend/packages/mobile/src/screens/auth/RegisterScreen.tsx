@@ -6,9 +6,8 @@ import { authApi } from '@horizon-hcm/shared/src/api/auth';
 import type { AuthNavigationProp } from '../../types/navigation';
 
 interface RegisterFormData {
-  name: string;
+  fullName: string;
   email: string;
-  phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -28,9 +27,8 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
     formState: { errors },
   } = useForm<RegisterFormData>({
     defaultValues: {
-      name: '',
+      fullName: '',
       email: '',
-      phone: '',
       password: '',
       confirmPassword: '',
     },
@@ -44,11 +42,9 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
       setIsLoading(true);
 
       await authApi.register({
-        name: data.name,
+        fullName: data.fullName,
         email: data.email,
-        phone: data.phone,
         password: data.password,
-        acceptedTerms: true, // Mobile users implicitly accept terms by registering
       });
 
       navigation.navigate('Login');
@@ -74,8 +70,8 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
 
         <Controller
           control={control}
-          name="name"
-          rules={{ required: 'Name is required' }}
+          name="fullName"
+          rules={{ required: 'Full name is required' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               label="Full Name"
@@ -83,13 +79,13 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              error={!!errors.name}
+              error={!!errors.fullName}
               disabled={isLoading}
               style={styles.input}
             />
           )}
         />
-        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+        {errors.fullName && <Text style={styles.errorText}>{errors.fullName.message}</Text>}
 
         <Controller
           control={control}
@@ -117,26 +113,6 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
           )}
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
-
-        <Controller
-          control={control}
-          name="phone"
-          rules={{ required: 'Phone is required' }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Phone"
-              mode="outlined"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={!!errors.phone}
-              keyboardType="phone-pad"
-              disabled={isLoading}
-              style={styles.input}
-            />
-          )}
-        />
-        {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
 
         <Controller
           control={control}
