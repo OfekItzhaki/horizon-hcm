@@ -27,6 +27,7 @@ import { RegistrationModule } from './registration/registration.module';
 import { UsersModule } from './users/users.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { MessagesModule } from './messages/messages.module';
+import { PollsModule } from './polls/polls.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { ApiVersioningMiddleware } from './common/middleware/api-versioning.middleware';
 
@@ -92,6 +93,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     UsersModule,
     InvoicesModule,
     MessagesModule,
+    PollsModule,
     BuildingsModule,
     ApartmentsModule,
     PaymentsModule,
