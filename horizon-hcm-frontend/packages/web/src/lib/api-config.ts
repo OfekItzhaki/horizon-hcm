@@ -1,9 +1,10 @@
-import { configureTokenStorage } from '@horizon-hcm/shared';
+import { configureAPIClient } from '@horizon-hcm/shared';
 import { useAuthStore } from '../store';
 
 // Configure token storage for the API client
 export const initializeApiClient = () => {
-  configureTokenStorage({
+  configureAPIClient({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
     getTokens: () => {
       const state = useAuthStore.getState();
       if (state.token && state.refreshToken) {
