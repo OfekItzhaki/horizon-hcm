@@ -81,7 +81,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
         // For development: falls back to console logging if RESEND_API_KEY is not set
         provider: process.env.RESEND_API_KEY ? 'resend' : 'custom',
         apiKey: process.env.RESEND_API_KEY,
-        from: process.env.EMAIL_FROM || 'noreply@horizon-hcm.com',
+        from: process.env.EMAIL_FROM || 'Horizon HCM <noreply@horizon-hcm.com>',
         customSender: async (to: string, subject: string, html: string) => {
           // Development fallback: log email to console
           console.log(`\n📧 EMAIL (Development Mode):`);
