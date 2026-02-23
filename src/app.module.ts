@@ -79,9 +79,20 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
       email: {
         provider: 'custom',
         from: 'noreply@horizon-hcm.com',
-        customSender: async (to: string, subject: string) => {
+        customSender: async (to: string, subject: string, html: string) => {
           // Email sending will be handled by the application's email service
-          console.log(`Email would be sent to ${to} with subject: ${subject}`);
+          console.log(`\n📧 EMAIL WOULD BE SENT:`);
+          console.log(`   To: ${to}`);
+          console.log(`   Subject: ${subject}`);
+          console.log(`   HTML Body:\n${html}\n`);
+
+          // Extract reset token from HTML if present
+          const tokenMatch = html.match(/token=([a-f0-9-]+)/i);
+          if (tokenMatch) {
+            console.log(
+              `\n🔗 RESET LINK: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${tokenMatch[1]}\n`,
+            );
+          }
         },
       },
     }),
