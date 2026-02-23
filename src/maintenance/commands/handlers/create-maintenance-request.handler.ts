@@ -16,7 +16,7 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
       command;
 
     // Verify building exists
-    const building = await this.prisma.building.findUnique({
+    const building = await this.prisma.buildings.findUnique({
       where: { id: buildingId },
     });
 
@@ -26,7 +26,7 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
 
     // Verify apartment exists if provided
     if (apartmentId) {
-      const apartment = await this.prisma.apartment.findUnique({
+      const apartment = await this.prisma.apartments.findUnique({
         where: { id: apartmentId },
       });
 
@@ -54,7 +54,7 @@ export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMa
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'maintenance_request.created',
       resourceType: 'MaintenanceRequest',
       resourceId: request.id,

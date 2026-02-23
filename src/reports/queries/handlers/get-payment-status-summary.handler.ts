@@ -31,7 +31,7 @@ export class GetPaymentStatusSummaryHandler implements IQueryHandler<GetPaymentS
     }
 
     // Get all payments in date range
-    const payments = await this.prisma.payment.findMany({
+    const payments = await this.prisma.payments.findMany({
       where: {
         apartment: {
           building_id: buildingId,

@@ -117,7 +117,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       // Add apartments from owned_apartments
       member.user_profile.owned_apartments.forEach((ownership) => {
         residentsMap.get(userId).apartments.push({
-          apartment_number: ownership.apartment.apartment_number,
+          apartment_number: ownership.apartments.apartment_number,
           relationship: 'OWNER',
         });
       });
@@ -137,7 +137,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
         });
       }
       residentsMap.get(userId).apartments.push({
-        apartment_number: owner.apartment.apartment_number,
+        apartment_number: owner.apartments.apartment_number,
         relationship: 'OWNER',
       });
     });
@@ -156,7 +156,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
         });
       }
       residentsMap.get(userId).apartments.push({
-        apartment_number: tenant.apartment.apartment_number,
+        apartment_number: tenant.apartments.apartment_number,
         relationship: 'TENANT',
       });
     });

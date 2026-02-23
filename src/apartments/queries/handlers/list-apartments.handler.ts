@@ -17,7 +17,7 @@ export class ListApartmentsHandler implements IQueryHandler<ListApartmentsQuery>
     }
 
     const [apartments, total] = await Promise.all([
-      this.prisma.apartment.findMany({
+      this.prisma.apartments.findMany({
         where,
         skip,
         take: limit,
@@ -50,7 +50,7 @@ export class ListApartmentsHandler implements IQueryHandler<ListApartmentsQuery>
         },
         orderBy: { apartment_number: 'asc' },
       }),
-      this.prisma.apartment.count({ where }),
+      this.prisma.apartments.count({ where }),
     ]);
 
     return {

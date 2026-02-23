@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { LoggerService } from '../../common/logger/logger.service';
 import { randomBytes } from 'crypto';
@@ -147,7 +152,7 @@ export class StorageService {
       'image/png',
       'image/gif',
       'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.documents', // DOCX
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
     ];
 
@@ -164,7 +169,7 @@ export class StorageService {
     };
 
     const isImage = mimetype.startsWith('image/');
-    const maxSize = isImage ? maxSizes.image : maxSizes.document;
+    const maxSize = isImage ? maxSizes.image : maxSizes.documents;
 
     return size <= maxSize;
   }

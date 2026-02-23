@@ -46,7 +46,7 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantCommand>
       });
 
       if (activeTenants === 0 && owners === 0) {
-        await this.prisma.apartment.update({
+        await this.prisma.apartments.update({
           where: { id: tenant.apartment_id },
           data: { is_vacant: true },
         });
@@ -54,7 +54,7 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantCommand>
     }
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'apartment.tenant_updated',
       resourceType: 'Apartment',
       resourceId: tenant.apartment_id,

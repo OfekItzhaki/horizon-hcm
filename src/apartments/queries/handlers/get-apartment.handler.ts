@@ -10,7 +10,7 @@ export class GetApartmentHandler implements IQueryHandler<GetApartmentQuery> {
   async execute(query: GetApartmentQuery) {
     const { apartmentId } = query;
 
-    const apartment = await this.prisma.apartment.findUnique({
+    const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
       include: {
         building: true,

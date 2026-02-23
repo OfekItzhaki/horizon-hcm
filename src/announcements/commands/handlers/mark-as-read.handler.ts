@@ -10,7 +10,7 @@ export class MarkAsReadHandler implements ICommandHandler<MarkAsReadCommand> {
     const { announcementId, userId } = command;
 
     // Validate announcement exists
-    const announcement = await this.prisma.announcement.findUnique({
+    const announcement = await this.prisma.announcements.findUnique({
       where: { id: announcementId },
     });
 

@@ -16,7 +16,7 @@ export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuer
     const currentYearStart = new Date(currentYear, 0, 1);
     const currentYearEnd = new Date(currentYear, 11, 31);
 
-    const currentIncome = await this.prisma.payment.aggregate({
+    const currentIncome = await this.prisma.payments.aggregate({
       where: {
         apartment: { building_id: buildingId },
         status: 'paid',
@@ -33,7 +33,7 @@ export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuer
     const previousYearStart = new Date(previousYear, 0, 1);
     const previousYearEnd = new Date(previousYear, 11, 31);
 
-    const previousIncome = await this.prisma.payment.aggregate({
+    const previousIncome = await this.prisma.payments.aggregate({
       where: {
         apartment: { building_id: buildingId },
         status: 'paid',
@@ -64,7 +64,7 @@ export class GetYearOverYearHandler implements IQueryHandler<GetYearOverYearQuer
       const monthStart = new Date(currentYear, month, 1);
       const monthEnd = new Date(currentYear, month + 1, 0);
 
-      const monthIncome = await this.prisma.payment.aggregate({
+      const monthIncome = await this.prisma.payments.aggregate({
         where: {
           apartment: { building_id: buildingId },
           status: 'paid',

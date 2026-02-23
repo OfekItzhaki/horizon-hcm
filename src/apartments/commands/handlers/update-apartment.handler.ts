@@ -15,7 +15,7 @@ export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCo
     const { apartmentId, areaSqm, floor, isVacant } = command;
 
     // Check if apartment exists
-    const existing = await this.prisma.apartment.findUnique({
+    const existing = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
     });
 
@@ -24,7 +24,7 @@ export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCo
     }
 
     // Update apartment
-    const apartment = await this.prisma.apartment.update({
+    const apartment = await this.prisma.apartments.update({
       where: { id: apartmentId },
       data: {
         area_sqm: areaSqm !== undefined ? areaSqm : undefined,
@@ -38,7 +38,7 @@ export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCo
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'apartment.updated',
       resourceType: 'Apartment',
       resourceId: apartment.id,

@@ -14,7 +14,7 @@ export class UpdateMeetingHandler implements ICommandHandler<UpdateMeetingComman
     const { meetingId, updates } = command;
 
     // Validate meeting exists
-    const meeting = await this.prisma.meeting.findUnique({
+    const meeting = await this.prisma.meetings.findUnique({
       where: { id: meetingId },
     });
 
@@ -23,7 +23,7 @@ export class UpdateMeetingHandler implements ICommandHandler<UpdateMeetingComman
     }
 
     // Update meeting
-    const updatedMeeting = await this.prisma.meeting.update({
+    const updatedMeeting = await this.prisma.meetings.update({
       where: { id: meetingId },
       data: updates,
       include: {
@@ -32,7 +32,7 @@ export class UpdateMeetingHandler implements ICommandHandler<UpdateMeetingComman
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: meeting.created_by,
       action: 'meeting.updated',
       resourceType: 'meeting',

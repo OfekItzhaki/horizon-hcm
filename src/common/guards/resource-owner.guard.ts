@@ -45,7 +45,7 @@ export class ResourceOwnerGuard implements CanActivate {
     const isOwner = await this.checkResourceOwnership(resourceType, resourceId, user.id);
 
     if (!isOwner) {
-      await this.audit_logs.log({
+      await this.auditLog.log({
         userId: user.id,
         action: 'authorization.failed',
         resourceType,
@@ -78,18 +78,18 @@ export class ResourceOwnerGuard implements CanActivate {
     // Map resource types to their building associations
     switch (resourceType) {
       case 'Apartment':
-        const apartment = await this.prisma.apartment.findUnique({
+        const apartment = await this.prisma.apartments.findUnique({
           where: { id: resourceId },
           select: { building_id: true },
         });
         return apartment?.building_id || null;
 
       case 'Payment':
-        const payment = await this.prisma.payment.findUnique({
+        const payment = await this.prisma.payments.findUnique({
           where: { id: resourceId },
           include: { apartment: { select: { building_id: true } } },
         });
-        return payment?.apartment?.building_id || null;
+        return payment?.apartments?.building_id || null;
 
       case 'MaintenanceRequest':
         const maintenance = await this.prisma.maintenance_requests.findUnique({
@@ -118,14 +118,14 @@ export class ResourceOwnerGuard implements CanActivate {
         return maintenance?.requester_id === userId;
 
       case 'Announcement':
-        const announcement = await this.prisma.announcement.findUnique({
+        const announcement = await this.prisma.announcements.findUnique({
           where: { id: resourceId },
           select: { author_id: true },
         });
         return announcement?.author_id === userId;
 
       case 'Document':
-        const document = await this.prisma.document.findUnique({
+        const document = await this.prisma.documents.findUnique({
           where: { id: resourceId },
           select: { uploaded_by: true },
         });

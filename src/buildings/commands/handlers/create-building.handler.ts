@@ -13,7 +13,7 @@ export class CreateBuildingHandler implements ICommandHandler<CreateBuildingComm
   async execute(command: CreateBuildingCommand) {
     this.logger.log('Creating building', 'CreateBuildingHandler');
 
-    const building = await this.prisma.building.create({
+    const building = await this.prisma.buildings.create({
       data: {
         name: command.name,
         address_line: command.addressLine,

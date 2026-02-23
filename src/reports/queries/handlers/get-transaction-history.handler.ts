@@ -33,10 +33,10 @@ export class GetTransactionHistoryHandler implements IQueryHandler<GetTransactio
     }
 
     // Get total count
-    const total = await this.prisma.payment.count({ where });
+    const total = await this.prisma.payments.count({ where });
 
     // Get paginated transactions
-    const transactions = await this.prisma.payment.findMany({
+    const transactions = await this.prisma.payments.findMany({
       where,
       include: {
         apartment: {
@@ -56,7 +56,7 @@ export class GetTransactionHistoryHandler implements IQueryHandler<GetTransactio
     return {
       data: transactions.map((t) => ({
         id: t.id,
-        apartmentNumber: t.apartment.apartment_number,
+        apartmentNumber: t.apartments.apartment_number,
         amount: Number(t.amount.toFixed(2)),
         dueDate: t.due_date,
         paidDate: t.paid_date,

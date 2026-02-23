@@ -13,7 +13,7 @@ export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
   async execute(query: GetDocumentQuery) {
     const { documentId } = query;
 
-    const document = await this.prisma.document.findUnique({
+    const document = await this.prisma.documents.findUnique({
       where: { id: documentId },
       include: {
         building: true,
@@ -26,7 +26,7 @@ export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
 
     // Log document access
     // TODO: Get userId from context
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: 'system',
       action: 'document.accessed',
       resourceType: 'document',

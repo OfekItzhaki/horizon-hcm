@@ -18,7 +18,7 @@ export class AddCommitteeMemberHandler implements ICommandHandler<AddCommitteeMe
     const { buildingId, userId, role, currentUserId } = command;
 
     // Validate building exists
-    const building = await this.prisma.building.findUnique({
+    const building = await this.prisma.buildings.findUnique({
       where: { id: buildingId },
     });
 
@@ -73,7 +73,7 @@ export class AddCommitteeMemberHandler implements ICommandHandler<AddCommitteeMe
     await this.cache.delete(`building-member:${userId}:${buildingId}`);
 
     // Log audit entry
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: currentUserId,
       action: 'committee_member.added',
       resourceType: 'BuildingCommitteeMember',

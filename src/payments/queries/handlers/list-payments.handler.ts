@@ -16,14 +16,14 @@ export class ListPaymentsHandler implements IQueryHandler<ListPaymentsQuery> {
       where.apartment_id = apartmentId;
     }
     if (buildingId) {
-      where.apartment = { building_id: buildingId };
+      where.apartments = { building_id: buildingId };
     }
     if (status) {
       where.status = status;
     }
 
     const [payments, total] = await Promise.all([
-      this.prisma.payment.findMany({
+      this.prisma.payments.findMany({
         where,
         skip,
         take: limit,
@@ -44,7 +44,7 @@ export class ListPaymentsHandler implements IQueryHandler<ListPaymentsQuery> {
         },
         orderBy: { due_date: 'desc' },
       }),
-      this.prisma.payment.count({ where }),
+      this.prisma.payments.count({ where }),
     ]);
 
     return {

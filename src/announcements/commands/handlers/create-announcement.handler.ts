@@ -14,7 +14,7 @@ export class CreateAnnouncementHandler implements ICommandHandler<CreateAnnounce
     const { buildingId, authorId, title, content, category, isUrgent } = command;
 
     // Validate building exists
-    const building = await this.prisma.building.findUnique({
+    const building = await this.prisma.buildings.findUnique({
       where: { id: buildingId },
     });
 
@@ -23,7 +23,7 @@ export class CreateAnnouncementHandler implements ICommandHandler<CreateAnnounce
     }
 
     // Create announcement
-    const announcement = await this.prisma.announcement.create({
+    const announcement = await this.prisma.announcements.create({
       data: {
         building_id: buildingId,
         author_id: authorId,
@@ -35,7 +35,7 @@ export class CreateAnnouncementHandler implements ICommandHandler<CreateAnnounce
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: authorId,
       action: 'announcement.created',
       resourceType: 'announcement',

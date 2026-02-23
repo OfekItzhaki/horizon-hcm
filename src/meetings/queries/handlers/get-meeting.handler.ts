@@ -9,7 +9,7 @@ export class GetMeetingHandler implements IQueryHandler<GetMeetingQuery> {
   async execute(query: GetMeetingQuery) {
     const { meetingId } = query;
 
-    const meeting = await this.prisma.meeting.findUnique({
+    const meeting = await this.prisma.meetings.findUnique({
       where: { id: meetingId },
       include: {
         building: true,

@@ -14,7 +14,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     const { voteId, userId, selectedOption } = command;
 
     // Validate vote exists
-    const vote = await this.prisma.vote.findUnique({
+    const vote = await this.prisma.votes.findUnique({
       where: { id: voteId },
     });
 
@@ -57,7 +57,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId,
       action: 'vote.cast',
       resourceType: 'vote',

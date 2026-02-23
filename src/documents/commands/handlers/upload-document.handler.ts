@@ -15,7 +15,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
       command;
 
     // Validate building exists
-    const building = await this.prisma.building.findUnique({
+    const building = await this.prisma.buildings.findUnique({
       where: { id: buildingId },
     });
 
@@ -35,7 +35,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
     // Determine version number
     let version = 1;
     if (previousVersionId) {
-      const previousDoc = await this.prisma.document.findUnique({
+      const previousDoc = await this.prisma.documents.findUnique({
         where: { id: previousVersionId },
       });
       if (previousDoc) {
@@ -44,7 +44,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
     }
 
     // Create document
-    const document = await this.prisma.document.create({
+    const document = await this.prisma.documents.create({
       data: {
         building_id: buildingId,
         file_id: fileId,
@@ -58,7 +58,7 @@ export class UploadDocumentHandler implements ICommandHandler<UploadDocumentComm
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: uploadedBy,
       action: 'document.uploaded',
       resourceType: 'document',

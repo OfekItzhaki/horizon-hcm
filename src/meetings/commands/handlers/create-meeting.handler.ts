@@ -15,7 +15,7 @@ export class CreateMeetingHandler implements ICommandHandler<CreateMeetingComman
       command;
 
     // Validate building exists
-    const building = await this.prisma.building.findUnique({
+    const building = await this.prisma.buildings.findUnique({
       where: { id: buildingId },
     });
 
@@ -24,7 +24,7 @@ export class CreateMeetingHandler implements ICommandHandler<CreateMeetingComman
     }
 
     // Create meeting
-    const meeting = await this.prisma.meeting.create({
+    const meeting = await this.prisma.meetings.create({
       data: {
         building_id: buildingId,
         created_by: organizerId,
@@ -46,7 +46,7 @@ export class CreateMeetingHandler implements ICommandHandler<CreateMeetingComman
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: organizerId,
       action: 'meeting.created',
       resourceType: 'meeting',

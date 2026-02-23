@@ -15,7 +15,7 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
     const { apartmentId, userId, moveInDate } = command;
 
     // Check if apartment exists
-    const apartment = await this.prisma.apartment.findUnique({
+    const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
     });
 
@@ -47,13 +47,13 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
     });
 
     // Update apartment vacancy status
-    await this.prisma.apartment.update({
+    await this.prisma.apartments.update({
       where: { id: apartmentId },
       data: { is_vacant: false },
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'apartment.tenant_assigned',
       resourceType: 'Apartment',
       resourceId: apartmentId,

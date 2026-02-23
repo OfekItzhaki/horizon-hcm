@@ -14,7 +14,7 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand> {
     const { announcementId, userId, comment } = command;
 
     // Validate announcement exists
-    const announcement = await this.prisma.announcement.findUnique({
+    const announcement = await this.prisma.announcements.findUnique({
       where: { id: announcementId },
     });
 
@@ -32,7 +32,7 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand> {
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId,
       action: 'announcement.commented',
       resourceType: 'announcement',

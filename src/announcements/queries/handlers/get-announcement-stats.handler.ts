@@ -9,7 +9,7 @@ export class GetAnnouncementStatsHandler implements IQueryHandler<GetAnnouncemen
   async execute(query: GetAnnouncementStatsQuery) {
     const { announcementId } = query;
 
-    const announcement = await this.prisma.announcement.findUnique({
+    const announcement = await this.prisma.announcements.findUnique({
       where: { id: announcementId },
       include: {
         read_receipts: true,

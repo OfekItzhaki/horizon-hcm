@@ -38,14 +38,14 @@ export class RemoveOwnerHandler implements ICommandHandler<RemoveOwnerCommand> {
     });
 
     if (remainingOwners === 0 && activeTenants === 0) {
-      await this.prisma.apartment.update({
+      await this.prisma.apartments.update({
         where: { id: apartmentId },
         data: { is_vacant: true },
       });
     }
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'apartment.owner_removed',
       resourceType: 'Apartment',
       resourceId: apartmentId,

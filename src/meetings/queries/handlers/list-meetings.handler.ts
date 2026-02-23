@@ -15,7 +15,7 @@ export class ListMeetingsHandler implements IQueryHandler<ListMeetingsQuery> {
     }
 
     const [meetings, total] = await Promise.all([
-      this.prisma.meeting.findMany({
+      this.prisma.meetings.findMany({
         where,
         include: {
           attendees: true,
@@ -27,7 +27,7 @@ export class ListMeetingsHandler implements IQueryHandler<ListMeetingsQuery> {
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.meeting.count({ where }),
+      this.prisma.meetings.count({ where }),
     ]);
 
     return {

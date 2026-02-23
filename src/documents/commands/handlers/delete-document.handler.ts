@@ -14,7 +14,7 @@ export class DeleteDocumentHandler implements ICommandHandler<DeleteDocumentComm
     const { documentId, userId } = command;
 
     // Validate document exists
-    const document = await this.prisma.document.findUnique({
+    const document = await this.prisma.documents.findUnique({
       where: { id: documentId },
     });
 
@@ -23,12 +23,12 @@ export class DeleteDocumentHandler implements ICommandHandler<DeleteDocumentComm
     }
 
     // Soft delete document
-    await this.prisma.document.delete({
+    await this.prisma.documents.delete({
       where: { id: documentId },
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId,
       action: 'document.deleted',
       resourceType: 'document',

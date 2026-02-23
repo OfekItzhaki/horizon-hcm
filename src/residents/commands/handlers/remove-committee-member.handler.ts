@@ -51,7 +51,7 @@ export class RemoveCommitteeMemberHandler implements ICommandHandler<RemoveCommi
     await this.cache.delete(`building-member:${userId}:${buildingId}`);
 
     // Log audit entry
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: currentUserId,
       action: 'committee_member.removed',
       resourceType: 'BuildingCommitteeMember',

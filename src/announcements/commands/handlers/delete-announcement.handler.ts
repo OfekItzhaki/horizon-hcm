@@ -14,7 +14,7 @@ export class DeleteAnnouncementHandler implements ICommandHandler<DeleteAnnounce
     const { announcementId, userId } = command;
 
     // Validate announcement exists
-    const announcement = await this.prisma.announcement.findUnique({
+    const announcement = await this.prisma.announcements.findUnique({
       where: { id: announcementId },
     });
 
@@ -23,7 +23,7 @@ export class DeleteAnnouncementHandler implements ICommandHandler<DeleteAnnounce
     }
 
     // Soft delete announcement
-    await this.prisma.announcement.update({
+    await this.prisma.announcements.update({
       where: { id: announcementId },
       data: {
         deleted_at: new Date(),
@@ -31,7 +31,7 @@ export class DeleteAnnouncementHandler implements ICommandHandler<DeleteAnnounce
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId,
       action: 'announcement.deleted',
       resourceType: 'announcement',

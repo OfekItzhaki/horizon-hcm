@@ -15,7 +15,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
     const { buildingId, apartmentNumber, areaSqm, floor } = command;
 
     // Check if apartment number already exists in building
-    const existing = await this.prisma.apartment.findUnique({
+    const existing = await this.prisma.apartments.findUnique({
       where: {
         building_id_apartment_number: {
           building_id: buildingId,
@@ -29,7 +29,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
     }
 
     // Create apartment
-    const apartment = await this.prisma.apartment.create({
+    const apartment = await this.prisma.apartments.create({
       data: {
         building_id: buildingId,
         apartment_number: apartmentNumber,
@@ -44,7 +44,7 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'apartment.created',
       resourceType: 'Apartment',
       resourceId: apartment.id,

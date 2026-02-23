@@ -15,7 +15,7 @@ export class MarkPaymentPaidHandler implements ICommandHandler<MarkPaymentPaidCo
     const { paymentId, paidDate } = command;
 
     // Check if payment exists
-    const payment = await this.prisma.payment.findUnique({
+    const payment = await this.prisma.payments.findUnique({
       where: { id: paymentId },
       include: {
         apartment: {
@@ -32,15 +32,15 @@ export class MarkPaymentPaidHandler implements ICommandHandler<MarkPaymentPaidCo
 
     // Update payment status and building balance
     const [updatedPayment] = await this.prisma.$transaction([
-      this.prisma.payment.update({
+      this.prisma.payments.update({
         where: { id: paymentId },
         data: {
           status: 'paid',
           paid_date: paidDate,
         },
       }),
-      this.prisma.building.update({
-        where: { id: payment.apartment.building_id },
+      this.prisma.buildings.update({
+        where: { id: payment.apartments.building_id },
         data: {
           current_balance: {
             increment: payment.amount,
@@ -50,7 +50,7 @@ export class MarkPaymentPaidHandler implements ICommandHandler<MarkPaymentPaidCo
     ]);
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'payment.marked_paid',
       resourceType: 'Payment',
       resourceId: paymentId,

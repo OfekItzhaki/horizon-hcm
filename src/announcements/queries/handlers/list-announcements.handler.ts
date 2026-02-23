@@ -9,7 +9,7 @@ export class ListAnnouncementsHandler implements IQueryHandler<ListAnnouncements
   async execute(query: ListAnnouncementsQuery) {
     const { buildingId, category, isUrgent, page, limit } = query;
 
-    const where: any = { 
+    const where: any = {
       building_id: buildingId,
       deleted_at: null, // Only show non-deleted announcements
     };
@@ -21,7 +21,7 @@ export class ListAnnouncementsHandler implements IQueryHandler<ListAnnouncements
     }
 
     const [announcements, total] = await Promise.all([
-      this.prisma.announcement.findMany({
+      this.prisma.announcements.findMany({
         where,
         include: {
           read_receipts: true,
@@ -31,7 +31,7 @@ export class ListAnnouncementsHandler implements IQueryHandler<ListAnnouncements
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.announcement.count({ where }),
+      this.prisma.announcements.count({ where }),
     ]);
 
     return {

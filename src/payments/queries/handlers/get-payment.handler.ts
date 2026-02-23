@@ -10,7 +10,7 @@ export class GetPaymentHandler implements IQueryHandler<GetPaymentQuery> {
   async execute(query: GetPaymentQuery) {
     const { paymentId } = query;
 
-    const payment = await this.prisma.payment.findUnique({
+    const payment = await this.prisma.payments.findUnique({
       where: { id: paymentId },
       include: {
         apartment: {

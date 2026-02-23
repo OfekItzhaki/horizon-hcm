@@ -9,7 +9,7 @@ export class GetVoteResultsHandler implements IQueryHandler<GetVoteResultsQuery>
   async execute(query: GetVoteResultsQuery) {
     const { voteId } = query;
 
-    const vote = await this.prisma.vote.findUnique({
+    const vote = await this.prisma.votes.findUnique({
       where: { id: voteId },
       include: {
         vote_records: true,
@@ -22,9 +22,9 @@ export class GetVoteResultsHandler implements IQueryHandler<GetVoteResultsQuery>
 
     // Calculate results
     const options = vote.options as string[];
-    const results = options.map(option => ({
+    const results = options.map((option) => ({
       option,
-      count: vote.vote_records.filter(r => r.option === option).length,
+      count: vote.vote_records.filter((r) => r.option === option).length,
     }));
 
     return {

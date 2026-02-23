@@ -44,7 +44,7 @@ export class CommitteeMemberGuard implements CanActivate {
 
     if (!isCommitteeMember) {
       // Log authorization failure
-      await this.audit_logs.log({
+      await this.auditLog.log({
         userId: user.id,
         action: 'authorization.failed',
         resourceType: 'Building',

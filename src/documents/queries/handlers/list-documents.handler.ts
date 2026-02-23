@@ -18,13 +18,13 @@ export class ListDocumentsHandler implements IQueryHandler<ListDocumentsQuery> {
     }
 
     const [documents, total] = await Promise.all([
-      this.prisma.document.findMany({
+      this.prisma.documents.findMany({
         where,
         orderBy: { created_at: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.document.count({ where }),
+      this.prisma.documents.count({ where }),
     ]);
 
     return {

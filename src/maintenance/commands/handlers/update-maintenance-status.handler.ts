@@ -37,7 +37,7 @@ export class UpdateMaintenanceStatusHandler implements ICommandHandler<UpdateMai
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'maintenance_request.status_updated',
       resourceType: 'MaintenanceRequest',
       resourceId: requestId,

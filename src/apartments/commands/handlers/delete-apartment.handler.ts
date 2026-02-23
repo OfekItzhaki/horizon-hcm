@@ -15,7 +15,7 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
     const { apartmentId } = command;
 
     // Check if apartment exists
-    const apartment = await this.prisma.apartment.findUnique({
+    const apartment = await this.prisma.apartments.findUnique({
       where: { id: apartmentId },
       include: {
         tenants: { where: { is_active: true } },
@@ -33,12 +33,12 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
     }
 
     // Delete apartment (cascade will handle owners and tenants)
-    await this.prisma.apartment.delete({
+    await this.prisma.apartments.delete({
       where: { id: apartmentId },
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       action: 'apartment.deleted',
       resourceType: 'Apartment',
       resourceId: apartmentId,

@@ -14,7 +14,7 @@ export class RsvpMeetingHandler implements ICommandHandler<RsvpMeetingCommand> {
     const { meetingId, userId, status } = command;
 
     // Validate meeting exists
-    const meeting = await this.prisma.meeting.findUnique({
+    const meeting = await this.prisma.meetings.findUnique({
       where: { id: meetingId },
     });
 
@@ -41,7 +41,7 @@ export class RsvpMeetingHandler implements ICommandHandler<RsvpMeetingCommand> {
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId,
       action: 'meeting.rsvp',
       resourceType: 'meeting',

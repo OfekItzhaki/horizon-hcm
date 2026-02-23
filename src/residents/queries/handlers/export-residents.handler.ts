@@ -85,7 +85,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
           committee_role: '',
         });
       }
-      residentsMap.get(userId).apartments.push(owner.apartment.apartment_number);
+      residentsMap.get(userId).apartments.push(owner.apartments.apartment_number);
     });
 
     tenants.forEach((tenant) => {
@@ -99,7 +99,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
           committee_role: '',
         });
       }
-      residentsMap.get(userId).apartments.push(tenant.apartment.apartment_number);
+      residentsMap.get(userId).apartments.push(tenant.apartments.apartment_number);
     });
 
     // Convert to array and sort

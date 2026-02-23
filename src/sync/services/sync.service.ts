@@ -49,7 +49,7 @@ export class SyncService {
     // Query based on entity type
     switch (entityType) {
       case 'building':
-        const buildings = await this.prisma.building.findMany({
+        const buildings = await this.prisma.buildings.findMany({
           where: {
             updated_at: {
               gt: lastSyncTimestamp,
@@ -62,7 +62,7 @@ export class SyncService {
         break;
 
       case 'apartment':
-        const apartments = await this.prisma.apartment.findMany({
+        const apartments = await this.prisma.apartments.findMany({
           where: {
             updated_at: {
               gt: lastSyncTimestamp,
@@ -161,14 +161,14 @@ export class SyncService {
     switch (entityType) {
       case 'building':
         if (op === 'create') {
-          await this.prisma.building.create({ data });
+          await this.prisma.buildings.create({ data });
         } else if (op === 'update') {
-          await this.prisma.building.update({
+          await this.prisma.buildings.update({
             where: { id: data.id },
             data,
           });
         } else if (op === 'delete') {
-          await this.prisma.building.delete({
+          await this.prisma.buildings.delete({
             where: { id: data.id },
           });
         }
@@ -176,14 +176,14 @@ export class SyncService {
 
       case 'apartment':
         if (op === 'create') {
-          await this.prisma.apartment.create({ data });
+          await this.prisma.apartments.create({ data });
         } else if (op === 'update') {
-          await this.prisma.apartment.update({
+          await this.prisma.apartments.update({
             where: { id: data.id },
             data,
           });
         } else if (op === 'delete') {
-          await this.prisma.apartment.delete({
+          await this.prisma.apartments.delete({
             where: { id: data.id },
           });
         }
@@ -221,14 +221,14 @@ export class SyncService {
 
     switch (entityType) {
       case 'building':
-        serverRecord = await this.prisma.building.findUnique({
+        serverRecord = await this.prisma.buildings.findUnique({
           where: { id: entityId },
           select: { updated_at: true },
         });
         break;
 
       case 'apartment':
-        serverRecord = await this.prisma.apartment.findUnique({
+        serverRecord = await this.prisma.apartments.findUnique({
           where: { id: entityId },
           select: { updated_at: true },
         });

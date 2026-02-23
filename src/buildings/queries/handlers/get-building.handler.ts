@@ -8,7 +8,7 @@ export class GetBuildingHandler implements IQueryHandler<GetBuildingQuery> {
   constructor(private prisma: PrismaService) {}
 
   async execute(query: GetBuildingQuery) {
-    const building = await this.prisma.building.findUnique({
+    const building = await this.prisma.buildings.findUnique({
       where: { id: query.buildingId },
       include: {
         committee_members: {

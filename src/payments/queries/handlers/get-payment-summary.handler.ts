@@ -9,7 +9,7 @@ export class GetPaymentSummaryHandler implements IQueryHandler<GetPaymentSummary
   async execute(query: GetPaymentSummaryQuery) {
     const { buildingId } = query;
 
-    const payments = await this.prisma.payment.findMany({
+    const payments = await this.prisma.payments.findMany({
       where: {
         apartment: {
           building_id: buildingId,

@@ -14,7 +14,7 @@ export class AddAgendaItemHandler implements ICommandHandler<AddAgendaItemComman
     const { meetingId, title, description, order } = command;
 
     // Validate meeting exists
-    const meeting = await this.prisma.meeting.findUnique({
+    const meeting = await this.prisma.meetings.findUnique({
       where: { id: meetingId },
     });
 
@@ -33,7 +33,7 @@ export class AddAgendaItemHandler implements ICommandHandler<AddAgendaItemComman
     });
 
     // Log audit
-    await this.audit_logs.log({
+    await this.auditLog.log({
       userId: meeting.created_by,
       action: 'agenda_item.created',
       resourceType: 'agenda_item',
