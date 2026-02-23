@@ -31,12 +31,17 @@ export default function LoginPage() {
   // Get success message from navigation state
   const successMessage = (location.state as { message?: string })?.message || null;
 
-  // Clear the navigation state after reading it
+  // Clear the navigation state after reading it (only once on mount)
   useEffect(() => {
-    if (location.state) {
-      navigate(location.pathname, { replace: true, state: {} });
+    if (location.state && (location.state as { message?: string })?.message) {
+      // Use setTimeout to avoid navigation during render
+      const timer = setTimeout(() => {
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [location.state, navigate, location.pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
   const {
     control,
@@ -59,37 +64,18 @@ export default function LoginPage() {
       const loginResponse = await authApi.login(data);
       const { accessToken, refreshToken } = loginResponse.data;
 
-      // Set tokens first so they're available for the next request
-      login(
-        {
-          id: '',
-          email: data.email,
-          name: '',
-          phone: '',
-          avatar: '',
-          role: 'tenant',
-          buildings: [],
-          apartments: [],
-          language: 'en',
-          theme: 'light',
-          notificationPreferences: {
-            emailNotifications: true,
-            pushNotifications: true,
-            enabledTypes: [],
-          },
-          twoFactorEnabled: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        accessToken,
-        refreshToken
-      );
+      // Store tokens in zustand store
+      const setTokens = useAuthStore.getState().setTokens;
+      setTokens(accessToken, refreshToken);
+
+      // Small delay to ensure tokens are persisted
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Fetch user profile (now with token set)
       const userResponse = await authApi.getCurrentUser();
       const user = userResponse.data;
 
-      // Update with real user data
+      // Update with real user data and tokens
       login(user, accessToken, refreshToken);
       navigate('/dashboard');
     } catch (err) {
