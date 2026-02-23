@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '@ofeklabs/horizon-auth';
@@ -16,7 +7,7 @@ import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
 import { ResourceType } from '../common/decorators/resource-type.decorator';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
-import { AddCommentDto } from './dto/add-comment.dto';
+import { AddAnnouncementCommentDto } from './dto/add-comment.dto';
 import { CreateAnnouncementCommand } from './commands/impl/create-announcement.command';
 import { MarkAsReadCommand } from './commands/impl/mark-as-read.command';
 import { AddCommentCommand } from './commands/impl/add-comment.command';
@@ -37,10 +28,7 @@ export class AnnouncementsController {
   @Post()
   @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Create announcement' })
-  async createAnnouncement(
-    @CurrentUser() user: any,
-    @Body() dto: CreateAnnouncementDto,
-  ) {
+  async createAnnouncement(@CurrentUser() user: any, @Body() dto: CreateAnnouncementDto) {
     return this.commandBus.execute(
       new CreateAnnouncementCommand(
         dto.buildingId,
@@ -66,7 +54,7 @@ export class AnnouncementsController {
   async addComment(
     @CurrentUser() user: any,
     @Param('id') id: string,
-    @Body() dto: AddCommentDto,
+    @Body() dto: AddAnnouncementCommentDto,
   ) {
     return this.commandBus.execute(new AddCommentCommand(id, user.id, dto.comment));
   }

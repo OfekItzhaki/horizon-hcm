@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '@ofeklabs/horizon-auth';
@@ -17,7 +8,7 @@ import { ResourceType } from '../common/decorators/resource-type.decorator';
 import { CreateMaintenanceRequestDto } from './dto/create-maintenance-request.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
-import { AddCommentDto } from './dto/add-comment.dto';
+import { AddMaintenanceCommentDto } from './dto/add-comment.dto';
 import { CreateMaintenanceRequestCommand } from './commands/impl/create-maintenance-request.command';
 import { UpdateMaintenanceStatusCommand } from './commands/impl/update-maintenance-status.command';
 import { AssignMaintenanceRequestCommand } from './commands/impl/assign-maintenance-request.command';
@@ -38,10 +29,7 @@ export class MaintenanceController {
   @Post()
   @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Create maintenance request' })
-  async createRequest(
-    @CurrentUser() user: any,
-    @Body() dto: CreateMaintenanceRequestDto,
-  ) {
+  async createRequest(@CurrentUser() user: any, @Body() dto: CreateMaintenanceRequestDto) {
     return this.commandBus.execute(
       new CreateMaintenanceRequestCommand(
         dto.buildingId,
@@ -64,9 +52,7 @@ export class MaintenanceController {
     @Param('id') id: string,
     @Body() dto: UpdateStatusDto,
   ) {
-    return this.commandBus.execute(
-      new UpdateMaintenanceStatusCommand(id, dto.status),
-    );
+    return this.commandBus.execute(new UpdateMaintenanceStatusCommand(id, dto.status));
   }
 
   @Patch(':id/assign')
@@ -78,9 +64,7 @@ export class MaintenanceController {
     @Param('id') id: string,
     @Body() dto: AssignRequestDto,
   ) {
-    return this.commandBus.execute(
-      new AssignMaintenanceRequestCommand(id, dto.assignedTo),
-    );
+    return this.commandBus.execute(new AssignMaintenanceRequestCommand(id, dto.assignedTo));
   }
 
   @Post(':id/comments')
@@ -89,11 +73,9 @@ export class MaintenanceController {
   async addComment(
     @CurrentUser() user: any,
     @Param('id') id: string,
-    @Body() dto: AddCommentDto,
+    @Body() dto: AddMaintenanceCommentDto,
   ) {
-    return this.commandBus.execute(
-      new AddMaintenanceCommentCommand(id, user.id, dto.comment),
-    );
+    return this.commandBus.execute(new AddMaintenanceCommentCommand(id, user.id, dto.comment));
   }
 
   @Post(':id/photos')
@@ -104,9 +86,7 @@ export class MaintenanceController {
     @Param('id') id: string,
     @Body() body: { fileId: string },
   ) {
-    return this.commandBus.execute(
-      new AddMaintenancePhotoCommand(id, body.fileId),
-    );
+    return this.commandBus.execute(new AddMaintenancePhotoCommand(id, body.fileId));
   }
 
   @Get(':id')
