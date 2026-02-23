@@ -92,7 +92,7 @@ export class ResourceOwnerGuard implements CanActivate {
         return payment?.apartment?.building_id || null;
 
       case 'MaintenanceRequest':
-        const maintenance = await this.prisma.maintenanceRequest.findUnique({
+        const maintenance = await this.prisma.maintenance_requests.findUnique({
           where: { id: resourceId },
           select: { building_id: true },
         });
@@ -111,7 +111,7 @@ export class ResourceOwnerGuard implements CanActivate {
     // Check ownership based on resource type
     switch (resourceType) {
       case 'MaintenanceRequest':
-        const maintenance = await this.prisma.maintenanceRequest.findUnique({
+        const maintenance = await this.prisma.maintenance_requests.findUnique({
           where: { id: resourceId },
           select: { requester_id: true },
         });

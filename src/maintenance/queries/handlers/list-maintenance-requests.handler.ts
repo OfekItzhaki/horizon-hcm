@@ -3,9 +3,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { ListMaintenanceRequestsQuery } from '../impl/list-maintenance-requests.query';
 
 @QueryHandler(ListMaintenanceRequestsQuery)
-export class ListMaintenanceRequestsHandler
-  implements IQueryHandler<ListMaintenanceRequestsQuery>
-{
+export class ListMaintenanceRequestsHandler implements IQueryHandler<ListMaintenanceRequestsQuery> {
   constructor(private prisma: PrismaService) {}
 
   async execute(query: ListMaintenanceRequestsQuery) {
@@ -21,7 +19,7 @@ export class ListMaintenanceRequestsHandler
     if (priority) where.priority = priority;
 
     const [requests, total] = await Promise.all([
-      this.prisma.maintenanceRequest.findMany({
+      this.prisma.maintenance_requests.findMany({
         where,
         skip,
         take: limit,
@@ -51,12 +49,9 @@ export class ListMaintenanceRequestsHandler
             },
           },
         },
-        orderBy: [
-          { priority: 'desc' },
-          { created_at: 'desc' },
-        ],
+        orderBy: [{ priority: 'desc' }, { created_at: 'desc' }],
       }),
-      this.prisma.maintenanceRequest.count({ where }),
+      this.prisma.maintenance_requests.count({ where }),
     ]);
 
     return {

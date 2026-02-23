@@ -5,9 +5,7 @@ import { UpdateMaintenanceStatusCommand } from '../impl/update-maintenance-statu
 import { AuditLogService } from '../../../common/services/audit-log.service';
 
 @CommandHandler(UpdateMaintenanceStatusCommand)
-export class UpdateMaintenanceStatusHandler
-  implements ICommandHandler<UpdateMaintenanceStatusCommand>
-{
+export class UpdateMaintenanceStatusHandler implements ICommandHandler<UpdateMaintenanceStatusCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
@@ -17,7 +15,7 @@ export class UpdateMaintenanceStatusHandler
     const { requestId, status } = command;
 
     // Check if request exists
-    const existing = await this.prisma.maintenanceRequest.findUnique({
+    const existing = await this.prisma.maintenance_requests.findUnique({
       where: { id: requestId },
     });
 
@@ -26,7 +24,7 @@ export class UpdateMaintenanceStatusHandler
     }
 
     // Update status
-    const request = await this.prisma.maintenanceRequest.update({
+    const request = await this.prisma.maintenance_requests.update({
       where: { id: requestId },
       data: {
         status,

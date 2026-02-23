@@ -5,16 +5,15 @@ import { CreateMaintenanceRequestCommand } from '../impl/create-maintenance-requ
 import { AuditLogService } from '../../../common/services/audit-log.service';
 
 @CommandHandler(CreateMaintenanceRequestCommand)
-export class CreateMaintenanceRequestHandler
-  implements ICommandHandler<CreateMaintenanceRequestCommand>
-{
+export class CreateMaintenanceRequestHandler implements ICommandHandler<CreateMaintenanceRequestCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
   ) {}
 
   async execute(command: CreateMaintenanceRequestCommand) {
-    const { buildingId, apartmentId, requesterId, title, description, category, priority } = command;
+    const { buildingId, apartmentId, requesterId, title, description, category, priority } =
+      command;
 
     // Verify building exists
     const building = await this.prisma.building.findUnique({
@@ -37,7 +36,7 @@ export class CreateMaintenanceRequestHandler
     }
 
     // Create maintenance request
-    const request = await this.prisma.maintenanceRequest.create({
+    const request = await this.prisma.maintenance_requests.create({
       data: {
         building_id: buildingId,
         apartment_id: apartmentId,

@@ -4,16 +4,14 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { AddMaintenancePhotoCommand } from '../impl/add-maintenance-photo.command';
 
 @CommandHandler(AddMaintenancePhotoCommand)
-export class AddMaintenancePhotoHandler
-  implements ICommandHandler<AddMaintenancePhotoCommand>
-{
+export class AddMaintenancePhotoHandler implements ICommandHandler<AddMaintenancePhotoCommand> {
   constructor(private prisma: PrismaService) {}
 
   async execute(command: AddMaintenancePhotoCommand) {
     const { requestId, fileId } = command;
 
     // Check if request exists
-    const request = await this.prisma.maintenanceRequest.findUnique({
+    const request = await this.prisma.maintenance_requests.findUnique({
       where: { id: requestId },
     });
 
@@ -31,7 +29,7 @@ export class AddMaintenancePhotoHandler
     }
 
     // Add photo
-    const photo = await this.prisma.maintenancePhoto.create({
+    const photo = await this.prisma.maintenance_photos.create({
       data: {
         maintenance_request_id: requestId,
         file_id: fileId,

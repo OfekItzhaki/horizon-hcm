@@ -4,15 +4,13 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { GetMaintenanceRequestQuery } from '../impl/get-maintenance-request.query';
 
 @QueryHandler(GetMaintenanceRequestQuery)
-export class GetMaintenanceRequestHandler
-  implements IQueryHandler<GetMaintenanceRequestQuery>
-{
+export class GetMaintenanceRequestHandler implements IQueryHandler<GetMaintenanceRequestQuery> {
   constructor(private prisma: PrismaService) {}
 
   async execute(query: GetMaintenanceRequestQuery) {
     const { requestId } = query;
 
-    const request = await this.prisma.maintenanceRequest.findUnique({
+    const request = await this.prisma.maintenance_requests.findUnique({
       where: { id: requestId },
       include: {
         building: true,

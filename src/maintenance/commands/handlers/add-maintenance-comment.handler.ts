@@ -4,16 +4,14 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { AddMaintenanceCommentCommand } from '../impl/add-maintenance-comment.command';
 
 @CommandHandler(AddMaintenanceCommentCommand)
-export class AddMaintenanceCommentHandler
-  implements ICommandHandler<AddMaintenanceCommentCommand>
-{
+export class AddMaintenanceCommentHandler implements ICommandHandler<AddMaintenanceCommentCommand> {
   constructor(private prisma: PrismaService) {}
 
   async execute(command: AddMaintenanceCommentCommand) {
     const { requestId, userId, comment } = command;
 
     // Check if request exists
-    const request = await this.prisma.maintenanceRequest.findUnique({
+    const request = await this.prisma.maintenance_requests.findUnique({
       where: { id: requestId },
     });
 
@@ -22,7 +20,7 @@ export class AddMaintenanceCommentHandler
     }
 
     // Add comment
-    const maintenanceComment = await this.prisma.maintenanceComment.create({
+    const maintenanceComment = await this.prisma.maintenance_comments.create({
       data: {
         maintenance_request_id: requestId,
         user_id: userId,

@@ -34,7 +34,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     }
 
     // Check if user already voted
-    const existingVote = await this.prisma.voteRecord.findUnique({
+    const existingVote = await this.prisma.vote_records.findUnique({
       where: {
         vote_id_user_id: {
           vote_id: voteId,
@@ -48,7 +48,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     }
 
     // Create vote record
-    const voteRecord = await this.prisma.voteRecord.create({
+    const voteRecord = await this.prisma.vote_records.create({
       data: {
         vote_id: voteId,
         user_id: userId,

@@ -23,7 +23,7 @@ export class RsvpMeetingHandler implements ICommandHandler<RsvpMeetingCommand> {
     }
 
     // Update or create attendee RSVP
-    const attendee = await this.prisma.meetingAttendee.upsert({
+    const attendee = await this.prisma.meeting_attendees.upsert({
       where: {
         meeting_id_user_id: {
           meeting_id: meetingId,

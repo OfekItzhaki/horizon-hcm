@@ -5,9 +5,7 @@ import { AssignMaintenanceRequestCommand } from '../impl/assign-maintenance-requ
 import { AuditLogService } from '../../../common/services/audit-log.service';
 
 @CommandHandler(AssignMaintenanceRequestCommand)
-export class AssignMaintenanceRequestHandler
-  implements ICommandHandler<AssignMaintenanceRequestCommand>
-{
+export class AssignMaintenanceRequestHandler implements ICommandHandler<AssignMaintenanceRequestCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
@@ -17,7 +15,7 @@ export class AssignMaintenanceRequestHandler
     const { requestId, assignedTo } = command;
 
     // Check if request exists
-    const existing = await this.prisma.maintenanceRequest.findUnique({
+    const existing = await this.prisma.maintenance_requests.findUnique({
       where: { id: requestId },
     });
 
@@ -26,7 +24,7 @@ export class AssignMaintenanceRequestHandler
     }
 
     // Assign request
-    const request = await this.prisma.maintenanceRequest.update({
+    const request = await this.prisma.maintenance_requests.update({
       where: { id: requestId },
       data: {
         assigned_to: assignedTo,
