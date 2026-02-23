@@ -63,18 +63,16 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
         limit: 100, // 100 requests per minute
       },
     ]),
-    // HorizonAuthModule with async configuration to ensure env vars are loaded
-    HorizonAuthModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        database: {
-          url: configService.get<string>('DATABASE_URL'),
-        },
-        jwt: {
-          privateKey: configService.get<string>('JWT_PRIVATE_KEY'),
-          publicKey: configService.get<string>('JWT_PUBLIC_KEY'),
-        },
-      }),
-      inject: [ConfigService],
+    // HorizonAuthModule - uses global PrismaService from PrismaModule
+    HorizonAuthModule.forRoot({
+      jwt: {
+        publicKey: process.env.JWT_PUBLIC_KEY,
+        privateKey: process.env.JWT_PRIVATE_KEY,
+      },
+      redis: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT) || 6379,
+      },
     }),
     LoggerModule,
     CommonModule,
