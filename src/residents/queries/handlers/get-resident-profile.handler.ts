@@ -12,7 +12,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
     const { residentId } = query;
 
     // Get user profile with all associations
-    const userProfile = await this.prisma.userProfile.findUnique({
+    const userProfile = await this.prisma.user_profiles.findUnique({
       where: { id: residentId },
       include: {
         committee_memberships: {

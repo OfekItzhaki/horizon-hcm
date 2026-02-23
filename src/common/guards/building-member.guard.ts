@@ -28,7 +28,7 @@ export class BuildingMemberGuard implements CanActivate {
     }
 
     // Check committee membership
-    const isCommittee = await this.prisma.buildingCommitteeMember.findUnique({
+    const isCommittee = await this.prisma.building_committee_members.findUnique({
       where: {
         building_id_user_id: {
           building_id: buildingId,
@@ -43,7 +43,7 @@ export class BuildingMemberGuard implements CanActivate {
     }
 
     // Check apartment ownership
-    const isOwner = await this.prisma.apartmentOwner.findFirst({
+    const isOwner = await this.prisma.apartment_owners.findFirst({
       where: {
         user_id: user.id,
         apartment: {
@@ -58,7 +58,7 @@ export class BuildingMemberGuard implements CanActivate {
     }
 
     // Check active tenancy
-    const isTenant = await this.prisma.apartmentTenant.findFirst({
+    const isTenant = await this.prisma.apartment_tenants.findFirst({
       where: {
         user_id: user.id,
         is_active: true,

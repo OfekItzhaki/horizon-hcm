@@ -57,20 +57,17 @@ export class DeviceFingerprintService {
   /**
    * Store or update device fingerprint
    */
-  async storeFingerprint(
-    userId: string,
-    data: DeviceFingerprintData,
-  ): Promise<any> {
+  async storeFingerprint(userId: string, data: DeviceFingerprintData): Promise<any> {
     const fingerprintHash = this.hashFingerprint(data);
 
     // Check if fingerprint already exists
-    const existing = await this.prisma.deviceFingerprint.findUnique({
+    const existing = await this.prisma.device_fingerprints.findUnique({
       where: { fingerprint_hash: fingerprintHash },
     });
 
     if (existing) {
       // Update last seen
-      return this.prisma.deviceFingerprint.update({
+      return this.prisma.device_fingerprints.update({
         where: { id: existing.id },
         data: {
           last_seen_at: new Date(),
@@ -80,7 +77,7 @@ export class DeviceFingerprintService {
     }
 
     // Create new fingerprint
-    return this.prisma.deviceFingerprint.create({
+    return this.prisma.device_fingerprints.create({
       data: {
         user_id: userId,
         fingerprint_hash: fingerprintHash,
@@ -103,7 +100,7 @@ export class DeviceFingerprintService {
   ): Promise<{ isValid: boolean; isTrusted: boolean; isNew: boolean }> {
     const fingerprintHash = this.hashFingerprint(data);
 
-    const fingerprint = await this.prisma.deviceFingerprint.findUnique({
+    const fingerprint = await this.prisma.device_fingerprints.findUnique({
       where: { fingerprint_hash: fingerprintHash },
     });
 
@@ -130,7 +127,7 @@ export class DeviceFingerprintService {
    * Mark device as trusted
    */
   async trustDevice(fingerprintHash: string): Promise<void> {
-    await this.prisma.deviceFingerprint.update({
+    await this.prisma.device_fingerprints.update({
       where: { fingerprint_hash: fingerprintHash },
       data: { is_trusted: true },
     });
@@ -140,7 +137,7 @@ export class DeviceFingerprintService {
    * Get all devices for a user
    */
   async getUserDevices(userId: string) {
-    return this.prisma.deviceFingerprint.findMany({
+    return this.prisma.device_fingerprints.findMany({
       where: { user_id: userId },
       orderBy: { last_seen_at: 'desc' },
     });
@@ -150,7 +147,7 @@ export class DeviceFingerprintService {
    * Remove device fingerprint
    */
   async removeDevice(fingerprintId: string): Promise<void> {
-    await this.prisma.deviceFingerprint.delete({
+    await this.prisma.device_fingerprints.delete({
       where: { id: fingerprintId },
     });
   }

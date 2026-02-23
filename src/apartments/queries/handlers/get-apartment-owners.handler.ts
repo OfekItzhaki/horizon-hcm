@@ -9,7 +9,7 @@ export class GetApartmentOwnersHandler implements IQueryHandler<GetApartmentOwne
   async execute(query: GetApartmentOwnersQuery) {
     const { apartmentId } = query;
 
-    const owners = await this.prisma.apartmentOwner.findMany({
+    const owners = await this.prisma.apartment_owners.findMany({
       where: { apartment_id: apartmentId },
       include: {
         user_profile: {

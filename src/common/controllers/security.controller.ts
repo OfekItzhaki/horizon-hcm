@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Request,
-  UseGuards,
-  Param,
-  Body,
-  Query,
-} from '@nestjs/common';
+import { Controller, Post, Get, Delete, Request, Param, Body, Query } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { RequestSigningService } from '../services/request-signing.service';
@@ -50,7 +40,7 @@ export class SecurityController {
     const signingKey = this.signingService.generateSigningKey();
 
     // Update user profile with new signing key
-    await this.prisma.userProfile.update({
+    await this.prisma.user_profiles.update({
       where: { user_id: userId },
       data: { signing_key: signingKey },
     });
@@ -71,7 +61,7 @@ export class SecurityController {
     // TODO: Get userId from authenticated request
     const userId = req.user?.id || 'test-user-id';
 
-    const userProfile = await this.prisma.userProfile.findUnique({
+    const userProfile = await this.prisma.user_profiles.findUnique({
       where: { user_id: userId },
       select: { signing_key: true },
     });
@@ -92,18 +82,14 @@ export class SecurityController {
   @Post('device-fingerprint/register')
   @ApiOperation({
     summary: 'Register device fingerprint',
-    description:
-      'Registers the current device fingerprint for the authenticated user',
+    description: 'Registers the current device fingerprint for the authenticated user',
   })
   async registerDeviceFingerprint(@Request() req: any) {
     // TODO: Get userId from authenticated request
     const userId = req.user?.id || 'test-user-id';
 
     const fingerprintData = this.fingerprintService.generateFingerprint(req);
-    const fingerprint = await this.fingerprintService.storeFingerprint(
-      userId,
-      fingerprintData,
-    );
+    const fingerprint = await this.fingerprintService.storeFingerprint(userId, fingerprintData);
 
     return {
       success: true,
@@ -125,10 +111,7 @@ export class SecurityController {
     const userId = req.user?.id || 'test-user-id';
 
     const fingerprintData = this.fingerprintService.generateFingerprint(req);
-    const validation = await this.fingerprintService.validateFingerprint(
-      userId,
-      fingerprintData,
-    );
+    const validation = await this.fingerprintService.validateFingerprint(userId, fingerprintData);
 
     return validation;
   }
@@ -163,7 +146,7 @@ export class SecurityController {
     description: 'Marks a device fingerprint as trusted',
   })
   async trustDevice(@Param('fingerprintId') fingerprintId: string) {
-    const device = await this.prisma.deviceFingerprint.findUnique({
+    const device = await this.prisma.device_fingerprints.findUnique({
       where: { id: fingerprintId },
     });
 
@@ -192,10 +175,7 @@ export class SecurityController {
     summary: 'Check for anomalies',
     description: 'Checks current activity for anomalous behavior',
   })
-  async checkAnomaly(
-    @Request() req: any,
-    @Body() body: { activityType: string; metadata?: any },
-  ) {
+  async checkAnomaly(@Request() req: any, @Body() body: { activityType: string; metadata?: any }) {
     // TODO: Get userId from authenticated request
     const userId = req.user?.id || 'test-user-id';
 
@@ -204,18 +184,11 @@ export class SecurityController {
       timestamp: new Date(),
     };
 
-    const result = await this.anomalyService.detectAnomalies(
-      userId,
-      body.activityType,
-      metadata,
-    );
+    const result = await this.anomalyService.detectAnomalies(userId, body.activityType, metadata);
 
     // If high risk, restrict account and notify admins
     if (result.shouldRestrict) {
-      await this.anomalyService.restrictAccount(
-        userId,
-        result.reasons.join(', '),
-      );
+      await this.anomalyService.restrictAccount(userId, result.reasons.join(', '));
       await this.anomalyService.notifyAdministrators(userId, result);
     }
 
@@ -338,8 +311,7 @@ export class SecurityController {
   @Post('gdpr/anonymize')
   @ApiOperation({
     summary: 'Anonymize user data',
-    description:
-      'Anonymizes user data while retaining records for compliance purposes',
+    description: 'Anonymizes user data while retaining records for compliance purposes',
   })
   async anonymizeUserData(@Request() req: any) {
     // TODO: Get userId from authenticated request
@@ -368,14 +340,11 @@ export class SecurityController {
   @Post('password/check-strength')
   @ApiOperation({
     summary: 'Check password strength',
-    description:
-      'Validates password against security policy and returns strength indicator',
+    description: 'Validates password against security policy and returns strength indicator',
   })
   async checkPasswordStrength(@Body() body: { password: string }) {
     const result = this.passwordPolicyService.validatePassword(body.password);
-    const indicator = this.passwordPolicyService.getStrengthIndicator(
-      result.strength,
-    );
+    const indicator = this.passwordPolicyService.getStrengthIndicator(result.strength);
 
     return {
       ...result,

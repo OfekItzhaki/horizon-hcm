@@ -37,13 +37,11 @@ export class RequestSignatureGuard implements CanActivate {
     // Validate timestamp
     if (!this.signingService.validateTimestamp(timestamp)) {
       this.logger.warn(`Invalid timestamp: ${timestamp}`);
-      throw new UnauthorizedException(
-        'Request timestamp is outside acceptable window (5 minutes)',
-      );
+      throw new UnauthorizedException('Request timestamp is outside acceptable window (5 minutes)');
     }
 
     // Get user's signing key from database
-    const userProfile = await this.prisma.userProfile.findUnique({
+    const userProfile = await this.prisma.user_profiles.findUnique({
       where: { user_id: userId },
       select: { signing_key: true },
     });
@@ -71,11 +69,7 @@ export class RequestSignatureGuard implements CanActivate {
       nonce,
     );
 
-    const isValid = this.signingService.verifySignature(
-      payload,
-      signature,
-      signingKey,
-    );
+    const isValid = this.signingService.verifySignature(payload, signature, signingKey);
 
     if (!isValid) {
       this.logger.warn(`Invalid signature for user: ${userId}`);

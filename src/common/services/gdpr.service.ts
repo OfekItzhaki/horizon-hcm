@@ -15,7 +15,7 @@ export class GDPRService {
 
     try {
       // Get user profile
-      const userProfile = await this.prisma.userProfile.findUnique({
+      const userProfile = await this.prisma.user_profiles.findUnique({
         where: { user_id: userId },
         include: {
           committee_memberships: {
@@ -45,10 +45,9 @@ export class GDPRService {
       });
 
       // Get notification preferences
-      const notificationPreferences =
-        await this.prisma.notificationPreference.findUnique({
-          where: { user_id: userId },
-        });
+      const notificationPreferences = await this.prisma.notificationPreference.findUnique({
+        where: { user_id: userId },
+      });
 
       // Get notification logs
       const notificationLogs = await this.prisma.notificationLog.findMany({
@@ -68,7 +67,7 @@ export class GDPRService {
       });
 
       // Get device fingerprints
-      const devices = await this.prisma.deviceFingerprint.findMany({
+      const devices = await this.prisma.device_fingerprints.findMany({
         where: { user_id: userId },
         orderBy: { last_seen_at: 'desc' },
       });
@@ -148,7 +147,7 @@ export class GDPRService {
         });
 
         // Delete device fingerprints
-        await tx.deviceFingerprint.deleteMany({
+        await tx.device_fingerprints.deleteMany({
           where: { user_id: userId },
         });
 
@@ -158,22 +157,22 @@ export class GDPRService {
         });
 
         // Delete committee memberships
-        await tx.buildingCommitteeMember.deleteMany({
+        await tx.building_committee_members.deleteMany({
           where: { user_id: userId },
         });
 
         // Delete apartment ownerships
-        await tx.apartmentOwner.deleteMany({
+        await tx.apartment_owners.deleteMany({
           where: { user_id: userId },
         });
 
         // Delete apartment tenancies
-        await tx.apartmentTenant.deleteMany({
+        await tx.apartment_tenants.deleteMany({
           where: { user_id: userId },
         });
 
         // Finally, delete user profile
-        await tx.userProfile.delete({
+        await tx.user_profiles.delete({
           where: { user_id: userId },
         });
 
@@ -197,7 +196,7 @@ export class GDPRService {
     try {
       await this.prisma.$transaction(async (tx) => {
         // Anonymize user profile
-        await tx.userProfile.update({
+        await tx.user_profiles.update({
           where: { user_id: userId },
           data: {
             full_name: 'Anonymous User',
@@ -208,7 +207,7 @@ export class GDPRService {
         });
 
         // Delete device fingerprints
-        await tx.deviceFingerprint.deleteMany({
+        await tx.device_fingerprints.deleteMany({
           where: { user_id: userId },
         });
 
@@ -233,7 +232,7 @@ export class GDPRService {
    * Get data retention summary
    */
   async getDataRetentionSummary(userId: string): Promise<any> {
-    const profile = await this.prisma.userProfile.findUnique({
+    const profile = await this.prisma.user_profiles.findUnique({
       where: { user_id: userId },
     });
 
@@ -245,7 +244,7 @@ export class GDPRService {
       where: { user_id: userId },
     });
 
-    const devicesCount = await this.prisma.deviceFingerprint.count({
+    const devicesCount = await this.prisma.device_fingerprints.count({
       where: { user_id: userId },
     });
 

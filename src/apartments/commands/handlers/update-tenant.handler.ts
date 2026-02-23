@@ -15,7 +15,7 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantCommand>
     const { tenantId, moveOutDate, isActive } = command;
 
     // Check if tenant exists
-    const tenant = await this.prisma.apartmentTenant.findUnique({
+    const tenant = await this.prisma.apartment_tenants.findUnique({
       where: { id: tenantId },
     });
 
@@ -24,7 +24,7 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantCommand>
     }
 
     // Update tenant
-    const updatedTenant = await this.prisma.apartmentTenant.update({
+    const updatedTenant = await this.prisma.apartment_tenants.update({
       where: { id: tenantId },
       data: {
         move_out_date: moveOutDate !== undefined ? moveOutDate : undefined,
@@ -34,14 +34,14 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantCommand>
 
     // Check if apartment should be marked vacant
     if (isActive === false) {
-      const activeTenants = await this.prisma.apartmentTenant.count({
+      const activeTenants = await this.prisma.apartment_tenants.count({
         where: {
           apartment_id: tenant.apartment_id,
           is_active: true,
         },
       });
 
-      const owners = await this.prisma.apartmentOwner.count({
+      const owners = await this.prisma.apartment_owners.count({
         where: { apartment_id: tenant.apartment_id },
       });
 

@@ -7,9 +7,7 @@ import { CacheService } from '../../../common/services/cache.service';
 
 @Injectable()
 @CommandHandler(RemoveCommitteeMemberCommand)
-export class RemoveCommitteeMemberHandler
-  implements ICommandHandler<RemoveCommitteeMemberCommand>
-{
+export class RemoveCommitteeMemberHandler implements ICommandHandler<RemoveCommitteeMemberCommand> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLog: AuditLogService,
@@ -20,18 +18,17 @@ export class RemoveCommitteeMemberHandler
     const { buildingId, memberId, currentUserId } = command;
 
     // Find the committee member
-    const committeeMember =
-      await this.prisma.buildingCommitteeMember.findUnique({
-        where: { id: memberId },
-        include: {
-          user_profile: {
-            select: {
-              id: true,
-              full_name: true,
-            },
+    const committeeMember = await this.prisma.building_committee_members.findUnique({
+      where: { id: memberId },
+      include: {
+        user_profile: {
+          select: {
+            id: true,
+            full_name: true,
           },
         },
-      });
+      },
+    });
 
     if (!committeeMember) {
       throw new NotFoundException('Committee member not found');
@@ -39,15 +36,13 @@ export class RemoveCommitteeMemberHandler
 
     // Verify the member belongs to the specified building
     if (committeeMember.building_id !== buildingId) {
-      throw new NotFoundException(
-        'Committee member not found in this building',
-      );
+      throw new NotFoundException('Committee member not found in this building');
     }
 
     const userId = committeeMember.user_id;
 
     // Delete the committee membership
-    await this.prisma.buildingCommitteeMember.delete({
+    await this.prisma.building_committee_members.delete({
       where: { id: memberId },
     });
 

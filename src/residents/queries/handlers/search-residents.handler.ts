@@ -5,20 +5,17 @@ import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 @QueryHandler(SearchResidentsQuery)
-export class SearchResidentsHandler
-  implements IQueryHandler<SearchResidentsQuery>
-{
+export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: SearchResidentsQuery): Promise<any> {
     const { buildingId, searchTerm, searchField } = query;
 
-    const searchLower = searchTerm.toLowerCase();
     let residents = [];
 
     if (searchField === 'name') {
       // Search by name in UserProfile
-      const userProfiles = await this.prisma.userProfile.findMany({
+      const userProfiles = await this.prisma.user_profiles.findMany({
         where: {
           full_name: {
             contains: searchTerm,
@@ -64,7 +61,7 @@ export class SearchResidentsHandler
       residents = userProfiles;
     } else if (searchField === 'phone') {
       // Search by phone number
-      const userProfiles = await this.prisma.userProfile.findMany({
+      const userProfiles = await this.prisma.user_profiles.findMany({
         where: {
           phone_number: {
             contains: searchTerm,
@@ -110,7 +107,7 @@ export class SearchResidentsHandler
     } else if (searchField === 'apartment') {
       // Search by apartment number
       const [owners, tenants] = await Promise.all([
-        this.prisma.apartmentOwner.findMany({
+        this.prisma.apartment_owners.findMany({
           where: {
             apartment: {
               building_id: buildingId,
@@ -128,7 +125,7 @@ export class SearchResidentsHandler
             },
           },
         }),
-        this.prisma.apartmentTenant.findMany({
+        this.prisma.apartment_tenants.findMany({
           where: {
             is_active: true,
             apartment: {

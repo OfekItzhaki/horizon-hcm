@@ -28,7 +28,7 @@ export class CommitteeMemberGuard implements CanActivate {
     }
 
     // Query database
-    const membership = await this.prisma.buildingCommitteeMember.findUnique({
+    const membership = await this.prisma.building_committee_members.findUnique({
       where: {
         building_id_user_id: {
           building_id: buildingId,

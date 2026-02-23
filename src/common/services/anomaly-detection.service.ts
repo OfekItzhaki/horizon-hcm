@@ -40,9 +40,7 @@ export class AnomalyDetectionService {
     if (activityType === 'login_attempt' && !metadata.success) {
       const failedLogins = await this.getRecentFailedLogins(userId);
       if (failedLogins >= this.MAX_FAILED_LOGINS) {
-        reasons.push(
-          `Multiple failed login attempts (${failedLogins} in last 15 minutes)`,
-        );
+        reasons.push(`Multiple failed login attempts (${failedLogins} in last 15 minutes)`);
         riskScore += 40;
       }
     }
@@ -56,10 +54,7 @@ export class AnomalyDetectionService {
 
     // Check 3: New device from unusual location
     if (metadata.isNewDevice && metadata.location) {
-      const isUnusualLocation = await this.isUnusualLocation(
-        userId,
-        metadata.location,
-      );
+      const isUnusualLocation = await this.isUnusualLocation(userId, metadata.location);
       if (isUnusualLocation) {
         reasons.push('Login from new device in unusual location');
         riskScore += 25;
@@ -75,10 +70,7 @@ export class AnomalyDetectionService {
 
     // Check 5: Rapid location changes
     if (metadata.location && metadata.previousLocation) {
-      const distance = this.calculateDistance(
-        metadata.location,
-        metadata.previousLocation,
-      );
+      const distance = this.calculateDistance(metadata.location, metadata.previousLocation);
       const timeDiff = metadata.timestamp - metadata.previousTimestamp;
       const hoursDiff = timeDiff / (1000 * 60 * 60);
 
@@ -111,10 +103,7 @@ export class AnomalyDetectionService {
   /**
    * Restrict user account
    */
-  async restrictAccount(
-    userId: string,
-    reason: string,
-  ): Promise<void> {
+  async restrictAccount(userId: string, reason: string): Promise<void> {
     this.logger.warn(`Restricting account for user ${userId}: ${reason}`);
 
     // Set restriction flag in cache (expires in 24 hours)
@@ -125,7 +114,7 @@ export class AnomalyDetectionService {
     );
 
     // TODO: Update user account status in database
-    // await this.prisma.userProfile.update({
+    // await this.prisma.user_profiles.update({
     //   where: { user_id: userId },
     //   data: { is_restricted: true, restriction_reason: reason }
     // });
@@ -142,17 +131,11 @@ export class AnomalyDetectionService {
   /**
    * Notify administrators of suspicious activity
    */
-  async notifyAdministrators(
-    userId: string,
-    anomaly: AnomalyDetectionResult,
-  ): Promise<void> {
-    this.logger.warn(
-      `ADMIN ALERT: Suspicious activity detected for user ${userId}`,
-      {
-        riskScore: anomaly.riskScore,
-        reasons: anomaly.reasons,
-      },
-    );
+  async notifyAdministrators(userId: string, anomaly: AnomalyDetectionResult): Promise<void> {
+    this.logger.warn(`ADMIN ALERT: Suspicious activity detected for user ${userId}`, {
+      riskScore: anomaly.riskScore,
+      reasons: anomaly.reasons,
+    });
 
     // TODO: Send notification to administrators
     // This could integrate with the notification system
@@ -169,11 +152,7 @@ export class AnomalyDetectionService {
   async trackFailedLogin(userId: string): Promise<void> {
     const key = `failed_logins:${userId}`;
     const current = ((await this.cache.get(key)) as number) || 0;
-    await this.cache.set(
-      key,
-      current + 1,
-      this.FAILED_LOGIN_WINDOW / 1000,
-    );
+    await this.cache.set(key, current + 1, this.FAILED_LOGIN_WINDOW / 1000);
   }
 
   /**
@@ -206,10 +185,11 @@ export class AnomalyDetectionService {
    */
   private async isUnusualLocation(
     userId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     location: { lat: number; lon: number },
   ): Promise<boolean> {
     // Get user's typical locations from device fingerprints
-    const devices = await this.prisma.deviceFingerprint.findMany({
+    const devices = await this.prisma.device_fingerprints.findMany({
       where: { user_id: userId, is_trusted: true },
       select: { ip_address: true },
     });

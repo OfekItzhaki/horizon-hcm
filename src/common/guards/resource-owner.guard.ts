@@ -27,7 +27,7 @@ export class ResourceOwnerGuard implements CanActivate {
     // Check if user is committee member for the building (if applicable)
     const buildingId = await this.getBuildingIdForResource(resourceType, resourceId);
     if (buildingId) {
-      const isCommittee = await this.prisma.buildingCommitteeMember.findUnique({
+      const isCommittee = await this.prisma.building_committee_members.findUnique({
         where: {
           building_id_user_id: {
             building_id: buildingId,

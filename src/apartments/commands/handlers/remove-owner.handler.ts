@@ -15,7 +15,7 @@ export class RemoveOwnerHandler implements ICommandHandler<RemoveOwnerCommand> {
     const { apartmentId, ownerId } = command;
 
     // Check if owner exists
-    const owner = await this.prisma.apartmentOwner.findUnique({
+    const owner = await this.prisma.apartment_owners.findUnique({
       where: { id: ownerId },
     });
 
@@ -24,16 +24,16 @@ export class RemoveOwnerHandler implements ICommandHandler<RemoveOwnerCommand> {
     }
 
     // Delete owner
-    await this.prisma.apartmentOwner.delete({
+    await this.prisma.apartment_owners.delete({
       where: { id: ownerId },
     });
 
     // Check if apartment should be marked vacant
-    const remainingOwners = await this.prisma.apartmentOwner.count({
+    const remainingOwners = await this.prisma.apartment_owners.count({
       where: { apartment_id: apartmentId },
     });
 
-    const activeTenants = await this.prisma.apartmentTenant.count({
+    const activeTenants = await this.prisma.apartment_tenants.count({
       where: { apartment_id: apartmentId, is_active: true },
     });
 

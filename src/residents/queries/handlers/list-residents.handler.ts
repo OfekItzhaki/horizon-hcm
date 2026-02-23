@@ -9,27 +9,16 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: ListResidentsQuery): Promise<any> {
-    const {
-      buildingId,
-      page,
-      limit,
-      search,
-      userType,
-      apartmentNumber,
-      phoneNumber,
-    } = query;
+    const { buildingId, page, limit, search, userType, apartmentNumber, phoneNumber } = query;
 
     // Ensure limit doesn't exceed 100
     const effectiveLimit = Math.min(limit, 100);
     const skip = (page - 1) * effectiveLimit;
 
-    // Build where clause for filtering
-    const whereConditions: any[] = [];
-
     // Get all residents: committee members, owners, and active tenants
     const [committeeMembers, owners, tenants] = await Promise.all([
       // Committee members
-      this.prisma.buildingCommitteeMember.findMany({
+      this.prisma.building_committee_members.findMany({
         where: { building_id: buildingId },
         include: {
           user_profile: {
@@ -57,7 +46,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
         },
       }),
       // Apartment owners
-      this.prisma.apartmentOwner.findMany({
+      this.prisma.apartment_owners.findMany({
         where: {
           apartment: {
             building_id: buildingId,
@@ -80,7 +69,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
         },
       }),
       // Active tenants
-      this.prisma.apartmentTenant.findMany({
+      this.prisma.apartment_tenants.findMany({
         where: {
           is_active: true,
           apartment: {
@@ -186,9 +175,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
     }
 
     if (userType) {
-      residents = residents.filter((r) =>
-        r.roles.some((role) => role.type === userType),
-      );
+      residents = residents.filter((r) => r.roles.some((role) => role.type === userType));
     }
 
     if (apartmentNumber) {
@@ -198,9 +185,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
     }
 
     if (phoneNumber) {
-      residents = residents.filter((r) =>
-        r.phone_number?.includes(phoneNumber),
-      );
+      residents = residents.filter((r) => r.phone_number?.includes(phoneNumber));
     }
 
     // Sort alphabetically by full_name

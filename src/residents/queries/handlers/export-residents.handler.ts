@@ -17,13 +17,13 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
 
     // Get all residents for the building
     const [committeeMembers, owners, tenants] = await Promise.all([
-      this.prisma.buildingCommitteeMember.findMany({
+      this.prisma.building_committee_members.findMany({
         where: { building_id: buildingId },
         include: {
           user_profile: true,
         },
       }),
-      this.prisma.apartmentOwner.findMany({
+      this.prisma.apartment_owners.findMany({
         where: {
           apartment: {
             building_id: buildingId,
@@ -38,7 +38,7 @@ export class ExportResidentsHandler implements IQueryHandler<ExportResidentsQuer
           },
         },
       }),
-      this.prisma.apartmentTenant.findMany({
+      this.prisma.apartment_tenants.findMany({
         where: {
           is_active: true,
           apartment: {

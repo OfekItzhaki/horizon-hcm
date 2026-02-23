@@ -46,7 +46,7 @@ export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
 
     // If setting as primary, unset other primary owners
     if (isPrimary) {
-      await this.prisma.apartmentOwner.updateMany({
+      await this.prisma.apartment_owners.updateMany({
         where: {
           apartment_id: apartmentId,
           is_primary: true,
@@ -58,7 +58,7 @@ export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
     }
 
     // Create owner record
-    const owner = await this.prisma.apartmentOwner.create({
+    const owner = await this.prisma.apartment_owners.create({
       data: {
         apartment_id: apartmentId,
         user_id: userId,

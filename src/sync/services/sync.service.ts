@@ -36,11 +36,7 @@ export class SyncService {
   /**
    * Get delta changes for a specific entity type since last sync
    */
-  async getDelta(
-    userId: string,
-    entityType: string,
-    lastSyncTimestamp: Date,
-  ): Promise<SyncDelta> {
+  async getDelta(userId: string, entityType: string, lastSyncTimestamp: Date): Promise<SyncDelta> {
     this.logger.log(
       `Getting delta for user ${userId}, entity ${entityType}, since ${lastSyncTimestamp}`,
     );
@@ -48,7 +44,7 @@ export class SyncService {
     const newSyncTimestamp = new Date();
     let created: any[] = [];
     let updated: any[] = [];
-    let deleted: string[] = [];
+    const deleted: string[] = [];
 
     // Query based on entity type
     switch (entityType) {
@@ -61,12 +57,8 @@ export class SyncService {
           },
         });
         // Separate created vs updated based on created_at
-        created = buildings.filter(
-          (b) => b.created_at > lastSyncTimestamp,
-        );
-        updated = buildings.filter(
-          (b) => b.created_at <= lastSyncTimestamp,
-        );
+        created = buildings.filter((b) => b.created_at > lastSyncTimestamp);
+        updated = buildings.filter((b) => b.created_at <= lastSyncTimestamp);
         break;
 
       case 'apartment':
@@ -77,28 +69,20 @@ export class SyncService {
             },
           },
         });
-        created = apartments.filter(
-          (a) => a.created_at > lastSyncTimestamp,
-        );
-        updated = apartments.filter(
-          (a) => a.created_at <= lastSyncTimestamp,
-        );
+        created = apartments.filter((a) => a.created_at > lastSyncTimestamp);
+        updated = apartments.filter((a) => a.created_at <= lastSyncTimestamp);
         break;
 
       case 'user_profile':
-        const profiles = await this.prisma.userProfile.findMany({
+        const profiles = await this.prisma.user_profiles.findMany({
           where: {
             updated_at: {
               gt: lastSyncTimestamp,
             },
           },
         });
-        created = profiles.filter(
-          (p) => p.created_at > lastSyncTimestamp,
-        );
-        updated = profiles.filter(
-          (p) => p.created_at <= lastSyncTimestamp,
-        );
+        created = profiles.filter((p) => p.created_at > lastSyncTimestamp);
+        updated = profiles.filter((p) => p.created_at <= lastSyncTimestamp);
         break;
 
       default:
@@ -124,9 +108,7 @@ export class SyncService {
     userId: string,
     operations: SyncOperation[],
   ): Promise<{ success: boolean; errors: string[] }> {
-    this.logger.log(
-      `Applying ${operations.length} operations for user ${userId}`,
-    );
+    this.logger.log(`Applying ${operations.length} operations for user ${userId}`);
 
     const errors: string[] = [];
 
@@ -134,13 +116,8 @@ export class SyncService {
       try {
         await this.applyOperation(userId, operation);
       } catch (error) {
-        this.logger.error(
-          `Failed to apply operation: ${error.message}`,
-          error.stack,
-        );
-        errors.push(
-          `${operation.entityType} ${operation.operation}: ${error.message}`,
-        );
+        this.logger.error(`Failed to apply operation: ${error.message}`, error.stack);
+        errors.push(`${operation.entityType} ${operation.operation}: ${error.message}`);
       }
     }
 
@@ -153,19 +130,12 @@ export class SyncService {
   /**
    * Apply a single sync operation with conflict resolution
    */
-  private async applyOperation(
-    userId: string,
-    operation: SyncOperation,
-  ): Promise<void> {
+  private async applyOperation(userId: string, operation: SyncOperation): Promise<void> {
     const { entityType, operation: op, data } = operation;
 
     // Check for conflicts before applying
     if (op === 'update' || op === 'delete') {
-      const conflict = await this.detectConflict(
-        entityType,
-        data.id,
-        operation.clientTimestamp,
-      );
+      const conflict = await this.detectConflict(entityType, data.id, operation.clientTimestamp);
 
       if (conflict) {
         const resolution = this.resolveConflict(
@@ -221,14 +191,14 @@ export class SyncService {
 
       case 'user_profile':
         if (op === 'create') {
-          await this.prisma.userProfile.create({ data });
+          await this.prisma.user_profiles.create({ data });
         } else if (op === 'update') {
-          await this.prisma.userProfile.update({
+          await this.prisma.user_profiles.update({
             where: { id: data.id },
             data,
           });
         } else if (op === 'delete') {
-          await this.prisma.userProfile.delete({
+          await this.prisma.user_profiles.delete({
             where: { id: data.id },
           });
         }
@@ -265,7 +235,7 @@ export class SyncService {
         break;
 
       case 'user_profile':
-        serverRecord = await this.prisma.userProfile.findUnique({
+        serverRecord = await this.prisma.user_profiles.findUnique({
           where: { id: entityId },
           select: { updated_at: true },
         });
@@ -287,10 +257,7 @@ export class SyncService {
   /**
    * Resolve conflict using last-write-wins strategy
    */
-  private resolveConflict(
-    clientTimestamp: Date,
-    serverTimestamp: Date,
-  ): ConflictResolutionResult {
+  private resolveConflict(clientTimestamp: Date, serverTimestamp: Date): ConflictResolutionResult {
     if (serverTimestamp > clientTimestamp) {
       return {
         resolved: true,
@@ -351,11 +318,7 @@ export class SyncService {
   /**
    * Update sync state after successful sync
    */
-  async updateSyncState(
-    userId: string,
-    entityType: string,
-    newTimestamp: Date,
-  ) {
+  async updateSyncState(userId: string, entityType: string, newTimestamp: Date) {
     return this.prisma.syncState.update({
       where: {
         user_id_entity_type: {
@@ -410,21 +373,13 @@ export class SyncService {
   /**
    * Queue sync operations for async processing with retry
    */
-  async queueSyncOperations(
-    userId: string,
-    operations: SyncOperation[],
-  ): Promise<void> {
-    this.logger.log(
-      `Queueing ${operations.length} sync operations for user ${userId}`,
-    );
+  async queueSyncOperations(userId: string, operations: SyncOperation[]): Promise<void> {
+    this.logger.log(`Queueing ${operations.length} sync operations for user ${userId}`);
 
     // Increment pending operations count for each entity type
     const entityTypeCounts = new Map<string, number>();
     for (const op of operations) {
-      entityTypeCounts.set(
-        op.entityType,
-        (entityTypeCounts.get(op.entityType) || 0) + 1,
-      );
+      entityTypeCounts.set(op.entityType, (entityTypeCounts.get(op.entityType) || 0) + 1);
     }
 
     for (const [entityType, count] of entityTypeCounts) {

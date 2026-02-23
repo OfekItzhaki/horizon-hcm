@@ -24,7 +24,7 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
     }
 
     // Check if user already has an active tenancy for this apartment
-    const existingTenant = await this.prisma.apartmentTenant.findFirst({
+    const existingTenant = await this.prisma.apartment_tenants.findFirst({
       where: {
         apartment_id: apartmentId,
         user_id: userId,
@@ -33,13 +33,11 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
     });
 
     if (existingTenant) {
-      throw new BadRequestException(
-        'User already has an active tenancy for this apartment',
-      );
+      throw new BadRequestException('User already has an active tenancy for this apartment');
     }
 
     // Create tenant record
-    const tenant = await this.prisma.apartmentTenant.create({
+    const tenant = await this.prisma.apartment_tenants.create({
       data: {
         apartment_id: apartmentId,
         user_id: userId,

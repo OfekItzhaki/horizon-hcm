@@ -1,9 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  NotFoundException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { NotFoundException, ConflictException, Injectable } from '@nestjs/common';
 import { AddCommitteeMemberCommand } from '../impl/add-committee-member.command';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
@@ -11,9 +7,7 @@ import { CacheService } from '../../../common/services/cache.service';
 
 @Injectable()
 @CommandHandler(AddCommitteeMemberCommand)
-export class AddCommitteeMemberHandler
-  implements ICommandHandler<AddCommitteeMemberCommand>
-{
+export class AddCommitteeMemberHandler implements ICommandHandler<AddCommitteeMemberCommand> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLog: AuditLogService,
@@ -33,7 +27,7 @@ export class AddCommitteeMemberHandler
     }
 
     // Validate user exists
-    const user = await this.prisma.userProfile.findUnique({
+    const user = await this.prisma.user_profiles.findUnique({
       where: { id: userId },
     });
 
@@ -42,24 +36,21 @@ export class AddCommitteeMemberHandler
     }
 
     // Check if user is already a committee member
-    const existingMember =
-      await this.prisma.buildingCommitteeMember.findUnique({
-        where: {
-          building_id_user_id: {
-            building_id: buildingId,
-            user_id: userId,
-          },
+    const existingMember = await this.prisma.building_committee_members.findUnique({
+      where: {
+        building_id_user_id: {
+          building_id: buildingId,
+          user_id: userId,
         },
-      });
+      },
+    });
 
     if (existingMember) {
-      throw new ConflictException(
-        'User is already a committee member of this building',
-      );
+      throw new ConflictException('User is already a committee member of this building');
     }
 
     // Create committee membership
-    const committeeMember = await this.prisma.buildingCommitteeMember.create({
+    const committeeMember = await this.prisma.building_committee_members.create({
       data: {
         building_id: buildingId,
         user_id: userId,
