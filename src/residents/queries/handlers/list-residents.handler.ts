@@ -61,7 +61,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
               user_type: true,
             },
           },
-          apartment: {
+          apartments: {
             select: {
               apartment_number: true,
             },
@@ -72,7 +72,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       this.prisma.apartment_tenants.findMany({
         where: {
           is_active: true,
-          apartment: {
+          apartments: {
             building_id: buildingId,
           },
         },
@@ -85,7 +85,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
               user_type: true,
             },
           },
-          apartment: {
+          apartments: {
             select: {
               apartment_number: true,
             },
@@ -99,13 +99,13 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
 
     // Add committee members
     committeeMembers.forEach((member) => {
-      const userId = member.user_profile.id;
+      const userId = member.user_profiles.id;
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
           id: userId,
-          full_name: member.user_profile.full_name,
-          phone_number: member.user_profile.phone_number,
-          user_type: member.user_profile.user_type,
+          full_name: member.user_profiles.full_name,
+          phone_number: member.user_profiles.phone_number,
+          user_type: member.user_profiles.user_type,
           roles: [],
           apartments: [],
         });
@@ -114,8 +114,8 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
         type: 'COMMITTEE',
         role: member.role,
       });
-      // Add apartments from owned_apartments
-      member.user_profile.owned_apartments.forEach((ownership) => {
+      // Add apartments from apartment_owners
+      member.user_profiles.apartment_owners.forEach((ownership) => {
         residentsMap.get(userId).apartments.push({
           apartment_number: ownership.apartments.apartment_number,
           relationship: 'OWNER',
@@ -125,13 +125,13 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
 
     // Add owners
     owners.forEach((owner) => {
-      const userId = owner.user_profile.id;
+      const userId = owner.user_profiles.id;
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
           id: userId,
-          full_name: owner.user_profile.full_name,
-          phone_number: owner.user_profile.phone_number,
-          user_type: owner.user_profile.user_type,
+          full_name: owner.user_profiles.full_name,
+          phone_number: owner.user_profiles.phone_number,
+          user_type: owner.user_profiles.user_type,
           roles: [],
           apartments: [],
         });
@@ -144,13 +144,13 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
 
     // Add tenants
     tenants.forEach((tenant) => {
-      const userId = tenant.user_profile.id;
+      const userId = tenant.user_profiles.id;
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
           id: userId,
-          full_name: tenant.user_profile.full_name,
-          phone_number: tenant.user_profile.phone_number,
-          user_type: tenant.user_profile.user_type,
+          full_name: tenant.user_profiles.full_name,
+          phone_number: tenant.user_profiles.phone_number,
+          user_type: tenant.user_profiles.user_type,
           roles: [],
           apartments: [],
         });

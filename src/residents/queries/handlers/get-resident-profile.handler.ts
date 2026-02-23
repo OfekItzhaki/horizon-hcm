@@ -33,7 +33,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
                 id: true,
                 apartment_number: true,
                 building_id: true,
-                building: {
+                buildings: {
                   select: {
                     name: true,
                     address_line: true,
@@ -53,7 +53,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
                 id: true,
                 apartment_number: true,
                 building_id: true,
-                building: {
+                buildings: {
                   select: {
                     name: true,
                     address_line: true,
@@ -77,14 +77,14 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
       phone_number: userProfile.phone_number,
       user_type: userProfile.user_type,
       preferred_language: userProfile.preferred_language,
-      committee_roles: userProfile.committee_memberships.map((membership) => ({
+      committee_roles: userProfile.building_committee_members.map((membership) => ({
         building_id: membership.building_id,
         building_name: membership.buildings.name,
         building_address: membership.buildings.address_line,
         role: membership.role,
         since: membership.created_at,
       })),
-      apartment_owners: userProfile.owned_apartments.map((ownership) => ({
+      apartment_owners: userProfile.apartment_owners.map((ownership) => ({
         apartment_id: ownership.apartments.id,
         apartment_number: ownership.apartments.apartment_number,
         building_id: ownership.apartments.building_id,
@@ -94,7 +94,7 @@ export class GetResidentProfileHandler implements IQueryHandler<GetResidentProfi
         is_primary: ownership.is_primary,
         since: ownership.created_at,
       })),
-      apartment_tenants: userProfile.tenant_apartments.map((tenancy) => ({
+      apartment_tenants: userProfile.apartment_tenants.map((tenancy) => ({
         apartment_id: tenancy.apartments.id,
         apartment_number: tenancy.apartments.apartment_number,
         building_id: tenancy.apartments.building_id,

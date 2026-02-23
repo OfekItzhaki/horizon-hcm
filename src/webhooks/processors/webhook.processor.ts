@@ -25,14 +25,14 @@ export class WebhookProcessor extends WorkerHost {
       // Get delivery and webhook details
       const delivery = await this.prisma.webhook_deliveries.findUnique({
         where: { id: deliveryId },
-        include: { webhook: true },
+        include: { webhooks: true },
       });
 
       if (!delivery) {
         throw new Error('Delivery not found');
       }
 
-      if (!delivery.webhook.is_active) {
+      if (!delivery.webhooks.is_active) {
         this.logger.warn(`Webhook ${delivery.webhook_id} is inactive, skipping`);
         return;
       }
@@ -52,10 +52,10 @@ export class WebhookProcessor extends WorkerHost {
       };
 
       // Sign payload
-      const signature = this.webhookService.signPayload(payload, delivery.webhook.secret);
+      const signature = this.webhookService.signPayload(payload, delivery.webhooks.secret);
 
       // Send webhook request
-      const response = await axios.post(delivery.webhook.url, payload, {
+      const response = await axios.post(delivery.webhooks.url, payload, {
         headers: {
           'Content-Type': 'application/json',
           'X-Webhook-Signature': signature,

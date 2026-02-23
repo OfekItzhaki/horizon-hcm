@@ -32,7 +32,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
             {
               apartment_owners: {
                 some: {
-                  apartment: {
+                  apartments: {
                     building_id: buildingId,
                   },
                 },
@@ -42,7 +42,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
               apartment_tenants: {
                 some: {
                   is_active: true,
-                  apartment: {
+                  apartments: {
                     building_id: buildingId,
                   },
                 },
@@ -77,7 +77,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
             {
               apartment_owners: {
                 some: {
-                  apartment: {
+                  apartments: {
                     building_id: buildingId,
                   },
                 },
@@ -87,7 +87,7 @@ export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuer
               apartment_tenants: {
                 some: {
                   is_active: true,
-                  apartment: {
+                  apartments: {
                     building_id: buildingId,
                   },
                 },

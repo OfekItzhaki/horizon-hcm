@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { WebhookService } from './services/webhook.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -44,10 +34,7 @@ export class WebhooksController {
    */
   @Post()
   @ApiOperation({ summary: 'Register a new webhook' })
-  async registerWebhook(
-    @Body() dto: RegisterWebhookDto,
-    @Query('userId') userId: string,
-  ) {
+  async registerWebhook(@Body() dto: RegisterWebhookDto, @Query('userId') userId: string) {
     if (!userId) {
       return { error: 'userId is required' };
     }
@@ -120,7 +107,7 @@ export class WebhooksController {
         secret: webhook.secret,
         isActive: webhook.is_active,
         createdAt: webhook.created_at,
-        recentDeliveries: webhook.deliveries,
+        recentDeliveries: webhook.webhook_deliveries,
       },
       stats,
     };
@@ -157,10 +144,7 @@ export class WebhooksController {
    */
   @Get(':id/deliveries')
   @ApiOperation({ summary: 'Get webhook delivery history' })
-  async getDeliveries(
-    @Param('id') id: string,
-    @Query('limit') limit?: number,
-  ) {
+  async getDeliveries(@Param('id') id: string, @Query('limit') limit?: number) {
     const deliveries = await this.webhookService.getDeliveries(
       id,
       limit ? parseInt(limit.toString()) : 50,
