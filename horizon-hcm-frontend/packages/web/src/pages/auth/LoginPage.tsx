@@ -28,19 +28,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Get success message from navigation state
-  const successMessage = (location.state as { message?: string })?.message || null;
+  // Get success message from navigation state and store it locally
+  const [successMessage] = useState<string | null>(
+    () => (location.state as { message?: string })?.message || null
+  );
 
   // Clear the navigation state after reading it (only once on mount)
   useEffect(() => {
     if (location.state && (location.state as { message?: string })?.message) {
-      // Use setTimeout to avoid navigation during render
-      const timer = setTimeout(() => {
-        navigate(location.pathname, { replace: true, state: {} });
-      }, 0);
-      return () => clearTimeout(timer);
+      // Replace the current history entry to clear the state
+      navigate(location.pathname, { replace: true, state: {} });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array - only run once on mount
 
   const {
