@@ -1,20 +1,6 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Body,
-  Param,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Param, Request } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 import { SendTemplatedNotificationDto } from './dto/send-templated-notification.dto';
@@ -49,12 +35,7 @@ export class NotificationsController {
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiBearerAuth()
   async createTemplate(@Body() dto: CreateTemplateDto) {
-    const command = new CreateTemplateCommand(
-      dto.name,
-      dto.title,
-      dto.body,
-      dto.language || 'en',
-    );
+    const command = new CreateTemplateCommand(dto.name, dto.title, dto.body, dto.language || 'en');
 
     return this.commandBus.execute(command);
   }
@@ -63,10 +44,7 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Get notification template by name' })
   @ApiResponse({ status: 200, description: 'Template found' })
   @ApiResponse({ status: 404, description: 'Template not found' })
-  async getTemplate(
-    @Param('name') name: string,
-    @Param('language') language: string = 'en',
-  ) {
+  async getTemplate(@Param('name') name: string, @Param('language') language: string = 'en') {
     const query = new GetTemplateQuery(name, language);
     return this.queryBus.execute(query);
   }
@@ -81,17 +59,32 @@ export class NotificationsController {
     return this.queryBus.execute(query);
   }
 
+  @Get('unread-count')
+  @ApiOperation({ summary: 'Get unread notification count' })
+  @ApiResponse({ status: 200, description: 'Unread count retrieved' })
+  @ApiBearerAuth()
+  async getUnreadCount() {
+    // TODO: Implement actual unread count logic
+    return { count: 0 };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get user notifications' })
+  @ApiResponse({ status: 200, description: 'Notifications retrieved' })
+  @ApiBearerAuth()
+  async getNotifications() {
+    // TODO: Implement actual notifications retrieval
+    return { notifications: [], total: 0 };
+  }
+
   @Patch('preferences')
   @ApiOperation({ summary: 'Update user notification preferences' })
   @ApiResponse({ status: 200, description: 'Preferences updated' })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiBearerAuth()
-  async updatePreferences(
-    @Request() req,
-    @Body() dto: UpdatePreferencesDto,
-  ) {
+  async updatePreferences(@Request() req, @Body() dto: UpdatePreferencesDto) {
     const userId = req.user?.id || req.user?.sub;
-    
+
     const command = new UpdatePreferencesCommand(
       userId,
       dto.paymentReminders,
