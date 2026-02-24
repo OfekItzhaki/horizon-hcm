@@ -5,30 +5,26 @@ This document explains the project organization and file locations.
 ## Overview
 
 This is a **monorepo** containing:
-- **Backend API** (NestJS) - Root directory
-- **Frontend Apps** (React/React Native) - `horizon-hcm-frontend/` directory
+- **Backend API** (NestJS) - `backend/` directory
+- **Web App** (React + Vite) - `web-app/` directory
+- **Mobile App** (Expo/React Native) - `mobile-app/` directory
+- **Shared Code** - `shared/` directory
 
 ```
-horizon-hcm/                          ← BACKEND (NestJS API)
-├── src/                              ← Backend source code
-├── prisma/                           ← Database schema & migrations
-├── docs/                             ← Backend documentation
-├── firebase-service-account.json     ← Backend FCM credentials (gitignored)
-├── package.json                      ← Backend dependencies
-└── horizon-hcm-frontend/             ← FRONTEND (React monorepo)
-    ├── packages/
-    │   ├── web/                      ← Web app (React + Vite)
-    │   ├── mobile/                   ← Mobile app (Expo/React Native)
-    │   │   └── google-services.json  ← Mobile FCM credentials (gitignored)
-    │   └── shared/                   ← Shared code (API client, types, utils)
-    └── package.json                  ← Frontend workspace dependencies
+horizon-hcm/
+├── backend/                    ← Backend API (NestJS)
+├── web-app/                    ← Web app (React + Vite)
+├── mobile-app/                 ← Mobile app (Expo/React Native)
+├── shared/                     ← Shared code (API client, types, utils)
+├── docs/                       ← Project documentation
+└── .github/                    ← CI/CD workflows
 ```
 
-## Backend Structure (Root Directory)
+## Backend Structure (`backend/`)
 
-### Source Code (`src/`)
+### Source Code (`backend/src/`)
 ```
-src/
+backend/src/
 ├── announcements/          ← Announcements module (CQRS)
 ├── apartments/             ← Apartments module (CQRS)
 ├── buildings/              ← Buildings module (CQRS)
@@ -86,9 +82,9 @@ module-name/
 └── module-name.service.ts     ← Business logic (if needed)
 ```
 
-### Database (`prisma/`)
+### Database (`backend/prisma/`)
 ```
-prisma/
+backend/prisma/
 ├── migrations/             ← Database migrations (auto-generated)
 │   ├── 20260224015100_add_read_at_and_theme_fields/
 │   ├── 20260224020000_add_polls_table/
@@ -97,38 +93,25 @@ prisma/
 └── schema.prisma           ← Database schema definition
 ```
 
-### Documentation (`docs/`)
+### Configuration Files (`backend/`)
 ```
-docs/
-├── ARCHITECTURE.md         ← System architecture overview
-├── DEPLOYMENT.md           ← Deployment guide
-├── ENV_VARIABLES.md        ← Environment variables reference
-└── ...
-```
-
-### Configuration Files (Root)
-```
-.env                        ← Environment variables (gitignored)
-.env.example                ← Environment variables template
-package.json                ← Backend dependencies
-tsconfig.json               ← TypeScript configuration
-nest-cli.json               ← NestJS CLI configuration
-.eslintrc.js                ← ESLint configuration
-.prettierrc                 ← Prettier configuration
-docker-compose.yml          ← Docker services (PostgreSQL, Redis)
+backend/
+├── .env                        ← Environment variables (gitignored)
+├── .env.example                ← Environment variables template
+├── package.json                ← Backend dependencies
+├── tsconfig.json               ← TypeScript configuration
+├── nest-cli.json               ← NestJS CLI configuration
+├── .eslintrc.js                ← ESLint configuration
+├── .prettierrc                 ← Prettier configuration
+├── docker-compose.yml          ← Docker services (PostgreSQL, Redis)
+└── firebase-service-account.json  ← Backend FCM credentials (gitignored)
 ```
 
-### Firebase Credentials (Root)
-```
-firebase-service-account.json  ← Backend FCM credentials (gitignored)
-FCM_SETUP_GUIDE.md            ← FCM setup instructions
-```
+## Frontend Structure
 
-## Frontend Structure (`horizon-hcm-frontend/`)
-
-### Web App (`packages/web/`)
+### Web App (`web-app/`)
 ```
-packages/web/
+web-app/
 ├── src/
 │   ├── components/         ← React components
 │   ├── hooks/              ← Custom React hooks
@@ -141,9 +124,9 @@ packages/web/
 └── vite.config.ts          ← Vite configuration
 ```
 
-### Mobile App (`packages/mobile/`)
+### Mobile App (`mobile-app/`)
 ```
-packages/mobile/
+mobile-app/
 ├── src/
 │   ├── components/         ← React Native components
 │   ├── hooks/              ← Custom hooks
@@ -154,13 +137,12 @@ packages/mobile/
 ├── assets/                 ← Images, fonts, etc.
 ├── google-services.json    ← Mobile FCM credentials (gitignored)
 ├── app.json                ← Expo configuration
-├── package.json            ← Mobile app dependencies
-└── PUSH_NOTIFICATIONS_SETUP.md  ← Push notifications guide
+└── package.json            ← Mobile app dependencies
 ```
 
-### Shared Package (`packages/shared/`)
+### Shared Package (`shared/`)
 ```
-packages/shared/
+shared/
 ├── src/
 │   ├── api/                ← API client (Axios)
 │   ├── constants/          ← Shared constants
@@ -176,25 +158,27 @@ packages/shared/
 ### Backend Files
 | File | Location | Purpose |
 |------|----------|---------|
-| Backend API | `src/` | NestJS source code |
-| Database schema | `prisma/schema.prisma` | Prisma schema |
-| Migrations | `prisma/migrations/` | Database migrations |
-| Environment config | `.env` | Environment variables |
-| FCM credentials | `firebase-service-account.json` | Backend push notifications |
+| Backend API | `backend/src/` | NestJS source code |
+| Database schema | `backend/prisma/schema.prisma` | Prisma schema |
+| Migrations | `backend/prisma/migrations/` | Database migrations |
+| Environment config | `backend/.env` | Environment variables |
+| FCM credentials | `backend/firebase-service-account.json` | Backend push notifications |
 | API documentation | `http://localhost:3001/api/docs` | Swagger UI |
 
 ### Frontend Files
 | File | Location | Purpose |
 |------|----------|---------|
-| Web app | `horizon-hcm-frontend/packages/web/` | React web app |
-| Mobile app | `horizon-hcm-frontend/packages/mobile/` | Expo mobile app |
-| Shared code | `horizon-hcm-frontend/packages/shared/` | Shared utilities |
-| Mobile FCM | `horizon-hcm-frontend/packages/mobile/google-services.json` | Mobile push notifications |
+| Web app | `web-app/` | React web app |
+| Mobile app | `mobile-app/` | Expo mobile app |
+| Shared code | `shared/` | Shared utilities |
+| Mobile FCM | `mobile-app/google-services.json` | Mobile push notifications |
 
 ## Running the Project
 
-### Backend (from root directory)
+### Backend (from backend/ directory)
 ```bash
+cd backend
+
 # Development
 npm run start:dev
 
@@ -208,14 +192,18 @@ npx prisma generate
 npx prisma studio
 ```
 
-### Frontend Web (from horizon-hcm-frontend/packages/web/)
+### Frontend Web (from web-app/ directory)
 ```bash
+cd web-app
+
 npm run dev          # Development server
 npm run build        # Production build
 ```
 
-### Frontend Mobile (from horizon-hcm-frontend/packages/mobile/)
+### Frontend Mobile (from mobile-app/ directory)
 ```bash
+cd mobile-app
+
 npm start            # Start Expo
 npm run android      # Run on Android
 npm run ios          # Run on iOS
@@ -236,12 +224,12 @@ npm run ios          # Run on iOS
 
 ### Two Different Files Required
 
-1. **Backend**: `firebase-service-account.json` (root directory)
+1. **Backend**: `backend/firebase-service-account.json`
    - Used by backend to SEND push notifications
    - Download from: Firebase Console → Project Settings → Service Accounts → Generate new private key
    - Contains: `type`, `private_key`, `client_email`
 
-2. **Mobile**: `google-services.json` (mobile app directory)
+2. **Mobile**: `mobile-app/google-services.json`
    - Used by mobile app to RECEIVE push notifications
    - Download from: Firebase Console → Project Settings → General → Your apps → Download google-services.json
    - Contains: `project_info`, `client`, `api_key`
@@ -249,31 +237,33 @@ npm run ios          # Run on iOS
 ## Common Issues
 
 ### "Where is the backend?"
-- The root directory IS the backend
-- Backend source code is in `src/`
-- Frontend is in `horizon-hcm-frontend/`
+- The backend is in the `backend/` directory
+- Backend source code is in `backend/src/`
+- Frontend apps are in `web-app/` and `mobile-app/`
 
 ### "FCM not working"
 - Check you have BOTH Firebase files in correct locations
-- Backend: `firebase-service-account.json` (root)
-- Mobile: `google-services.json` (mobile app)
-- See `FCM_SETUP_GUIDE.md` for details
+- Backend: `backend/firebase-service-account.json`
+- Mobile: `mobile-app/google-services.json`
+- See `docs/FCM_SETUP_GUIDE.md` for details
 
 ### "Module not found"
-- Backend: Run `npm install` in root directory
-- Frontend: Run `npm install` in `horizon-hcm-frontend/`
+- Backend: Run `npm install` in `backend/` directory
+- Web: Run `npm install` in `web-app/` directory
+- Mobile: Run `npm install` in `mobile-app/` directory
+- Shared: Run `npm install` in `shared/` directory
 
 ## Documentation Index
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| Project Structure | `PROJECT_STRUCTURE.md` | This file |
+| Project Structure | `docs/PROJECT_STRUCTURE.md` | This file |
 | Backend Architecture | `docs/ARCHITECTURE.md` | Backend design |
 | Backend Deployment | `docs/DEPLOYMENT.md` | Deployment guide |
-| FCM Setup | `FCM_SETUP_GUIDE.md` | Push notifications (backend) |
-| Mobile Push Setup | `horizon-hcm-frontend/packages/mobile/PUSH_NOTIFICATIONS_SETUP.md` | Push notifications (mobile) |
-| Frontend Architecture | `horizon-hcm-frontend/ARCHITECTURE.md` | Frontend design |
-| Frontend Deployment | `horizon-hcm-frontend/DEPLOYMENT.md` | Frontend deployment |
+| FCM Setup | `docs/FCM_SETUP_GUIDE.md` | Push notifications (backend) |
+| Mobile Push Setup | `mobile-app/PUSH_NOTIFICATIONS_SETUP.md` | Push notifications (mobile) |
+| Web App README | `web-app/README.md` | Web app documentation |
+| Mobile App README | `mobile-app/README.md` | Mobile app documentation |
 
 ## Next Steps
 
