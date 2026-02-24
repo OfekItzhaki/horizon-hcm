@@ -3,6 +3,19 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from '../services/cache.service';
 import { AuditLogService } from '../services/audit-log.service';
 
+/**
+ * Authorization guard that restricts access to committee members only.
+ *
+ * Verifies that the authenticated user is a committee member of the specified building.
+ * Results are cached for 15 minutes to improve performance.
+ *
+ * @example
+ * ```typescript
+ * @UseGuards(CommitteeMemberGuard)
+ * @Post('buildings/:buildingId/announcements')
+ * async createAnnouncement() { ... }
+ * ```
+ */
 @Injectable()
 export class CommitteeMemberGuard implements CanActivate {
   constructor(
@@ -11,6 +24,13 @@ export class CommitteeMemberGuard implements CanActivate {
     private readonly auditLog: AuditLogService,
   ) {}
 
+  /**
+   * Checks if the user is a committee member of the building.
+   *
+   * @param context - Execution context containing the HTTP request
+   * @returns True if user is a committee member, throws ForbiddenException otherwise
+   * @throws {ForbiddenException} When user is not a committee member
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user; // Set by authentication middleware
@@ -58,8 +78,12 @@ export class CommitteeMemberGuard implements CanActivate {
     return true;
   }
 
+  /**
+   * Extracts building ID from request params or body.
+   */
   private extractBuildingId(request: any): string | null {
     // Try params first, then body
     return request.params?.buildingId || request.body?.buildingId || null;
   }
 }
+

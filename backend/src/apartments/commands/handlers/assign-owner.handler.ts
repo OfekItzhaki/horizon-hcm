@@ -1,15 +1,30 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AssignOwnerCommand } from '../impl/assign-owner.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { generateId } from '../../../common/utils/id-generator';
+import { OwnerAssignedEvent } from '../../events/owner-assigned.event';
 
+/**
+ * Command handler that assigns an owner to an apartment.
+ * 
+ * Validates ownership share doesn't exceed 100% total and prevents duplicate ownership.
+ * When setting a primary owner, automatically unsets other primary owners.
+ * Updates apartment vacancy status, logs the assignment, and emits OwnerAssignedEvent.
+ * 
+ * @example
+ * ```typescript
+ * const command = new AssignOwnerCommand('apt-123', 'user-456', 50, true);
+ * const owner = await commandBus.execute(command);
+ * ```
+ */
 @CommandHandler(AssignOwnerCommand)
 export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
+    private eventBus: EventBus,
   ) {}
 
   async execute(command: AssignOwnerCommand) {
@@ -82,6 +97,11 @@ export class AssignOwnerHandler implements ICommandHandler<AssignOwnerCommand> {
       resourceId: apartmentId,
       metadata: { userId, ownershipShare, isPrimary },
     });
+
+    // Emit domain event
+    this.eventBus.publish(
+      new OwnerAssignedEvent(apartmentId, userId, ownershipShare, isPrimary),
+    );
 
     return owner;
   }

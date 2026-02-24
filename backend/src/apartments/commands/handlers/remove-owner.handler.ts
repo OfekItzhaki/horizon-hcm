@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { RemoveOwnerCommand } from '../impl/remove-owner.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { OwnerRemovedEvent } from '../../events/owner-removed.event';
 
 @CommandHandler(RemoveOwnerCommand)
 export class RemoveOwnerHandler implements ICommandHandler<RemoveOwnerCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
+    private eventBus: EventBus,
   ) {}
 
   async execute(command: RemoveOwnerCommand) {
@@ -51,6 +53,16 @@ export class RemoveOwnerHandler implements ICommandHandler<RemoveOwnerCommand> {
       resourceId: apartmentId,
       metadata: { ownerId, userId: owner.user_id },
     });
+
+    // Emit domain event
+    this.eventBus.publish(
+      new OwnerRemovedEvent(
+        apartmentId,
+        owner.apartment_id,
+        ownerId,
+        owner.user_id,
+      ),
+    );
 
     return { success: true };
   }

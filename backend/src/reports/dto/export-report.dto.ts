@@ -1,6 +1,9 @@
 import { IsEnum, IsOptional, IsDateString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * Available report types for export.
+ */
 export enum ReportType {
   BALANCE = 'balance',
   TRANSACTIONS = 'transactions',
@@ -11,11 +14,29 @@ export enum ReportType {
   YEAR_OVER_YEAR = 'yoy',
 }
 
+/**
+ * Supported export formats.
+ */
 export enum ExportFormat {
   CSV = 'csv',
   PDF = 'pdf',
 }
 
+/**
+ * DTO for exporting financial reports in various formats.
+ * 
+ * Supports multiple report types and export formats with optional date filtering.
+ * 
+ * @example
+ * ```typescript
+ * const dto: ExportReportDto = {
+ *   reportType: ReportType.TRANSACTIONS,
+ *   format: ExportFormat.PDF,
+ *   startDate: '2024-01-01',
+ *   endDate: '2024-12-31'
+ * };
+ * ```
+ */
 export class ExportReportDto {
   @ApiProperty({
     enum: ReportType,

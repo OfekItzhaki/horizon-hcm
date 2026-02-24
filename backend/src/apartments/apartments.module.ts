@@ -19,6 +19,16 @@ import { ListApartmentsHandler } from './queries/handlers/list-apartments.handle
 import { GetApartmentOwnersHandler } from './queries/handlers/get-apartment-owners.handler';
 import { GetApartmentTenantsHandler } from './queries/handlers/get-apartment-tenants.handler';
 
+// Event Handlers
+import {
+  ApartmentCreatedHandler,
+  ApartmentUpdatedHandler,
+  ApartmentDeletedHandler,
+  OwnerAssignedHandler,
+  OwnerRemovedHandler,
+  TenantAssignedHandler,
+} from './events/handlers';
+
 const CommandHandlers = [
   CreateApartmentHandler,
   UpdateApartmentHandler,
@@ -36,9 +46,18 @@ const QueryHandlers = [
   GetApartmentTenantsHandler,
 ];
 
+const EventHandlers = [
+  ApartmentCreatedHandler,
+  ApartmentUpdatedHandler,
+  ApartmentDeletedHandler,
+  OwnerAssignedHandler,
+  OwnerRemovedHandler,
+  TenantAssignedHandler,
+];
+
 @Module({
   imports: [CqrsModule, CommonModule],
   controllers: [ApartmentsController],
-  providers: [PrismaService, ...CommandHandlers, ...QueryHandlers],
+  providers: [PrismaService, ...CommandHandlers, ...QueryHandlers, ...EventHandlers],
 })
 export class ApartmentsModule {}

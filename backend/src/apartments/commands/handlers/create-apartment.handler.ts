@@ -1,15 +1,30 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateApartmentCommand } from '../impl/create-apartment.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { generateId } from '../../../common/utils/id-generator';
+import { ApartmentCreatedEvent } from '../../events/apartment-created.event';
 
+/**
+ * Command handler that creates a new apartment in a building.
+ * 
+ * Validates that the apartment number is unique within the building before creation.
+ * New apartments are marked as vacant by default. Logs the creation in the audit trail.
+ * Emits ApartmentCreatedEvent for downstream processing.
+ * 
+ * @example
+ * ```typescript
+ * const command = new CreateApartmentCommand('building-123', '12A', 85.5, 3);
+ * const apartment = await commandBus.execute(command);
+ * ```
+ */
 @CommandHandler(CreateApartmentCommand)
 export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
+    private eventBus: EventBus,
   ) {}
 
   async execute(command: CreateApartmentCommand) {
@@ -50,6 +65,17 @@ export class CreateApartmentHandler implements ICommandHandler<CreateApartmentCo
       resourceId: apartment.id,
       metadata: { apartmentNumber, buildingId },
     });
+
+    // Emit domain event
+    this.eventBus.publish(
+      new ApartmentCreatedEvent(
+        apartment.id,
+        buildingId,
+        apartmentNumber,
+        areaSqm,
+        floor,
+      ),
+    );
 
     return apartment;
   }

@@ -1,5 +1,20 @@
 import { Injectable } from '@nestjs/common';
 
+/**
+ * Service for formatting numbers, dates, and currencies with locale support.
+ * 
+ * Provides internationalization (i18n) formatting utilities using the Intl API.
+ * Supports multiple locales and timezones, with defaults for Israeli locale (he-IL).
+ * 
+ * @example
+ * ```typescript
+ * // Format currency
+ * const price = formattingService.formatCurrency(1500, 'ILS', 'he-IL'); // "₪1,500.00"
+ * 
+ * // Format relative time
+ * const time = formattingService.formatRelativeTime(new Date(Date.now() - 3600000)); // "1 hour ago"
+ * ```
+ */
 @Injectable()
 export class FormattingService {
   /**

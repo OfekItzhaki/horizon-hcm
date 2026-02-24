@@ -2,12 +2,31 @@ import { IsOptional, IsInt, Min, Max, IsEnum, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
+/**
+ * Filter options for user type in resident listings.
+ */
 export enum UserTypeFilter {
   COMMITTEE = 'COMMITTEE',
   OWNER = 'OWNER',
   TENANT = 'TENANT',
 }
 
+/**
+ * DTO for listing building residents with pagination and filtering.
+ * 
+ * Supports filtering by name, phone, user type, and apartment number.
+ * Results are paginated with a maximum of 100 items per page.
+ * 
+ * @example
+ * ```typescript
+ * const dto: ListResidentsDto = {
+ *   page: 1,
+ *   limit: 20,
+ *   search: 'John',
+ *   userType: UserTypeFilter.OWNER
+ * };
+ * ```
+ */
 export class ListResidentsDto {
   @ApiPropertyOptional({
     description: 'Page number (1-indexed)',

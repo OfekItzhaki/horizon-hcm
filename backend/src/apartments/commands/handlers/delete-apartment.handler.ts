@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { DeleteApartmentCommand } from '../impl/delete-apartment.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { ApartmentDeletedEvent } from '../../events/apartment-deleted.event';
 
 @CommandHandler(DeleteApartmentCommand)
 export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
+    private eventBus: EventBus,
   ) {}
 
   async execute(command: DeleteApartmentCommand) {
@@ -44,6 +46,15 @@ export class DeleteApartmentHandler implements ICommandHandler<DeleteApartmentCo
       resourceId: apartmentId,
       metadata: { apartmentNumber: apartment.apartment_number },
     });
+
+    // Emit domain event
+    this.eventBus.publish(
+      new ApartmentDeletedEvent(
+        apartmentId,
+        apartment.building_id,
+        apartment.apartment_number,
+      ),
+    );
 
     return { success: true };
   }

@@ -1,15 +1,17 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AssignTenantCommand } from '../impl/assign-tenant.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { generateId } from '../../../common/utils/id-generator';
+import { TenantAssignedEvent } from '../../events/tenant-assigned.event';
 
 @CommandHandler(AssignTenantCommand)
 export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
+    private eventBus: EventBus,
   ) {}
 
   async execute(command: AssignTenantCommand) {
@@ -61,6 +63,16 @@ export class AssignTenantHandler implements ICommandHandler<AssignTenantCommand>
       resourceId: apartmentId,
       metadata: { userId, moveInDate },
     });
+
+    // Emit domain event
+    this.eventBus.publish(
+      new TenantAssignedEvent(
+        apartmentId,
+        apartment.building_id,
+        tenant.id,
+        userId,
+      ),
+    );
 
     return tenant;
   }

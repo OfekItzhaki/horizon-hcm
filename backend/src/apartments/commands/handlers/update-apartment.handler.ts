@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdateApartmentCommand } from '../impl/update-apartment.command';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { ApartmentUpdatedEvent } from '../../events/apartment-updated.event';
 
 @CommandHandler(UpdateApartmentCommand)
 export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCommand> {
   constructor(
     private prisma: PrismaService,
     private auditLog: AuditLogService,
+    private eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateApartmentCommand) {
@@ -41,6 +43,15 @@ export class UpdateApartmentHandler implements ICommandHandler<UpdateApartmentCo
       resourceId: apartment.id,
       metadata: { changes: { areaSqm, floor, isVacant } },
     });
+
+    // Emit domain event
+    this.eventBus.publish(
+      new ApartmentUpdatedEvent(
+        apartment.id,
+        apartment.building_id,
+        { areaSqm, floor, isVacant },
+      ),
+    );
 
     return apartment;
   }

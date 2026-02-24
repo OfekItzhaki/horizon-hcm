@@ -12,6 +12,32 @@ interface PaginationOptions {
   cursor?: string;
 }
 
+/**
+ * Service for implementing pagination strategies.
+ * 
+ * Supports two pagination approaches:
+ * - Offset-based: Traditional page numbers, best for small/medium datasets
+ * - Cursor-based: Efficient for large datasets and real-time data
+ * 
+ * @example
+ * ```typescript
+ * // Offset pagination
+ * const result = await paginationService.paginateOffset(
+ *   prisma.users,
+ *   { page: 1, limit: 10 },
+ *   { is_active: true },
+ *   { created_at: 'desc' }
+ * );
+ * 
+ * // Cursor pagination
+ * const result = await paginationService.paginateCursor(
+ *   prisma.users,
+ *   { cursor: 'abc123', limit: 10 },
+ *   'id',
+ *   { is_active: true }
+ * );
+ * ```
+ */
 @Injectable()
 export class PaginationService {
   constructor(private prisma: PrismaService) {}

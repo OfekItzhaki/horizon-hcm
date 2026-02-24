@@ -19,6 +19,18 @@ interface PerformanceMetrics {
   externalApiTime?: number;
 }
 
+/**
+ * Interceptor that tracks and logs performance metrics for each request.
+ * 
+ * Monitors response time, database queries, cache hits/misses, and external API calls.
+ * Stores metrics in the database and logs warnings for slow requests or excessive queries.
+ * 
+ * @example
+ * ```typescript
+ * // Applied globally in main.ts
+ * app.useGlobalInterceptors(new PerformanceInterceptor(logger, prisma));
+ * ```
+ */
 @Injectable()
 export class PerformanceInterceptor implements NestInterceptor {
   constructor(
@@ -26,6 +38,13 @@ export class PerformanceInterceptor implements NestInterceptor {
     private prisma: PrismaService,
   ) {}
 
+  /**
+   * Intercepts the request to track performance metrics.
+   * 
+   * @param context - Execution context
+   * @param next - Call handler for the next interceptor or route handler
+   * @returns Observable with performance tracking
+   */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
@@ -71,6 +90,9 @@ export class PerformanceInterceptor implements NestInterceptor {
     );
   }
 
+  /**
+   * Logs and stores performance metrics for the request.
+   */
   private async logPerformanceMetrics(
     method: string,
     url: string,
@@ -128,6 +150,9 @@ export class PerformanceInterceptor implements NestInterceptor {
     }
   }
 
+  /**
+   * Stores performance metrics in the database for analysis.
+   */
   private async storeMetrics(
     method: string,
     url: string,
@@ -158,7 +183,10 @@ export class PerformanceInterceptor implements NestInterceptor {
   }
 }
 
-// Helper functions to track metrics (to be used in services)
+/**
+ * Tracks a database query execution for performance monitoring.
+ * Call this from services after executing database queries.
+ */
 export function trackDatabaseQuery(request: any, queryTime: number) {
   if (request?.performanceMetrics) {
     request.performanceMetrics.databaseQueries++;
@@ -166,18 +194,27 @@ export function trackDatabaseQuery(request: any, queryTime: number) {
   }
 }
 
+/**
+ * Tracks a cache hit for performance monitoring.
+ */
 export function trackCacheHit(request: any) {
   if (request?.performanceMetrics) {
     request.performanceMetrics.cacheHits++;
   }
 }
 
+/**
+ * Tracks a cache miss for performance monitoring.
+ */
 export function trackCacheMiss(request: any) {
   if (request?.performanceMetrics) {
     request.performanceMetrics.cacheMisses++;
   }
 }
 
+/**
+ * Tracks an external API call for performance monitoring.
+ */
 export function trackExternalApiCall(request: any, callTime: number) {
   if (request?.performanceMetrics) {
     request.performanceMetrics.externalApiCalls++;

@@ -9,10 +9,30 @@ import { tap } from 'rxjs/operators';
 import { LoggerService } from '../logger/logger.service';
 import { getCorrelationId } from '../middleware/correlation-id.middleware';
 
+/**
+ * Interceptor that logs all incoming requests and their responses.
+ * 
+ * Logs request details (method, URL, body) and response details (status, time).
+ * Automatically sanitizes sensitive fields like passwords and tokens.
+ * Includes correlation ID for request tracing.
+ * 
+ * @example
+ * ```typescript
+ * // Applied globally in main.ts
+ * app.useGlobalInterceptors(new LoggingInterceptor(logger));
+ * ```
+ */
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   constructor(private logger: LoggerService) {}
 
+  /**
+   * Intercepts the request to log details before and after execution.
+   * 
+   * @param context - Execution context
+   * @param next - Call handler for the next interceptor or route handler
+   * @returns Observable with logging
+   */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const { method, url, body } = request;
@@ -62,6 +82,9 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
+  /**
+   * Sanitizes sensitive fields from request body before logging.
+   */
   private sanitizeBody(body: any): any {
     if (!body) return body;
 

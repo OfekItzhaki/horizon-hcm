@@ -8,6 +8,20 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
+/**
+ * Security guard that restricts access to whitelisted IP addresses only.
+ * 
+ * Checks the client's IP address against a whitelist configured via the IP_WHITELIST
+ * environment variable. Supports exact matches, CIDR notation, and wildcards.
+ * 
+ * @example
+ * ```typescript
+ * // Environment: IP_WHITELIST=192.168.1.0/24,10.0.0.*,203.0.113.5
+ * @UseGuards(IPWhitelistGuard)
+ * @Post('admin/settings')
+ * async updateSettings() { ... }
+ * ```
+ */
 @Injectable()
 export class IPWhitelistGuard implements CanActivate {
   private readonly logger = new Logger(IPWhitelistGuard.name);
@@ -30,6 +44,13 @@ export class IPWhitelistGuard implements CanActivate {
     }
   }
 
+  /**
+   * Checks if the client's IP address is in the whitelist.
+   * 
+   * @param context - Execution context containing the HTTP request
+   * @returns True if IP is whitelisted, throws ForbiddenException otherwise
+   * @throws {ForbiddenException} When IP is not whitelisted or whitelist is empty
+   */
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const clientIp = this.getClientIp(request);

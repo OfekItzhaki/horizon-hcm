@@ -3,6 +3,24 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from './cache.service';
 import { generateId } from '../utils/id-generator';
 
+/**
+ * Service for managing feature flags and A/B testing.
+ * 
+ * Provides functionality for:
+ * - Checking if features are enabled for users
+ * - A/B testing with variant assignment
+ * - Percentage-based rollouts
+ * - User targeting rules
+ * 
+ * @example
+ * ```typescript
+ * // Check if feature is enabled
+ * const isEnabled = await featureFlagService.isEnabled('new-dashboard', userId);
+ * 
+ * // Get A/B test variant
+ * const variant = await featureFlagService.getVariant('checkout-flow', userId);
+ * ```
+ */
 @Injectable()
 export class FeatureFlagService {
   private readonly logger = new Logger(FeatureFlagService.name);

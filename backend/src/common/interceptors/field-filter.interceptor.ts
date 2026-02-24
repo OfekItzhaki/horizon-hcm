@@ -9,10 +9,32 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FIELD_FILTER_KEY } from '../decorators/field-filter.decorator';
 
+/**
+ * Interceptor that implements field filtering for API responses.
+ * 
+ * Allows clients to request specific fields using the ?fields=field1,field2 query parameter.
+ * Supports nested fields with dot notation (e.g., ?fields=user.name,user.email).
+ * Works with single objects, arrays, and paginated responses.
+ * 
+ * @example
+ * ```typescript
+ * @FieldFilter()
+ * @Get('users')
+ * async getUsers() { ... }
+ * // Client: GET /users?fields=id,name,email
+ * ```
+ */
 @Injectable()
 export class FieldFilterInterceptor implements NestInterceptor {
   constructor(private reflector: Reflector) {}
 
+  /**
+   * Intercepts the response to filter fields based on query parameter.
+   * 
+   * @param context - Execution context
+   * @param next - Call handler for the next interceptor or route handler
+   * @returns Observable with filtered data
+   */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // Check if field filtering is enabled for this endpoint
     const isFieldFilterEnabled = this.reflector.get<boolean>(
@@ -60,6 +82,9 @@ export class FieldFilterInterceptor implements NestInterceptor {
     );
   }
 
+  /**
+   * Filters an object to include only the requested fields.
+   */
   private filterFields(obj: any, fields: string[]): any {
     if (!obj || typeof obj !== 'object') return obj;
 

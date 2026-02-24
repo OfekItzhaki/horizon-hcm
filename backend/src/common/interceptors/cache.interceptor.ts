@@ -11,6 +11,19 @@ import { CacheService } from '../services/cache.service';
 import { CACHEABLE_KEY, CacheableOptions } from '../decorators/cacheable.decorator';
 import { trackCacheHit, trackCacheMiss } from './performance.interceptor';
 
+/**
+ * Interceptor that implements automatic response caching for endpoints.
+ * 
+ * Works with the @Cacheable decorator to cache method responses in Redis.
+ * Supports dynamic cache keys with parameter placeholders and conditional caching.
+ * 
+ * @example
+ * ```typescript
+ * @Cacheable({ key: 'user:{{userId}}', ttl: 300 })
+ * @Get('users/:userId')
+ * async getUser(@Param('userId') userId: string) { ... }
+ * ```
+ */
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
   constructor(
@@ -18,6 +31,13 @@ export class CacheInterceptor implements NestInterceptor {
     private cacheService: CacheService,
   ) {}
 
+  /**
+   * Intercepts the request to check cache before executing the handler.
+   * 
+   * @param context - Execution context
+   * @param next - Call handler for the next interceptor or route handler
+   * @returns Observable with cached or fresh data
+   */
   async intercept(
     context: ExecutionContext,
     next: CallHandler,

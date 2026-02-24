@@ -3,6 +3,20 @@ import { Injectable } from '@nestjs/common';
 import { ListResidentsQuery } from '../impl/list-residents.query';
 import { PrismaService } from '../../../prisma/prisma.service';
 
+/**
+ * Query handler that retrieves a paginated list of building residents.
+ * 
+ * Aggregates residents from three sources: committee members, apartment owners, and active tenants.
+ * Deduplicates users who appear in multiple roles and supports filtering by name, phone,
+ * user type, and apartment number.
+ * 
+ * @example
+ * ```typescript
+ * const query = new ListResidentsQuery('building-123', 1, 20);
+ * const result = await queryBus.execute(query);
+ * // Returns: { data: [...], pagination: { page: 1, limit: 20, total: 45, totalPages: 3 } }
+ * ```
+ */
 @Injectable()
 @QueryHandler(ListResidentsQuery)
 export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {

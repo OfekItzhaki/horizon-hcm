@@ -32,15 +32,15 @@ The implementation is organized to deliver value incrementally, starting with fo
     - UpdateTenantCommand and handler (set move-out date, mark inactive)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.8_
 
-  - [ ]* 2.3 Write property test for apartment number uniqueness
+  - [x]* 2.3 Write property test for apartment number uniqueness
     - **Property 1: Apartment Number Uniqueness**
     - **Validates: Requirements 1.1**
 
-  - [ ]* 2.4 Write property test for ownership share invariant
+  - [x]* 2.4 Write property test for ownership share invariant
     - **Property 2: Ownership Share Invariant**
     - **Validates: Requirements 1.8**
 
-  - [ ]* 2.5 Write property test for vacancy status consistency
+  - [x]* 2.5 Write property test for vacancy status consistency
     - **Property 3: Vacancy Status Consistency**
     - **Validates: Requirements 1.9**
 
@@ -64,7 +64,7 @@ The implementation is organized to deliver value incrementally, starting with fo
     - Add authorization guards (committee member only)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 9.1_
 
-  - [ ]* 2.8 Write unit tests for apartment module
+  - [x]* 2.8 Write unit tests for apartment module
     - Test command handlers with specific examples
     - Test query handlers with mock data
     - Test controller endpoints with authorization

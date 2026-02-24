@@ -7,6 +7,27 @@ interface DeprecatedVersion {
   message?: string;
 }
 
+/**
+ * Middleware that handles API versioning and deprecation warnings.
+ * 
+ * Extracts the API version from the URL path (e.g., /api/v1/buildings) and adds
+ * deprecation headers for versions that are scheduled for sunset. Implements
+ * RFC 8594 Deprecation and Sunset headers.
+ * 
+ * @example
+ * ```typescript
+ * // In app.module.ts
+ * export class AppModule implements NestModule {
+ *   configure(consumer: MiddlewareConsumer) {
+ *     consumer.apply(ApiVersioningMiddleware).forRoutes('*');
+ *   }
+ * }
+ * 
+ * // To deprecate a version:
+ * const middleware = app.get(ApiVersioningMiddleware);
+ * middleware.addDeprecatedVersion('v1', new Date('2025-12-31'), 'Please migrate to v2');
+ * ```
+ */
 @Injectable()
 export class ApiVersioningMiddleware implements NestMiddleware {
   private deprecatedVersions: DeprecatedVersion[] = [
@@ -49,7 +70,13 @@ export class ApiVersioningMiddleware implements NestMiddleware {
     next();
   }
 
-  // Method to add deprecated versions dynamically
+  /**
+   * Adds a version to the deprecated versions list.
+   * 
+   * @param version - The API version to deprecate (e.g., 'v1')
+   * @param sunsetDate - The date when the version will be removed
+   * @param message - Optional custom deprecation message for clients
+   */
   addDeprecatedVersion(version: string, sunsetDate: Date, message?: string) {
     this.deprecatedVersions.push({ version, sunsetDate, message });
   }

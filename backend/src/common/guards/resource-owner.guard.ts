@@ -2,6 +2,21 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditLogService } from '../services/audit-log.service';
 
+/**
+ * Authorization guard that restricts access to resource owners or committee members.
+ * 
+ * Verifies that the authenticated user either owns the resource or is a committee member
+ * of the building associated with the resource. Use with @ResourceType decorator to specify
+ * the resource type being protected.
+ * 
+ * @example
+ * ```typescript
+ * @UseGuards(ResourceOwnerGuard)
+ * @ResourceType('MaintenanceRequest')
+ * @Put('maintenance/:id')
+ * async updateRequest() { ... }
+ * ```
+ */
 @Injectable()
 export class ResourceOwnerGuard implements CanActivate {
   constructor(
@@ -9,6 +24,13 @@ export class ResourceOwnerGuard implements CanActivate {
     private readonly auditLog: AuditLogService,
   ) {}
 
+  /**
+   * Checks if the user owns the resource or is a committee member of the associated building.
+   * 
+   * @param context - Execution context containing the HTTP request
+   * @returns True if user has access, throws ForbiddenException otherwise
+   * @throws {ForbiddenException} When user doesn't own the resource and isn't a committee member
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
@@ -59,11 +81,17 @@ export class ResourceOwnerGuard implements CanActivate {
     return true;
   }
 
+  /**
+   * Extracts resource ID from request parameters.
+   */
   private extractResourceId(request: any): string | null {
     // Try various common parameter names
     return request.params?.id || request.params?.resourceId || request.params?.userId || null;
   }
 
+  /**
+   * Extracts resource type from controller metadata set by @ResourceType decorator.
+   */
   private extractResourceType(context: ExecutionContext): string | null {
     // Extract from controller metadata
     const handler = context.getHandler();
@@ -71,6 +99,9 @@ export class ResourceOwnerGuard implements CanActivate {
     return resourceType || null;
   }
 
+  /**
+   * Gets the building ID associated with a resource for committee member checks.
+   */
   private async getBuildingIdForResource(
     resourceType: string,
     resourceId: string,
@@ -103,6 +134,9 @@ export class ResourceOwnerGuard implements CanActivate {
     }
   }
 
+  /**
+   * Checks if the user owns the specified resource based on resource type.
+   */
   private async checkResourceOwnership(
     resourceType: string,
     resourceId: string,

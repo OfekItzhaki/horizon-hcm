@@ -3,6 +3,19 @@ import { Injectable } from '@nestjs/common';
 import { SearchResidentsQuery } from '../impl/search-residents.query';
 import { PrismaService } from '../../../prisma/prisma.service';
 
+/**
+ * Query handler that searches for residents by name, phone, or apartment number.
+ * 
+ * Performs case-insensitive searches across building residents (committee members,
+ * owners, and active tenants). Returns deduplicated results sorted alphabetically.
+ * 
+ * @example
+ * ```typescript
+ * const query = new SearchResidentsQuery('building-123', 'John', 'name');
+ * const result = await queryBus.execute(query);
+ * // Returns: { data: [...], total: 3 }
+ * ```
+ */
 @Injectable()
 @QueryHandler(SearchResidentsQuery)
 export class SearchResidentsHandler implements IQueryHandler<SearchResidentsQuery> {

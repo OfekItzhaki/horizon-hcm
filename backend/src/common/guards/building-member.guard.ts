@@ -3,6 +3,20 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from '../services/cache.service';
 import { AuditLogService } from '../services/audit-log.service';
 
+/**
+ * Authorization guard that restricts access to building members only.
+ * 
+ * Verifies that the authenticated user is a member of the specified building through
+ * committee membership, apartment ownership, or active tenancy. Results are cached
+ * for 15 minutes to improve performance.
+ * 
+ * @example
+ * ```typescript
+ * @UseGuards(BuildingMemberGuard)
+ * @Get('buildings/:buildingId/announcements')
+ * async getAnnouncements() { ... }
+ * ```
+ */
 @Injectable()
 export class BuildingMemberGuard implements CanActivate {
   constructor(
@@ -11,6 +25,13 @@ export class BuildingMemberGuard implements CanActivate {
     private readonly auditLog: AuditLogService,
   ) {}
 
+  /**
+   * Checks if the user is a member of the building (committee, owner, or tenant).
+   * 
+   * @param context - Execution context containing the HTTP request
+   * @returns True if user is a building member, throws ForbiddenException otherwise
+   * @throws {ForbiddenException} When user is not a member of the building
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
@@ -88,6 +109,9 @@ export class BuildingMemberGuard implements CanActivate {
     return true;
   }
 
+  /**
+   * Extracts building ID from request params or body.
+   */
   private extractBuildingId(request: any): string | null {
     return request.params?.buildingId || request.body?.buildingId || null;
   }

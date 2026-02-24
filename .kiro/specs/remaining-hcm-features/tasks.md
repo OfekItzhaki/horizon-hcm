@@ -76,7 +76,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Apply guards: CommitteeMemberGuard OR ResourceOwnerGuard for profile (users can view their own)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9_
 
-  - [ ]* 1.12 Write unit tests for residents module
+  - [x]* 1.12 Write unit tests for residents module
     - Test command handlers with specific examples
     - Test query handlers with mock data
     - Test controller endpoints with authorization
@@ -257,27 +257,27 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Return download URL
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8_
 
-  - [ ]* 3.32 Write property test for CSV export format validity
+  - [x]* 3.32 Write property test for CSV export format validity
     - **Property 25: CSV Export Format Validity**
     - **Validates: Requirements 7.1**
 
-  - [ ]* 3.33 Write property test for PDF export validity
+  - [x]* 3.33 Write property test for PDF export validity
     - **Property 26: PDF Export Validity**
     - **Validates: Requirements 7.2**
 
-  - [ ]* 3.34 Write property test for export metadata completeness
+  - [x]* 3.34 Write property test for export metadata completeness
     - **Property 27: Export Metadata Completeness**
     - **Validates: Requirements 7.3**
 
-  - [ ]* 3.35 Write property test for locale-based date formatting
+  - [x]* 3.35 Write property test for locale-based date formatting
     - **Property 28: Locale-Based Date Formatting**
     - **Validates: Requirements 7.5**
 
-  - [ ]* 3.36 Write property test for export URL expiration
+  - [x]* 3.36 Write property test for export URL expiration
     - **Property 29: Export URL Expiration**
     - **Validates: Requirements 7.6, 7.7**
 
-  - [ ]* 3.37 Write property test for export audit logging
+  - [x]* 3.37 Write property test for export audit logging
     - **Property 30: Export Audit Logging**
     - **Validates: Requirements 7.8**
 
@@ -293,7 +293,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Apply guards: CommitteeMemberGuard + BuildingMemberGuard for all endpoints
     - _Requirements: 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1_
 
-  - [ ]* 3.39 Write unit tests for reports module
+  - [x]* 3.39 Write unit tests for reports module
     - Test query handlers with specific examples
     - Test controller endpoints with authorization
     - Test error conditions (invalid date ranges, missing budget data)
@@ -314,19 +314,19 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Throw ForbiddenException with message "Access denied: Committee member role required"
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8_
 
-  - [ ]* 5.2 Write property test for committee authorization verification
+  - [x]* 5.2 Write property test for committee authorization verification
     - **Property 36: Committee Authorization Verification**
     - **Validates: Requirements 10.1, 10.2, 10.8**
 
-  - [ ]* 5.3 Write property test for building ID extraction
+  - [x]* 5.3 Write property test for building ID extraction
     - **Property 37: Building ID Extraction**
     - **Validates: Requirements 10.3, 11.3, 12.3**
 
-  - [ ]* 5.4 Write property test for committee membership query accuracy
+  - [x]* 5.4 Write property test for committee membership query accuracy
     - **Property 38: Committee Membership Query Accuracy**
     - **Validates: Requirements 10.4**
 
-  - [ ]* 5.5 Write property test for authorization failure audit logging
+  - [x]* 5.5 Write property test for authorization failure audit logging
     - **Property 39: Authorization Failure Audit Logging**
     - **Validates: Requirements 10.7, 11.7, 12.7**
 
@@ -340,11 +340,11 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Throw ForbiddenException with message "Access denied: You do not belong to this building"
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8_
 
-  - [ ]* 5.7 Write property test for building membership verification
+  - [x]* 5.7 Write property test for building membership verification
     - **Property 40: Building Membership Verification**
     - **Validates: Requirements 11.1, 11.4, 11.8**
 
-  - [ ]* 5.8 Write property test for building membership authorization error
+  - [x]* 5.8 Write property test for building membership authorization error
     - **Property 41: Building Membership Authorization Error**
     - **Validates: Requirements 11.2**
 
@@ -359,15 +359,15 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Throw ForbiddenException with message "Access denied: You do not own this resource"
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8_
 
-  - [ ]* 5.10 Write property test for resource ownership verification
+  - [x]* 5.10 Write property test for resource ownership verification
     - **Property 42: Resource Ownership Verification**
     - **Validates: Requirements 12.1, 12.4, 12.5, 12.8**
 
-  - [ ]* 5.11 Write property test for resource ownership authorization error
+  - [x]* 5.11 Write property test for resource ownership authorization error
     - **Property 43: Resource Ownership Authorization Error**
     - **Validates: Requirements 12.2**
 
-  - [ ]* 5.12 Write property test for user profile self-modification
+  - [x]* 5.12 Write property test for user profile self-modification
     - **Property 44: User Profile Self-Modification**
     - **Validates: Requirements 12.6**
 
@@ -377,7 +377,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Usage: @ResourceType('MaintenanceRequest')
     - _Requirements: 12.4_
 
-  - [ ]* 5.14 Write unit tests for authorization guards
+  - [x]* 5.14 Write unit tests for authorization guards
     - Test each guard with specific examples
     - Test cache hit/miss scenarios
     - Test error conditions (missing buildingId, user not found)
@@ -487,19 +487,19 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Verify all guards must pass for request to proceed
     - _Requirements: 15.4, 15.5, 15.6_
 
-  - [ ]* 9.2 Write property test for multiple guards composition
+  - [x]* 9.2 Write property test for multiple guards composition
     - **Property 52: Multiple Guards Composition**
     - **Validates: Requirements 15.4**
 
-  - [ ]* 9.3 Write property test for guard execution order
+  - [x]* 9.3 Write property test for guard execution order
     - **Property 53: Guard Execution Order**
     - **Validates: Requirements 15.5**
 
-  - [ ]* 9.4 Write property test for guard short-circuit behavior
+  - [x]* 9.4 Write property test for guard short-circuit behavior
     - **Property 54: Guard Short-Circuit Behavior**
     - **Validates: Requirements 15.6**
 
-  - [ ]* 9.5 Write property test for authorization error message clarity
+  - [x]* 9.5 Write property test for authorization error message clarity
     - **Property 55: Authorization Error Message Clarity**
     - **Validates: Requirements 15.8**
 

@@ -1,0 +1,31 @@
+{
+  "name": "horizon-hcm-load-tests",
+  "version": "1.0.0",
+  "description": "Load testing scripts for Horizon-HCM API",
+  "scripts": {
+    "test:smoke": "npm run test:smoke:auth && npm run test:smoke:reports && npm run test:smoke:apartments",
+    "test:smoke:auth": "k6 run scenarios/auth.test.js",
+    "test:smoke:reports": "k6 run scenarios/reports.test.js",
+    "test:smoke:apartments": "k6 run scenarios/apartments.test.js",
+    "test:load": "npm run test:load:auth && npm run test:load:reports && npm run test:load:apartments",
+    "test:load:auth": "k6 run -e LOAD_PROFILE=load scenarios/auth.test.js",
+    "test:load:reports": "k6 run -e LOAD_PROFILE=load scenarios/reports.test.js",
+    "test:load:apartments": "k6 run -e LOAD_PROFILE=load scenarios/apartments.test.js",
+    "test:stress": "npm run test:stress:auth && npm run test:stress:reports && npm run test:stress:apartments",
+    "test:stress:auth": "k6 run -e LOAD_PROFILE=stress scenarios/auth.test.js",
+    "test:stress:reports": "k6 run -e LOAD_PROFILE=stress scenarios/reports.test.js",
+    "test:stress:apartments": "k6 run -e LOAD_PROFILE=stress scenarios/apartments.test.js",
+    "test:spike": "npm run test:spike:auth && npm run test:spike:reports && npm run test:spike:apartments",
+    "test:spike:auth": "k6 run -e LOAD_PROFILE=spike scenarios/auth.test.js",
+    "test:spike:reports": "k6 run -e LOAD_PROFILE=spike scenarios/reports.test.js",
+    "test:spike:apartments": "k6 run -e LOAD_PROFILE=spike scenarios/apartments.test.js"
+  },
+  "keywords": [
+    "load-testing",
+    "k6",
+    "performance",
+    "horizon-hcm"
+  ],
+  "author": "",
+  "license": "UNLICENSED"
+}

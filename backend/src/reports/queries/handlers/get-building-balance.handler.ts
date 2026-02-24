@@ -3,6 +3,22 @@ import { GetBuildingBalanceQuery } from '../impl/get-building-balance.query';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CacheService } from '../../../common/services/cache.service';
 
+/**
+ * Query handler that calculates the current balance for a building.
+ * 
+ * Calculates balance from paid payments (income) associated with the building's apartments.
+ * Results are cached for 5 minutes to improve performance.
+ * 
+ * Note: Expense tracking is not yet implemented in the schema, so balance
+ * is currently calculated from income only.
+ * 
+ * @example
+ * ```typescript
+ * const query = new GetBuildingBalanceQuery('building-123');
+ * const result = await queryBus.execute(query);
+ * // Returns: { balance: 15000.50, lastUpdated: '2024-02-24T10:30:00Z' }
+ * ```
+ */
 @QueryHandler(GetBuildingBalanceQuery)
 export class GetBuildingBalanceHandler implements IQueryHandler<GetBuildingBalanceQuery> {
   constructor(
@@ -10,6 +26,12 @@ export class GetBuildingBalanceHandler implements IQueryHandler<GetBuildingBalan
     private readonly cache: CacheService,
   ) {}
 
+  /**
+   * Executes the query to get building balance.
+   * 
+   * @param query - Query containing the building ID
+   * @returns Object with balance and last updated timestamp
+   */
   async execute(query: GetBuildingBalanceQuery) {
     const { buildingId } = query;
     const cacheKey = `balance:${buildingId}`;
