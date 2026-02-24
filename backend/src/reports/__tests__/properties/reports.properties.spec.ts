@@ -1,7 +1,7 @@
 import * as fc from 'fast-check';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GetBuildingBalanceHandler } from '../../queries/handlers/get-building-balance.handler';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { CacheService } from '../../../common/services/cache.service';
 import { GetBuildingBalanceQuery } from '../../queries/impl/get-building-balance.query';
 
@@ -977,4 +977,3 @@ describe('Reports Module - Property-Based Tests', () => {
       );
     });
   });
-});

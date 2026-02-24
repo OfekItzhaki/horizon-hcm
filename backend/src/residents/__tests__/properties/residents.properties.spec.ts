@@ -135,7 +135,7 @@ describe('Residents Module - Property-Based Tests', () => {
               .mockResolvedValueOnce(null);
 
             const createdMember = {
-              id: await uuidArbitrary().generate(fc.random()),
+              id: fc.sample(uuidArbitrary(), 1)[0],
               building_id: building.id,
               user_id: user.id,
               role: role,
@@ -252,7 +252,6 @@ describe('Residents Module - Property-Based Tests', () => {
       );
     });
   });
-});
 
   // Feature: remaining-hcm-features, Property 1: Resident Search Accuracy
   describe('Property 1: Resident Search Accuracy', () => {
