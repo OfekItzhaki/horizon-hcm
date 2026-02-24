@@ -33,7 +33,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.horizonhcm.mobile",
+      "package": "com.ofeklabs.horizon_hcm",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
@@ -43,7 +43,8 @@
         "USE_FINGERPRINT"
       ],
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
