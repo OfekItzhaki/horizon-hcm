@@ -9,31 +9,39 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard, CurrentUser } from '@ofeklabs/horizon-auth';
-import { PrismaService } from '../prisma/prisma.service';
+import { SendMessageDto } from './dto/send-message.dto';
+import { UpdateMessageDto } from './dto/update-message.dto';
+import { SendMessageCommand } from './commands/impl/send-message.command';
+import { UpdateMessageCommand } from './commands/impl/update-message.command';
+import { DeleteMessageCommand } from './commands/impl/delete-message.command';
+import { MarkMessageReadCommand } from './commands/impl/mark-message-read.command';
+import { GetMessagesQuery } from './queries/impl/get-messages.query';
+import { GetMessageQuery } from './queries/impl/get-message.query';
 
 @ApiTags('messages')
 @Controller('buildings/:buildingId/messages')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class MessagesController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all messages' })
   async getAll(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 50,
   ) {
-    // TODO: Implement messages retrieval
-    return {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
+    return this.queryBus.execute(
+      new GetMessagesQuery(buildingId, user.id, Number(page), Number(limit)),
+    );
   }
 
   @Post()
@@ -41,41 +49,39 @@ export class MessagesController {
   async send(
     @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
-    @Body() data: { recipientId: string; content: string },
+    @Body() data: SendMessageDto,
   ) {
-    // TODO: Implement message sending
-    return {
-      id: 'msg_' + Date.now(),
-      buildingId,
-      senderId: user.id,
-      recipientId: data.recipientId,
-      content: data.content,
-      createdAt: new Date(),
-    };
+    return this.commandBus.execute(
+      new SendMessageCommand(buildingId, user.id, data.recipientId, data.content),
+    );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get message by ID' })
   async getById(@Param('buildingId') buildingId: string, @Param('id') id: string) {
-    // TODO: Implement get message by ID
-    return { id, buildingId, message: 'Message endpoint not yet implemented' };
+    return this.queryBus.execute(new GetMessageQuery(id, buildingId));
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update message' })
   async update(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Param('id') id: string,
-    @Body() data: any,
+    @Body() data: UpdateMessageDto,
   ) {
-    // TODO: Implement message update
-    return { id, buildingId, ...data };
+    return this.commandBus.execute(new UpdateMessageCommand(id, user.id, data.content));
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete message' })
-  async delete(@Param('id') id: string) {
-    // TODO: Implement message deletion
-    return { id, message: 'Message deleted' };
+  async delete(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.commandBus.execute(new DeleteMessageCommand(id, user.id));
+  }
+
+  @Post(':id/read')
+  @ApiOperation({ summary: 'Mark message as read' })
+  async markAsRead(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.commandBus.execute(new MarkMessageReadCommand(id, user.id));
   }
 }
