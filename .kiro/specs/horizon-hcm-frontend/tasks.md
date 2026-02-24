@@ -39,7 +39,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Implement automatic retry logic with exponential backoff
     - _Requirements: 40.1, 40.2, 40.3, 40.4, 40.5, 40.6, 77.1, 77.2, 77.3, 77.4, 77.8_
 
-  - [ ]* 2.4 Write property test for API client
+  - [x]* 2.4 Write property test for API client
     - **Property 3: Token Refresh Round Trip**
     - **Validates: Requirements 1.8, 40.6**
     - Test that expired tokens are automatically refreshed and requests retried
@@ -123,7 +123,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Configure localStorage persistence for auth and app stores
     - _Requirements: 41.1, 41.3, 41.4, 41.6, 78.1, 78.8_
 
-  - [ ]* 4.6 Write property tests for stores
+  - [x]* 4.6 Write property tests for stores
     - **Property 4: Session Data Clearing**
     - **Validates: Requirements 1.9, 41.7**
     - Test that logout clears all session data from all stores
@@ -139,7 +139,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Redirect to dashboard on success
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
 
-  - [ ]* 5.2 Write property tests for authentication
+  - [x]* 5.2 Write property tests for authentication
     - **Property 1: Authentication Token Storage**
     - **Validates: Requirements 1.3**
     - Test that tokens are stored securely in httpOnly cookies
@@ -160,7 +160,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Redirect to login on success
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9_
 
-  - [ ]* 5.4 Write property tests for registration
+  - [x]* 5.4 Write property tests for registration
     - **Property 6: Password Strength Validation**
     - **Validates: Requirements 2.2, 4.6**
     - Test password validation rules (8 chars, uppercase, lowercase, number)
@@ -179,7 +179,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Handle 2FA verification during login
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10_
 
-  - [ ]* 5.6 Write property test for 2FA
+  - [x]* 5.6 Write property test for 2FA
     - **Property 9: Two-Factor Code Validation**
     - **Validates: Requirements 3.4**
     - Test that only valid 6-digit numeric codes are accepted
@@ -299,7 +299,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Display building stats (apartment count, resident count)
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9_
 
-  - [ ]* 9.2 Write property test for search
+  - [x]* 9.2 Write property test for search
     - **Property 10: Search Result Filtering**
     - **Validates: Requirements 6.9, 35.2**
     - Test that search returns only matching items
@@ -313,7 +313,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Implement bulk CSV import
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10_
 
-  - [ ]* 9.4 Write property test for apartment validation
+  - [x]* 9.4 Write property test for apartment validation
     - **Property 11: Apartment Unit Number Uniqueness**
     - **Validates: Requirements 7.4**
     - Test that duplicate unit numbers are rejected within a building
@@ -327,7 +327,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Display move-in/move-out dates
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10_
 
-  - [ ]* 9.6 Write property tests for resident management
+  - [x]* 9.6 Write property tests for resident management
     - **Property 12: Single Owner Per Apartment Invariant**
     - **Validates: Requirements 8.3**
     - Test that apartments can have at most one owner
@@ -349,7 +349,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Handle invoice edit and cancellation
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.10_
 
-  - [ ]* 11.2 Write property test for invoice validation
+  - [x]* 11.2 Write property test for invoice validation
     - **Property 14: Invoice Amount and Date Validation**
     - **Validates: Requirements 9.3**
     - Test that only positive amounts and future due dates are accepted
@@ -467,7 +467,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Queue messages when offline
     - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8, 17.9, 17.10, 17.11, 17.12, 17.13_
 
-  - [ ]* 14.4 Write property tests for chat
+  - [x]* 14.4 Write property tests for chat
     - **Property 15: Message Length Validation**
     - **Validates: Requirements 17.6**
     - Test that messages up to 2000 chars are accepted, longer rejected
@@ -485,7 +485,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Display poll list with status filters
     - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 18.9, 18.10_
 
-  - [ ]* 15.2 Write property test for poll validation
+  - [x]* 15.2 Write property test for poll validation
     - **Property 17: Poll Option Minimum Validation**
     - **Validates: Requirements 18.7**
     - Test that polls require at least 2 options
@@ -500,7 +500,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Display individual votes if public
     - _Requirements: 19.1, 19.2, 19.3, 19.4, 19.5, 19.6, 19.7, 19.8, 19.9, 19.10, 19.11, 19.12_
 
-  - [ ]* 15.4 Write property test for voting
+  - [x]* 15.4 Write property test for voting
     - **Property 18: Single Vote Per Poll Enforcement**
     - **Validates: Requirements 19.5**
     - Test that users can vote only once per poll (though can change vote)
@@ -519,7 +519,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Show different views for residents vs committee
     - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5, 20.6, 20.7, 20.8, 20.9, 20.10, 21.1, 21.2_
 
-  - [ ]* 17.2 Write property test for photo upload limit
+  - [x]* 17.2 Write property test for photo upload limit
     - **Property 19: Maintenance Photo Upload Limit**
     - **Validates: Requirements 20.2**
     - Test that up to 5 photos are allowed, more are rejected
@@ -582,7 +582,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Support multiple file selection
     - _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 49.1, 49.2, 49.3, 49.4, 49.5, 49.6_
 
-  - [ ]* 19.2 Write property test for document validation
+  - [x]* 19.2 Write property test for document validation
     - **Property 20: Document File Size Validation**
     - **Validates: Requirements 25.3**
     - Test that files up to 10MB are accepted, larger rejected
@@ -867,7 +867,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 32. Remaining Property-Based Tests for Web Application
-  - [ ]* 32.1 Write property tests for correctness properties 21-45
+  - [x]* 32.1 Write property tests for correctness properties 21-45
     - **Property 21: Announcement Read Confirmation Requirement**
     - **Validates: Requirements 15.4, 16.5**
     - Test that announcements requiring confirmation display confirmation button
@@ -1228,7 +1228,7 @@ The implementation uses TypeScript for all code, React 18 for web, React Native 
     - Verify screen reader compatibility
     - _Requirements: 42.8_
 
-  - [ ]* 44.5 Run all property-based tests
+  - [x]* 44.5 Run all property-based tests
     - Execute all 45 property tests
     - Verify all properties pass
     - Fix any failing properties
