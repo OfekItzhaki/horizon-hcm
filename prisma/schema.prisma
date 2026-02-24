@@ -118,6 +118,7 @@ model apartments {
   apartment_owners     apartment_owners[]
   apartment_tenants    apartment_tenants[]
   buildings            buildings              @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  invoices             invoices[]
   maintenance_requests maintenance_requests[]
   payments             payments[]
 
@@ -178,8 +179,11 @@ model buildings {
   apartments                 apartments[]
   building_committee_members building_committee_members[]
   documents                  documents[]
+  invoices                   invoices[]
   maintenance_requests       maintenance_requests[]
   meetings                   meetings[]
+  messages                   messages[]
+  polls                      polls[]
 }
 
 model device_fingerprints {
@@ -340,6 +344,51 @@ model meeting_attendees {
   @@index([user_id])
 }
 
+model invoices {
+  id                   String      @id
+  building_id          String
+  apartment_id         String?
+  invoice_number       String      @unique
+  title                String
+  description          String?
+  amount               Decimal     @db.Decimal(12, 2)
+  due_date             DateTime
+  status               String      @default("draft")
+  issued_date          DateTime?
+  paid_date            DateTime?
+  cancelled_at         DateTime?
+  cancellation_reason  String?
+  created_by           String
+  created_at           DateTime    @default(now())
+  updated_at           DateTime
+  buildings            buildings   @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  apartments           apartments? @relation(fields: [apartment_id], references: [id], onDelete: SetNull)
+
+  @@index([building_id, created_at])
+  @@index([apartment_id])
+  @@index([status])
+  @@index([due_date])
+}
+
+model messages {
+  id           String    @id
+  building_id  String
+  sender_id    String
+  recipient_id String
+  content      String
+  is_read      Boolean   @default(false)
+  read_at      DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime
+  deleted_at   DateTime?
+  buildings    buildings @relation(fields: [building_id], references: [id], onDelete: Cascade)
+
+  @@index([building_id, created_at])
+  @@index([sender_id])
+  @@index([recipient_id])
+  @@index([is_read])
+}
+
 model meetings {
   id                String              @id
   building_id       String
@@ -373,10 +422,12 @@ model notification_logs {
   error_message   String?
   sent_at         DateTime?
   delivered_at    DateTime?
+  read_at         DateTime?
   created_at      DateTime  @default(now())
 
   @@index([delivery_status])
   @@index([user_id, created_at])
+  @@index([read_at])
 }
 
 model notification_preferences {
@@ -425,6 +476,41 @@ model payments {
   @@index([apartment_id, status])
   @@index([due_date])
   @@index([status])
+}
+
+model polls {
+  id             String       @id
+  building_id    String
+  title          String
+  description    String?
+  options        Json
+  allow_multiple Boolean      @default(false)
+  is_anonymous   Boolean      @default(false)
+  start_date     DateTime     @default(now())
+  end_date       DateTime
+  status         String       @default("active")
+  created_by     String
+  created_at     DateTime     @default(now())
+  updated_at     DateTime
+  buildings      buildings    @relation(fields: [building_id], references: [id], onDelete: Cascade)
+  poll_votes     poll_votes[]
+
+  @@index([building_id])
+  @@index([status])
+  @@index([end_date])
+}
+
+model poll_votes {
+  id         String   @id
+  poll_id    String
+  user_id    String
+  option_ids Json
+  created_at DateTime @default(now())
+  polls      polls    @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+
+  @@unique([poll_id, user_id])
+  @@index([poll_id])
+  @@index([user_id])
 }
 
 model performance_metrics {
@@ -482,6 +568,7 @@ model user_profiles {
   avatar_url                 String?
   user_type                  UserType
   preferred_language         String                       @default("en")
+  theme                      String                       @default("light")
   signing_key                String?
   created_at                 DateTime                     @default(now())
   updated_at                 DateTime
@@ -491,6 +578,7 @@ model user_profiles {
   building_committee_members building_committee_members[]
 
   @@index([user_id])
+  @@index([theme])
 }
 
 model vote_records {
