@@ -17,6 +17,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 import { SendTemplatedNotificationDto } from './dto/send-templated-notification.dto';
+import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { NotificationService } from './services/notification.service';
 import { CreateTemplateCommand } from './commands/impl/create-template.command';
 import { UpdatePreferencesCommand } from './commands/impl/update-preferences.command';
@@ -83,7 +84,7 @@ export class NotificationsController {
       where: {
         user_id: user.id,
         delivered_at: { not: null },
-        // TODO: Add read_at field to track read status
+        read_at: null, // Only count unread notifications
       },
     });
 
@@ -95,17 +96,21 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'Notifications retrieved' })
   async getNotifications(
     @CurrentUser() user: any,
-    @Query('unreadOnly') unreadOnly?: boolean,
+    @Query('unreadOnly') unreadOnly?: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where: any = {
       user_id: user.id,
       delivered_at: { not: null },
-      // TODO: Add read_at filter when field exists
     };
+
+    // Filter by unread if requested
+    if (unreadOnly === 'true') {
+      where.read_at = null;
+    }
 
     const [notifications, total] = await Promise.all([
       this.prisma.notification_logs.findMany({
@@ -123,7 +128,8 @@ export class NotificationsController {
         title: n.title,
         body: n.body,
         type: n.template_name || 'general',
-        read: false, // TODO: Use read_at field
+        read: n.read_at !== null,
+        readAt: n.read_at,
         createdAt: n.created_at,
       })),
       total,
@@ -135,19 +141,39 @@ export class NotificationsController {
   @Patch(':id/read')
   @ApiOperation({ summary: 'Mark notification as read' })
   @ApiResponse({ status: 200, description: 'Notification marked as read' })
-  async markAsRead() {
-    // TODO: Add read_at field to notification_logs table
-    // For now, just return success
+  async markAsRead(@CurrentUser() user: any, @Param('id') id: string) {
+    await this.prisma.notification_logs.updateMany({
+      where: {
+        id,
+        user_id: user.id,
+        read_at: null, // Only update if not already read
+      },
+      data: {
+        read_at: new Date(),
+      },
+    });
+
     return { message: 'Notification marked as read' };
   }
 
   @Post('read-all')
   @ApiOperation({ summary: 'Mark all notifications as read' })
   @ApiResponse({ status: 200, description: 'All notifications marked as read' })
-  async markAllAsRead() {
-    // TODO: Add read_at field to notification_logs table
-    // For now, just return success
-    return { message: 'All notifications marked as read' };
+  async markAllAsRead(@CurrentUser() user: any) {
+    const result = await this.prisma.notification_logs.updateMany({
+      where: {
+        user_id: user.id,
+        read_at: null, // Only update unread notifications
+      },
+      data: {
+        read_at: new Date(),
+      },
+    });
+
+    return {
+      message: 'All notifications marked as read',
+      count: result.count,
+    };
   }
 
   @Delete(':id')
@@ -167,16 +193,70 @@ export class NotificationsController {
   @Post('push-token')
   @ApiOperation({ summary: 'Register push notification token' })
   @ApiResponse({ status: 201, description: 'Push token registered' })
-  async registerPushToken() {
-    // TODO: Store push token in database
+  async registerPushToken(@CurrentUser() user: any, @Body() dto: RegisterPushTokenDto) {
+    // First, find or create a device for this user
+    let device = await this.prisma.device.findFirst({
+      where: {
+        userId: user.id,
+        deviceName: dto.deviceName || 'Unknown Device',
+      },
+    });
+
+    if (!device) {
+      device = await this.prisma.device.create({
+        data: {
+          userId: user.id,
+          deviceName: dto.deviceName || 'Unknown Device',
+          deviceType: 'mobile',
+          fingerprint: dto.token.substring(0, 32), // Use part of token as fingerprint
+        },
+      });
+    }
+
+    // Check if token already exists
+    const existing = await this.prisma.pushToken.findUnique({
+      where: { token: dto.token },
+    });
+
+    if (existing) {
+      // Update existing token
+      await this.prisma.pushToken.update({
+        where: { id: existing.id },
+        data: {
+          tokenType: dto.platform.toUpperCase(),
+          active: true,
+        },
+      });
+    } else {
+      // Create new token
+      await this.prisma.pushToken.create({
+        data: {
+          userId: user.id,
+          deviceId: device.id,
+          token: dto.token,
+          tokenType: dto.platform.toUpperCase(),
+          active: true,
+        },
+      });
+    }
+
     return { message: 'Push token registered successfully' };
   }
 
   @Delete('push-token')
   @ApiOperation({ summary: 'Unregister push notification token' })
   @ApiResponse({ status: 200, description: 'Push token unregistered' })
-  async unregisterPushToken() {
-    // TODO: Remove push token from database
+  async unregisterPushToken(@CurrentUser() user: any, @Body() body: { token: string }) {
+    await this.prisma.pushToken.updateMany({
+      where: {
+        userId: user.id,
+        token: body.token,
+      },
+      data: {
+        active: false,
+      },
+    });
+
     return { message: 'Push token unregistered successfully' };
   }
 

@@ -2,10 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { LoggerService } from '../../common/logger/logger.service';
-import {
-  NotificationPayload,
-  NotificationResult,
-} from '../interfaces/notification.interface';
+import { NotificationPayload, NotificationResult } from '../interfaces/notification.interface';
 
 @Injectable()
 export class FcmProvider implements OnModuleInit {
@@ -17,9 +14,7 @@ export class FcmProvider implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    const serviceAccountPath = this.configService.get<string>(
-      'FCM_SERVICE_ACCOUNT_PATH',
-    );
+    const serviceAccountPath = this.configService.get<string>('FCM_SERVICE_ACCOUNT_PATH');
 
     if (!serviceAccountPath) {
       this.logger.warn(
@@ -30,22 +25,31 @@ export class FcmProvider implements OnModuleInit {
     }
 
     try {
-      const serviceAccount = require(serviceAccountPath);
+      // Use dynamic require with full path resolution
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const path = require('path');
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const fs = require('fs');
+
+      const fullPath = path.resolve(process.cwd(), serviceAccountPath);
+
+      if (!fs.existsSync(fullPath)) {
+        throw new Error(`Service account file not found at: ${fullPath}`);
+      }
+
+      const serviceAccount = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 
       this.app = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
 
-      this.logger.log('FCM Provider initialized', 'FcmProvider');
+      this.logger.log('✅ FCM Provider initialized', 'FcmProvider');
     } catch (error) {
       this.logger.error('Failed to initialize FCM Provider', error);
     }
   }
 
-  async send(
-    deviceToken: string,
-    payload: NotificationPayload,
-  ): Promise<NotificationResult> {
+  async send(deviceToken: string, payload: NotificationPayload): Promise<NotificationResult> {
     if (!this.app) {
       return {
         success: false,
@@ -96,10 +100,7 @@ export class FcmProvider implements OnModuleInit {
     }
   }
 
-  async sendBatch(
-    tokens: string[],
-    payload: NotificationPayload,
-  ): Promise<NotificationResult[]> {
+  async sendBatch(tokens: string[], payload: NotificationPayload): Promise<NotificationResult[]> {
     if (!this.app) {
       return tokens.map(() => ({
         success: false,
@@ -122,7 +123,7 @@ export class FcmProvider implements OnModuleInit {
 
       const response = await admin.messaging().sendEachForMulticast(message);
 
-      return response.responses.map((resp, index) => ({
+      return response.responses.map((resp) => ({
         success: resp.success,
         messageId: resp.messageId,
         error: resp.error?.message,
