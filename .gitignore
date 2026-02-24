@@ -1,69 +1,65 @@
-# compiled output
-/dist
-/node_modules
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# OS
+# OS files
 .DS_Store
+Thumbs.db
 
-# Tests
-/coverage
-/.nyc_output
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Testing
+coverage/
+.nyc_output/
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# Misc
+.cache/
+tmp/
+temp/
 
-# Environment
-.env
-.env.local
-.env.*.local
-
-# JWT Keys
-certs/
-*.pem
-
-# Prisma
-prisma/migrations/
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Yarn Integrity file
-.yarn-integrity
-
-# Firebase credentials
+# Firebase
 firebase-service-account.json
 google-services.json
+
+# Certificates
+certs/
+*.pem
+*.key
+*.crt
+
+# Database
+*.db
+*.sqlite
+
+# Prisma
+prisma/migrations/*_*/
+!prisma/migrations/migration_lock.toml
+
+# Old frontend directory (to be removed)
+horizon-hcm-frontend/
