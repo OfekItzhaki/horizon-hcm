@@ -9,16 +9,29 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard, CurrentUser } from '@ofeklabs/horizon-auth';
-import { PrismaService } from '../prisma/prisma.service';
+import { CreatePollDto } from './dto/create-poll.dto';
+import { UpdatePollDto } from './dto/update-poll.dto';
+import { VotePollDto } from './dto/vote-poll.dto';
+import { CreatePollCommand } from './commands/impl/create-poll.command';
+import { UpdatePollCommand } from './commands/impl/update-poll.command';
+import { DeletePollCommand } from './commands/impl/delete-poll.command';
+import { VotePollCommand } from './commands/impl/vote-poll.command';
+import { GetPollsQuery } from './queries/impl/get-polls.query';
+import { GetPollQuery } from './queries/impl/get-poll.query';
+import { GetPollResultsQuery } from './queries/impl/get-poll-results.query';
 
 @ApiTags('polls')
 @Controller('buildings/:buildingId/polls')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class PollsController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all polls' })
@@ -28,13 +41,9 @@ export class PollsController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    // TODO: Implement polls retrieval
-    return {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
+    return this.queryBus.execute(
+      new GetPollsQuery(buildingId, status, Number(page), Number(limit)),
+    );
   }
 
   @Post()
@@ -42,41 +51,56 @@ export class PollsController {
   async create(
     @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
-    @Body() data: any,
+    @Body() data: CreatePollDto,
   ) {
-    // TODO: Implement poll creation
-    return {
-      id: 'poll_' + Date.now(),
-      buildingId,
-      createdBy: user.id,
-      ...data,
-      createdAt: new Date(),
-    };
+    return this.commandBus.execute(
+      new CreatePollCommand(
+        buildingId,
+        user.id,
+        data.title,
+        data.description,
+        data.options,
+        data.allowMultiple,
+        data.isAnonymous,
+        new Date(data.endDate),
+      ),
+    );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get poll by ID' })
   async getById(@Param('buildingId') buildingId: string, @Param('id') id: string) {
-    // TODO: Implement get poll by ID
-    return { id, buildingId, message: 'Poll endpoint not yet implemented' };
+    return this.queryBus.execute(new GetPollQuery(id, buildingId));
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update poll' })
   async update(
+    @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Param('id') id: string,
-    @Body() data: any,
+    @Body() data: UpdatePollDto,
   ) {
-    // TODO: Implement poll update
-    return { id, buildingId, ...data };
+    return this.commandBus.execute(
+      new UpdatePollCommand(
+        id,
+        user.id,
+        data.title,
+        data.description,
+        data.options,
+        data.endDate ? new Date(data.endDate) : undefined,
+      ),
+    );
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete poll' })
-  async delete(@Param('id') id: string) {
-    // TODO: Implement poll deletion
-    return { id, message: 'Poll deleted' };
+  async delete(
+    @CurrentUser() user: any,
+    @Param('buildingId') buildingId: string,
+    @Param('id') id: string,
+  ) {
+    return this.commandBus.execute(new DeletePollCommand(id, user.id));
   }
 
   @Post(':id/vote')
@@ -85,27 +109,14 @@ export class PollsController {
     @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
     @Param('id') id: string,
-    @Body() data: { optionIds: string[] },
+    @Body() data: VotePollDto,
   ) {
-    // TODO: Implement voting
-    return {
-      pollId: id,
-      userId: user.id,
-      optionIds: data.optionIds,
-      votedAt: new Date(),
-    };
+    return this.commandBus.execute(new VotePollCommand(id, user.id, data.optionIds));
   }
 
   @Get(':id/results')
   @ApiOperation({ summary: 'Get poll results' })
   async getResults(@Param('buildingId') buildingId: string, @Param('id') id: string) {
-    // TODO: Implement get poll results
-    return {
-      data: {
-        pollId: id,
-        totalVotes: 0,
-        options: [],
-      },
-    };
+    return this.queryBus.execute(new GetPollResultsQuery(id, buildingId));
   }
 }
