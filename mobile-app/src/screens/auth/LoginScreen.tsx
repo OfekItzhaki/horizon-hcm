@@ -78,6 +78,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       const loginResponse = await authApi.login({
         email,
         password,
+        rememberMe: false,
       });
       const tokens = loginResponse.data;
 
