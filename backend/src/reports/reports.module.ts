@@ -10,10 +10,15 @@ import { GetExpenseReportHandler } from './queries/handlers/get-expense-report.h
 import { GetBudgetComparisonHandler } from './queries/handlers/get-budget-comparison.handler';
 import { GetPaymentStatusSummaryHandler } from './queries/handlers/get-payment-status-summary.handler';
 import { GetYearOverYearHandler } from './queries/handlers/get-year-over-year.handler';
+import { ExportFinancialReportHandler } from './queries/handlers/export-financial-report.handler';
 
 // Services
 import { PrismaService } from '../prisma/prisma.service';
 import { CacheService } from '../common/services/cache.service';
+import { StorageService } from '../files/services/storage.service';
+import { AuditLogService } from '../common/services/audit-log.service';
+import { FormattingService } from '../common/services/formatting.service';
+import { LoggerService } from '../common/logger/logger.service';
 
 const QueryHandlers = [
   GetBuildingBalanceHandler,
@@ -23,11 +28,20 @@ const QueryHandlers = [
   GetBudgetComparisonHandler,
   GetPaymentStatusSummaryHandler,
   GetYearOverYearHandler,
+  ExportFinancialReportHandler,
 ];
 
 @Module({
   imports: [CqrsModule],
   controllers: [ReportsController],
-  providers: [...QueryHandlers, PrismaService, CacheService],
+  providers: [
+    ...QueryHandlers,
+    PrismaService,
+    CacheService,
+    StorageService,
+    AuditLogService,
+    FormattingService,
+    LoggerService,
+  ],
 })
 export class ReportsModule {}

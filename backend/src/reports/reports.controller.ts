@@ -28,6 +28,8 @@ import { GetExpenseReportQuery } from './queries/impl/get-expense-report.query';
 import { GetBudgetComparisonQuery } from './queries/impl/get-budget-comparison.query';
 import { GetPaymentStatusSummaryQuery } from './queries/impl/get-payment-status-summary.query';
 import { GetYearOverYearQuery } from './queries/impl/get-year-over-year.query';
+import { ExportFinancialReportQuery } from './queries/impl/export-financial-report.query';
+import { ExportReportDto } from './dto/export-report.dto';
 
 @ApiTags('Reports')
 @Controller()
@@ -184,5 +186,35 @@ export class ReportsController {
     @Query('year') year?: number,
   ) {
     return this.queryBus.execute(new GetYearOverYearQuery(buildingId, year));
+  }
+
+  @Get('buildings/:buildingId/reports/export')
+  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Export financial report' })
+  @ApiQuery({ name: 'reportType', required: true, enum: ['balance', 'transactions', 'income', 'expenses', 'budget', 'payment-status', 'yoy'] })
+  @ApiQuery({ name: 'format', required: true, enum: ['csv', 'pdf'] })
+  @ApiQuery({ name: 'startDate', required: false, type: String })
+  @ApiQuery({ name: 'endDate', required: false, type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Report exported successfully',
+  })
+  async exportReport(
+    @CurrentUser() user: any,
+    @Param('buildingId') buildingId: string,
+    @Query() dto: ExportReportDto,
+  ) {
+    return this.queryBus.execute(
+      new ExportFinancialReportQuery(
+        buildingId,
+        dto.reportType,
+        dto.format,
+        user.id,
+        user.preferredLanguage || 'he-IL',
+        dto.startDate,
+        dto.endDate,
+      ),
+    );
   }
 }
