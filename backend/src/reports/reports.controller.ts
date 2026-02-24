@@ -15,7 +15,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { DateRangeDto } from './dto/date-range.dto';
@@ -33,6 +33,7 @@ import { ExportReportDto } from './dto/export-report.dto';
 
 @ApiTags('Reports')
 @Controller()
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ReportsController {
   constructor(private readonly queryBus: QueryBus) {}

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -25,6 +25,7 @@ import { GetPaymentSummaryQuery } from './queries/impl/get-payment-summary.query
 
 @ApiTags('payments')
 @Controller('payments')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class PaymentsController {
   constructor(

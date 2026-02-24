@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { CreateApartmentDto } from './dto/create-apartment.dto';
@@ -37,6 +37,7 @@ import { GetApartmentTenantsQuery } from './queries/impl/get-apartment-tenants.q
 
 @ApiTags('apartments')
 @Controller('apartments')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ApartmentsController {
   constructor(

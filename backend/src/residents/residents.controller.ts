@@ -19,7 +19,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { AddCommitteeMemberDto } from './dto/add-committee-member.dto';
@@ -32,6 +32,7 @@ import { ExportResidentsQuery } from './queries/impl/export-residents.query';
 
 @ApiTags('Residents')
 @Controller()
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ResidentsController {
   constructor(

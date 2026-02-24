@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
 import { ResourceType } from '../common/decorators/resource-type.decorator';
@@ -18,6 +18,7 @@ import { GetMaintenanceRequestQuery } from './queries/impl/get-maintenance-reque
 import { ListMaintenanceRequestsQuery } from './queries/impl/list-maintenance-requests.query';
 
 @ApiTags('maintenance')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @Controller('maintenance')
 export class MaintenanceController {

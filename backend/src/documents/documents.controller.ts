@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
@@ -22,6 +22,7 @@ import { GetDocumentQuery } from './queries/impl/get-document.query';
 import { ListDocumentsQuery } from './queries/impl/list-documents.query';
 
 @ApiTags('documents')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @Controller('documents')
 export class DocumentsController {

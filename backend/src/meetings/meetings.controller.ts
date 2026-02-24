@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
@@ -32,6 +32,7 @@ import { ListMeetingsQuery } from './queries/impl/list-meetings.query';
 import { GetVoteResultsQuery } from './queries/impl/get-vote-results.query';
 
 @ApiTags('meetings')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @Controller('meetings')
 export class MeetingsController {

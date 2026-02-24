@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '@ofeklabs/horizon-auth';
+import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
 import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { ResourceOwnerGuard } from '../common/guards/resource-owner.guard';
@@ -17,6 +17,7 @@ import { ListAnnouncementsQuery } from './queries/impl/list-announcements.query'
 import { GetAnnouncementStatsQuery } from './queries/impl/get-announcement-stats.query';
 
 @ApiTags('announcements')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @Controller('announcements')
 export class AnnouncementsController {
