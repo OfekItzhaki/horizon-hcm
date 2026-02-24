@@ -63,3 +63,7 @@ pids
 
 # Yarn Integrity file
 .yarn-integrity
+
+# Firebase credentials
+firebase-service-account.json
+google-services.json
