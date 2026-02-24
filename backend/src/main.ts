@@ -1,3 +1,4 @@
+import './apm'; // MUST be first - initializes APM before any other modules
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -78,6 +79,11 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
+
+  // Expose OpenAPI JSON for SDK generation
+  app.use('/api/docs-json', (req, res) => {
+    res.json(document);
+  });
 
   const port = process.env.PORT || 3001;
   await app.listen(port);

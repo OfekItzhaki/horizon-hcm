@@ -1,0 +1,2 @@
+# This directory will contain the generated API client SDK
+# Run: npm run generate:sdk (from backend directory)

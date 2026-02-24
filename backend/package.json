@@ -23,6 +23,7 @@
     "prisma:studio": "prisma studio",
     "setup": "node scripts/setup.js",
     "dev:start": "node scripts/dev-start.js",
+    "generate:sdk": "node scripts/generate-sdk.js",
     "prepare": "husky install"
   },
   "lint-staged": {
@@ -58,6 +59,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "compression": "^1.8.1",
+    "elastic-apm-node": "^4.15.0",
     "firebase-admin": "^13.6.1",
     "helmet": "^8.1.0",
     "jest-util": "^30.2.0",
