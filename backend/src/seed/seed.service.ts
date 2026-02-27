@@ -21,9 +21,9 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000001',
           email: 'admin@horizon.com',
-          password_hash: hashedPassword,
-          role: 'admin',
-          is_verified: true,
+          passwordHash: hashedPassword,
+          roles: ['admin'],
+          emailVerified: true,
         },
       });
 
@@ -33,9 +33,9 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000002',
           email: 'committee@horizon.com',
-          password_hash: hashedPassword,
-          role: 'committee_member',
-          is_verified: true,
+          passwordHash: hashedPassword,
+          roles: ['committee_member'],
+          emailVerified: true,
         },
       });
 
@@ -45,9 +45,9 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000003',
           email: 'owner@horizon.com',
-          password_hash: hashedPassword,
-          role: 'owner',
-          is_verified: true,
+          passwordHash: hashedPassword,
+          roles: ['owner'],
+          emailVerified: true,
         },
       });
 
@@ -57,9 +57,9 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000004',
           email: 'tenant@horizon.com',
-          password_hash: hashedPassword,
-          role: 'tenant',
-          is_verified: true,
+          passwordHash: hashedPassword,
+          roles: ['tenant'],
+          emailVerified: true,
         },
       });
 
@@ -68,12 +68,14 @@ export class SeedService {
         where: { user_id: adminUser.id },
         update: {},
         create: {
+          id: require('crypto').randomUUID(),
           user_id: adminUser.id,
-          first_name: 'Admin',
-          last_name: 'User',
-          phone: '+1234567890',
-          language: 'en',
+          full_name: 'Admin User',
+          phone_number: '+1234567890',
+          user_type: 'ADMIN',
+          preferred_language: 'en',
           theme: 'light',
+          updated_at: new Date(),
         },
       });
 
@@ -81,12 +83,14 @@ export class SeedService {
         where: { user_id: committeeUser.id },
         update: {},
         create: {
+          id: require('crypto').randomUUID(),
           user_id: committeeUser.id,
-          first_name: 'Committee',
-          last_name: 'Member',
-          phone: '+1234567891',
-          language: 'en',
+          full_name: 'Committee Member',
+          phone_number: '+1234567891',
+          user_type: 'COMMITTEE',
+          preferred_language: 'en',
           theme: 'light',
+          updated_at: new Date(),
         },
       });
 
@@ -94,12 +98,14 @@ export class SeedService {
         where: { user_id: ownerUser.id },
         update: {},
         create: {
+          id: require('crypto').randomUUID(),
           user_id: ownerUser.id,
-          first_name: 'John',
-          last_name: 'Owner',
-          phone: '+1234567892',
-          language: 'en',
+          full_name: 'John Owner',
+          phone_number: '+1234567892',
+          user_type: 'OWNER',
+          preferred_language: 'en',
           theme: 'light',
+          updated_at: new Date(),
         },
       });
 
@@ -107,12 +113,14 @@ export class SeedService {
         where: { user_id: tenantUser.id },
         update: {},
         create: {
+          id: require('crypto').randomUUID(),
           user_id: tenantUser.id,
-          first_name: 'Jane',
-          last_name: 'Tenant',
-          phone: '+1234567893',
-          language: 'en',
+          full_name: 'Jane Tenant',
+          phone_number: '+1234567893',
+          user_type: 'TENANT',
+          preferred_language: 'en',
           theme: 'light',
+          updated_at: new Date(),
         },
       });
 
@@ -123,11 +131,11 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000010',
           name: 'Sunrise Towers',
-          address: '123 Main Street',
+          address_line: '123 Main Street',
           city: 'Tel Aviv',
           postal_code: '12345',
-          country: 'Israel',
-          total_apartments: 20,
+          num_units: 20,
+          updated_at: new Date(),
         },
       });
 
@@ -140,9 +148,8 @@ export class SeedService {
           building_id: building.id,
           apartment_number: '101',
           floor: 1,
-          size_sqm: 85.5,
-          bedrooms: 3,
-          bathrooms: 2,
+          area_sqm: 85.5,
+          updated_at: new Date(),
         },
       });
 
@@ -154,9 +161,8 @@ export class SeedService {
           building_id: building.id,
           apartment_number: '102',
           floor: 1,
-          size_sqm: 95.0,
-          bedrooms: 4,
-          bathrooms: 2,
+          area_sqm: 95.0,
+          updated_at: new Date(),
         },
       });
 
@@ -167,8 +173,8 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000030',
           apartment_id: apartment1.id,
-          user_profile_id: ownerProfile.id,
-          ownership_percentage: 100,
+          user_id: ownerProfile.id,
+          ownership_share: 100,
           is_primary: true,
         },
       });
@@ -180,10 +186,10 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000040',
           apartment_id: apartment2.id,
-          user_profile_id: tenantProfile.id,
-          lease_start: new Date('2024-01-01'),
-          lease_end: new Date('2025-12-31'),
-          monthly_rent: 5000,
+          user_id: tenantProfile.id,
+          move_in_date: new Date('2024-01-01'),
+          move_out_date: new Date('2025-12-31'),
+          is_active: true,
         },
       });
 
@@ -194,10 +200,8 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000050',
           building_id: building.id,
-          user_profile_id: committeeProfile.id,
-          position: 'chairman',
-          term_start: new Date('2024-01-01'),
-          term_end: new Date('2025-12-31'),
+          user_id: committeeProfile.id,
+          role: 'chairman',
         },
       });
 
@@ -210,10 +214,13 @@ export class SeedService {
           building_id: building.id,
           apartment_id: apartment1.id,
           invoice_number: 'INV-2024-001',
+          title: 'Monthly Maintenance Fee',
           amount: 1500,
           due_date: new Date('2024-12-31'),
           status: 'pending',
-          description: 'Monthly maintenance fee',
+          description: 'Monthly maintenance fee for December 2024',
+          created_by: committeeProfile.id,
+          updated_at: new Date(),
         },
       });
 
@@ -227,7 +234,8 @@ export class SeedService {
           author_id: committeeProfile.id,
           title: 'Welcome to Horizon HCM',
           content: 'This is a sample announcement to demonstrate the system.',
-          priority: 'normal',
+          category: 'general',
+          updated_at: new Date(),
         },
       });
 
@@ -245,6 +253,7 @@ export class SeedService {
           category: 'plumbing',
           priority: 'medium',
           status: 'pending',
+          updated_at: new Date(),
         },
       });
 
@@ -255,12 +264,12 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000090',
           building_id: building.id,
-          organizer_id: committeeProfile.id,
+          created_by: committeeProfile.id,
           title: 'Annual General Meeting',
           description: 'Annual meeting to discuss building matters.',
           meeting_date: new Date('2024-12-15T18:00:00Z'),
           location: 'Building Lobby',
-          type: 'general',
+          updated_at: new Date(),
         },
       });
 
@@ -271,36 +280,44 @@ export class SeedService {
         create: {
           id: '00000000-0000-0000-0000-000000000100',
           building_id: building.id,
-          creator_id: committeeProfile.id,
+          created_by: committeeProfile.id,
           title: 'Should we install solar panels?',
           description: 'Vote on whether to install solar panels on the roof.',
+          options: JSON.stringify(['Yes', 'No', 'Need more information']),
           end_date: new Date('2024-12-31'),
           is_anonymous: false,
+          updated_at: new Date(),
         },
       });
 
       // Create notification templates
       const templates = [
         {
+          id: require('crypto').randomUUID(),
           name: 'new_poll',
           title: 'New Poll',
           body: '{{pollTitle}} - Vote by {{endDate}}',
           language: 'en',
           is_active: true,
+          updated_at: new Date(),
         },
         {
+          id: require('crypto').randomUUID(),
           name: 'new_message',
           title: 'New Message',
           body: '{{senderName}}: {{messagePreview}}',
           language: 'en',
           is_active: true,
+          updated_at: new Date(),
         },
         {
+          id: require('crypto').randomUUID(),
           name: 'new_invoice',
           title: 'New Invoice',
           body: 'Invoice {{invoiceNumber}} for {{amount}} - Due {{dueDate}}',
           language: 'en',
           is_active: true,
+          updated_at: new Date(),
         },
       ];
 
@@ -349,7 +366,6 @@ export class SeedService {
       const deletedPollVotes = await this.prisma.poll_votes.deleteMany({});
       const deletedPolls = await this.prisma.polls.deleteMany({});
       const deletedMeetingAttendees = await this.prisma.meeting_attendees.deleteMany({});
-      const deletedMeetingAgendaItems = await this.prisma.meeting_agenda_items.deleteMany({});
       const deletedMeetings = await this.prisma.meetings.deleteMany({});
       const deletedMaintenanceComments = await this.prisma.maintenance_comments.deleteMany({});
       const deletedMaintenanceRequests = await this.prisma.maintenance_requests.deleteMany({});
@@ -360,14 +376,14 @@ export class SeedService {
       const deletedInvoices = await this.prisma.invoices.deleteMany({});
       const deletedMessages = await this.prisma.messages.deleteMany({});
       const deletedDocuments = await this.prisma.documents.deleteMany({});
-      const deletedNotifications = await this.prisma.notifications.deleteMany({});
+      const deletedNotificationLogs = await this.prisma.notification_logs.deleteMany({});
       const deletedNotificationTemplates = await this.prisma.notification_templates.deleteMany({});
       const deletedCommitteeMembers = await this.prisma.building_committee_members.deleteMany({});
       const deletedTenants = await this.prisma.apartment_tenants.deleteMany({});
       const deletedOwners = await this.prisma.apartment_owners.deleteMany({});
       const deletedApartments = await this.prisma.apartments.deleteMany({});
       const deletedBuildings = await this.prisma.buildings.deleteMany({});
-      const deletedDevices = await this.prisma.devices.deleteMany({});
+      const deletedDevices = await this.prisma.device.deleteMany({});
       const deletedProfiles = await this.prisma.user_profiles.deleteMany({});
       const deletedUsers = await this.prisma.user.deleteMany({});
 
@@ -389,7 +405,7 @@ export class SeedService {
           deletedMaintenanceRequests: deletedMaintenanceRequests.count,
           deletedMeetings: deletedMeetings.count,
           deletedPolls: deletedPolls.count,
-          deletedNotifications: deletedNotifications.count,
+          deletedNotifications: deletedNotificationLogs.count,
           deletedNotificationTemplates: deletedNotificationTemplates.count,
           deletedMessages: deletedMessages.count,
           deletedDocuments: deletedDocuments.count,
