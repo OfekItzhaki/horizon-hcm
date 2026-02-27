@@ -63,3 +63,10 @@ prisma/migrations/*_*/
 
 # Old frontend directory (to be removed)
 horizon-hcm-frontend/
+
+# Build error logs (temporary debugging files)
+*-errors.txt
+*-build-errors*.txt
+build-output*.txt
+clean-errors.txt
+current-build-errors.txt
