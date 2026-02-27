@@ -117,7 +117,7 @@ export class PresenceService {
   async getOnlineUsersInBuilding(buildingId: string): Promise<string[]> {
     try {
       // Get all users in building from cache or database
-      const key = `building:${buildingId}:users`;
+      const key = `buildings:${buildingId}:users`;
       const userIds = ((await this.cache.get(key)) as string[]) || [];
 
       // Check presence for each user
@@ -132,7 +132,7 @@ export class PresenceService {
       return onlineUsers;
     } catch (error) {
       this.logger.error(
-        `Failed to get online users in building: ${error.message}`,
+        `Failed to get online users in buildings: ${error.message}`,
       );
       return [];
     }

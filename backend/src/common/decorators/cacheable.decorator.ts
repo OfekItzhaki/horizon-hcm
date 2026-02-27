@@ -6,7 +6,7 @@ export interface CacheableOptions {
   /**
    * Cache key template
    * Supports placeholders: {{param}} for method parameters
-   * Example: 'building:{{id}}' or 'user:{{userId}}:profile'
+   * Example: 'buildings:{{id}}' or 'user:{{userId}}:profile'
    */
   key: string;
 
@@ -26,7 +26,7 @@ export interface CacheableOptions {
  * Decorator to enable automatic caching on a method
  * 
  * Usage:
- * @Cacheable({ key: 'building:{{id}}', ttl: 300 })
+ * @Cacheable({ key: 'buildings:{{id}}', ttl: 300 })
  * async getBuilding(id: string) { ... }
  * 
  * The decorator will:
