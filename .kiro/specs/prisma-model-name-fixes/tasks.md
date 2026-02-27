@@ -1,0 +1,149 @@
+# Implementation Plan
+
+- [x] 1. Write bug condition exploration test
+  - **Property 1: Fault Condition** - TypeScript Compilation Errors from Incorrect Prisma Naming
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **NOTE**: This test encodes the expected behavior - it will validate the fix when it passes after implementation
+  - **GOAL**: Surface counterexamples that demonstrate the ~240 TypeScript compilation errors exist
+  - **Scoped PBT Approach**: Run TypeScript compiler on unfixed code and categorize errors by type
+  - Test that code with incorrect naming conventions produces compilation errors:
+    - Model accessor errors: `prisma.user_profiles`, `prisma.apartment_owners`, etc.
+    - Include clause errors: `include: { apartmentOwners: true }`, `include: { pollVotes: true }`, etc.
+    - Property access errors: `profile.apartmentOwners`, `poll.pollVotes`, etc.
+  - Run `tsc --noEmit` on UNFIXED code
+  - **EXPECTED OUTCOME**: Test FAILS with ~240 errors (this is correct - it proves the bug exists)
+  - Document counterexamples found:
+    - "Property 'user_profiles' does not exist on type 'PrismaClient'"
+    - "Object literal may only specify known properties, and 'apartmentOwners' does not exist..."
+    - "Property 'apartmentOwners' does not exist on type..."
+  - Categorize errors by type (model accessor, include clause, property access)
+  - Mark task complete when test is written, run, and failures are documented
+  - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4_
+
+- [x] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - Existing Correct Code Behavior
+  - **IMPORTANT**: Follow observation-first methodology
+  - Observe behavior on UNFIXED code for already-fixed modules (webhook, meetings, notifications, payments, sync, residents, users, polls)
+  - Write property-based tests capturing observed behavior patterns:
+    - All CRUD operations in correctly-implemented modules work without errors
+    - Database queries with where clauses, orderBy, and other options use correct field names
+    - All existing functionality maintains proper data persistence and retrieval
+    - Runtime behavior remains unchanged - no functional regressions
+  - Run existing test suites for already-fixed modules on UNFIXED code
+  - **EXPECTED OUTCOME**: Tests PASS (this confirms baseline behavior to preserve)
+  - Mark task complete when tests are written, run, and passing on unfixed code
+  - _Requirements: 3.1, 3.2, 3.3, 3.4_
+
+- [x] 3. Fix Prisma model and relation naming errors
+
+  - [x] 3.1 Fix model accessor naming (snake_case → camelCase)
+    - Search for all `prisma.{snake_case_name}` patterns in affected modules
+    - Replace with correct camelCase singular forms:
+      - `prisma.user_profiles` → `prisma.userProfile`
+      - `prisma.apartment_owners` → `prisma.apartmentOwner`
+      - `prisma.apartment_tenants` → `prisma.apartmentTenant`
+      - `prisma.building_committee_members` → `prisma.buildingCommitteeMember`
+      - `prisma.announcement_comments` → `prisma.announcementComment`
+      - `prisma.announcement_reads` → `prisma.announcementRead`
+      - `prisma.maintenance_requests` → `prisma.maintenanceRequest`
+      - `prisma.agenda_items` → `prisma.agendaItem`
+      - `prisma.meeting_attendees` → `prisma.meetingAttendee`
+      - `prisma.poll_votes` → `prisma.pollVote`
+      - `prisma.vote_records` → `prisma.voteRecord`
+      - `prisma.notification_templates` → `prisma.notificationTemplate`
+      - `prisma.notification_preferences` → `prisma.notificationPreference`
+      - `prisma.notification_logs` → `prisma.notificationLog`
+    - Verify no false positives (e.g., field names in where clauses should remain snake_case)
+    - Focus on modules: apartments, announcements, meetings, residents, users, invoices
+    - _Bug_Condition: isBugCondition(input) where input.type == "model_accessor" AND input.name NOT IN camelCaseModelNames_
+    - _Expected_Behavior: All model accessors use singular camelCase form (e.g., prisma.userProfile)_
+    - _Preservation: Field names in where clauses, select statements, and orderBy clauses remain snake_case_
+    - _Requirements: 2.1, 2.2, 3.1_
+
+  - [x] 3.2 Fix include clause relation naming (camelCase → snake_case)
+    - Search for all `include: {` patterns in affected modules
+    - Identify camelCase relation names and replace with snake_case as defined in schema:
+      - `include: { apartmentOwners: true }` → `include: { apartment_owners: true }`
+      - `include: { apartmentTenants: true }` → `include: { apartment_tenants: true }`
+      - `include: { buildingCommitteeMembers: true }` → `include: { building_committee_members: true }`
+      - `include: { pollVotes: true }` → `include: { poll_votes: true }`
+      - `include: { meetingAttendees: true }` → `include: { meeting_attendees: true }`
+      - `include: { agendaItems: true }` → `include: { agenda_items: true }`
+      - `include: { voteRecords: true }` → `include: { vote_records: true }`
+      - `include: { announcementComments: true }` → `include: { announcement_comments: true }`
+      - `include: { announcementReads: true }` → `include: { announcement_reads: true }`
+      - `include: { webhookDeliveries: true }` → `include: { webhook_deliveries: true }`
+    - Handle nested includes and complex query patterns
+    - Focus on modules: apartments, announcements, meetings, residents, users
+    - _Bug_Condition: isBugCondition(input) where input.type == "include_relation" AND input.name NOT IN snake_case_relation_names_
+    - _Expected_Behavior: All relation names in include clauses use snake_case as defined in schema_
+    - _Preservation: Already-correct include clauses remain unchanged_
+    - _Requirements: 2.2, 2.3, 3.2_
+
+  - [x] 3.3 Fix property access on included relations (camelCase → snake_case)
+    - Search for property access on objects returned from Prisma queries
+    - Identify camelCase property names for relations and replace with snake_case:
+      - `profile.apartmentOwners` → `profile.apartment_owners`
+      - `profile.apartmentTenants` → `profile.apartment_tenants`
+      - `profile.buildingCommitteeMembers` → `profile.building_committee_members`
+      - `poll.pollVotes` → `poll.poll_votes`
+      - `meeting.meetingAttendees` → `meeting.meeting_attendees`
+      - `meeting.agendaItems` → `meeting.agenda_items`
+      - `vote.voteRecords` → `vote.vote_records`
+    - Handle array operations (forEach, map, filter, length) on relation properties
+    - Focus on modules: apartments, announcements, meetings, residents, users
+    - _Bug_Condition: isBugCondition(input) where input.type == "property_access" AND input.accessedProperty NOT IN snake_case_relation_names_
+    - _Expected_Behavior: All property access on included relations uses snake_case_
+    - _Preservation: Property access on non-relation fields remains unchanged_
+    - _Requirements: 2.3, 2.4, 3.3_
+
+  - [x] 3.4 Update PowerShell script fix-prisma-names.ps1
+    - Remove incorrect relation name conversions that convert to camelCase
+    - Add correct conversions that ensure snake_case relation names
+    - Add property access pattern corrections
+    - Add validation to prevent re-running on already-fixed files
+    - Document correct usage and examples
+    - Test script on a sample file to verify correct behavior
+    - _Bug_Condition: Script contains logic that incorrectly converts relation names_
+    - _Expected_Behavior: Script correctly converts model accessors to camelCase and preserves snake_case relation names_
+    - _Preservation: Script does not modify already-correct code_
+    - _Requirements: 2.4, 3.4_
+
+  - [x] 3.5 Verify bug condition exploration test now passes
+    - **Property 1: Expected Behavior** - Zero TypeScript Compilation Errors
+    - **IMPORTANT**: Re-run the SAME test from task 1 - do NOT write a new test
+    - The test from task 1 encodes the expected behavior
+    - When this test passes, it confirms the expected behavior is satisfied
+    - Run `tsc --noEmit` on FIXED code
+    - **EXPECTED OUTCOME**: Test PASSES with zero compilation errors (confirms bug is fixed)
+    - Verify all three error categories are resolved:
+      - Model accessor errors: All use camelCase (e.g., `prisma.userProfile`)
+      - Include clause errors: All use snake_case (e.g., `include: { apartment_owners: true }`)
+      - Property access errors: All use snake_case (e.g., `profile.apartment_owners`)
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
+
+  - [x] 3.6 Verify preservation tests still pass
+    - **Property 2: Preservation** - No Regressions in Existing Modules
+    - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
+    - Run existing test suites for already-fixed modules on FIXED code:
+      - Webhook module tests
+      - Meetings module tests
+      - Notifications module tests
+      - Payments module tests
+      - Sync module tests
+      - Residents module tests
+      - Users module tests
+      - Polls module tests
+    - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
+    - Confirm all tests still pass after fix
+    - Verify no functional changes in correctly-implemented modules
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+
+- [x] 4. Checkpoint - Ensure all tests pass
+  - Run full TypeScript compilation: `tsc --noEmit`
+  - Verify zero compilation errors
+  - Run all existing test suites
+  - Verify all tests pass with no regressions
+  - Test critical flows manually if needed
+  - Ask the user if questions arise
