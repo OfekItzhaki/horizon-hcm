@@ -1,7 +1,7 @@
 import * as fc from 'fast-check';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GetBuildingBalanceHandler } from '../../queries/handlers/get-building-balance.handler';
-import { PrismaService } from '../../../common/services/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { CacheService } from '../../../common/services/cache.service';
 import { GetBuildingBalanceQuery } from '../../queries/impl/get-building-balance.query';
 
@@ -98,11 +98,11 @@ describe('Reports Module - Property-Based Tests', () => {
 
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
-            jest.spyOn(prismaService.payment, 'aggregate').mockResolvedValue({
+            jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: totalIncome },
             } as any);
             jest
-              .spyOn(prismaService.maintenanceRequest, 'aggregate')
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
               .mockResolvedValue({
                 _sum: { estimated_cost: totalExpenses },
               } as any);
@@ -137,11 +137,11 @@ describe('Reports Module - Property-Based Tests', () => {
           async (buildingId, income, expenses) => {
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
-            jest.spyOn(prismaService.payment, 'aggregate').mockResolvedValue({
+            jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: income },
             } as any);
             jest
-              .spyOn(prismaService.maintenanceRequest, 'aggregate')
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
               .mockResolvedValue({
                 _sum: { estimated_cost: expenses },
               } as any);
@@ -182,11 +182,11 @@ describe('Reports Module - Property-Based Tests', () => {
 
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
-            jest.spyOn(prismaService.payment, 'aggregate').mockResolvedValue({
+            jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: totalIncome },
             } as any);
             jest
-              .spyOn(prismaService.maintenanceRequest, 'aggregate')
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
               .mockResolvedValue({
                 _sum: { estimated_cost: totalExpenses },
               } as any);
@@ -224,11 +224,11 @@ describe('Reports Module - Property-Based Tests', () => {
           async (buildingId, income, expenses) => {
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
-            jest.spyOn(prismaService.payment, 'aggregate').mockResolvedValue({
+            jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: income },
             } as any);
             jest
-              .spyOn(prismaService.maintenanceRequest, 'aggregate')
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
               .mockResolvedValue({
                 _sum: { estimated_cost: expenses },
               } as any);
@@ -266,12 +266,12 @@ describe('Reports Module - Property-Based Tests', () => {
 
             // Mock Prisma responses
             const aggregateSpy = jest
-              .spyOn(prismaService.payment, 'aggregate')
+              .spyOn(prismaService.payments, 'aggregate')
               .mockResolvedValue({
                 _sum: { amount: income },
               } as any);
             jest
-              .spyOn(prismaService.maintenanceRequest, 'aggregate')
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
               .mockResolvedValue({
                 _sum: { estimated_cost: expenses },
               } as any);
@@ -289,7 +289,6 @@ describe('Reports Module - Property-Based Tests', () => {
       );
     });
   });
-});
 
   describe('Property 13: Date Range Filter Accuracy', () => {
     it('should only return transactions within the specified date range', async () => {
@@ -310,7 +309,7 @@ describe('Reports Module - Property-Based Tests', () => {
                   Math.random() * (endDate.getTime() - startDate.getTime()),
               ),
               amount: 100,
-              apartment: { apartment_number: '101', building_id: buildingId },
+              apartments: { apartment_number: '101', building_id: buildingId },
             }));
 
             const transactionsOutOfRange = [
@@ -318,13 +317,13 @@ describe('Reports Module - Property-Based Tests', () => {
                 id: 'before',
                 created_at: new Date(startDate.getTime() - 86400000), // 1 day before
                 amount: 100,
-                apartment: { apartment_number: '102', building_id: buildingId },
+                apartments: { apartment_number: '102', building_id: buildingId },
               },
               {
                 id: 'after',
                 created_at: new Date(endDate.getTime() + 86400000), // 1 day after
                 amount: 100,
-                apartment: { apartment_number: '103', building_id: buildingId },
+                apartments: { apartment_number: '103', building_id: buildingId },
               },
             ];
 

@@ -68,16 +68,23 @@ describe('Residents Module - Property-Based Tests', () => {
         {
           provide: PrismaService,
           useValue: {
-            building: {
+            buildings: {
               findUnique: jest.fn(),
             },
-            userProfile: {
+            user_profiles: {
               findUnique: jest.fn(),
             },
-            buildingCommitteeMember: {
+            building_committee_members: {
               findUnique: jest.fn(),
               create: jest.fn(),
               delete: jest.fn(),
+              findMany: jest.fn(),
+            },
+            apartment_owners: {
+              findMany: jest.fn(),
+            },
+            apartment_tenants: {
+              findMany: jest.fn(),
             },
           },
         },
@@ -123,19 +130,19 @@ describe('Residents Module - Property-Based Tests', () => {
           async (building, user, role, currentUserId) => {
             // Setup: Building and user exist
             jest
-              .spyOn(prismaService.building, 'findUnique')
+              .spyOn(prismaService.buildings, 'findUnique')
               .mockResolvedValue(building as any);
             jest
-              .spyOn(prismaService.userProfile, 'findUnique')
+              .spyOn(prismaService.user_profiles, 'findUnique')
               .mockResolvedValue(user as any);
 
             // First addition: User is NOT already a committee member
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'findUnique')
+              .spyOn(prismaService.building_committee_members, 'findUnique')
               .mockResolvedValueOnce(null);
 
             const createdMember = {
-              id: await uuidArbitrary().generate(fc.random()),
+              id: 'generated-uuid-' + Math.random().toString(36).substring(7),
               building_id: building.id,
               user_id: user.id,
               role: role,
@@ -149,7 +156,7 @@ describe('Residents Module - Property-Based Tests', () => {
             };
 
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'create')
+              .spyOn(prismaService.building_committee_members, 'create')
               .mockResolvedValue(createdMember as any);
 
             // Execute: First addition should succeed
@@ -168,7 +175,7 @@ describe('Residents Module - Property-Based Tests', () => {
 
             // Second addition: User IS already a committee member
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'findUnique')
+              .spyOn(prismaService.building_committee_members, 'findUnique')
               .mockResolvedValueOnce(createdMember as any);
 
             // Execute: Second addition should throw ConflictException
@@ -207,17 +214,17 @@ describe('Residents Module - Property-Based Tests', () => {
               user_id: user.id,
               role: role,
               created_at: new Date(),
-              user_profile: {
+              user_profiles: {
                 id: user.id,
                 full_name: user.full_name,
               },
             };
 
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'findUnique')
+              .spyOn(prismaService.building_committee_members, 'findUnique')
               .mockResolvedValue(committeeMember as any);
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'delete')
+              .spyOn(prismaService.building_committee_members, 'delete')
               .mockResolvedValue(committeeMember as any);
 
             const auditLogSpy = jest.spyOn(auditLogService, 'log');
@@ -252,7 +259,6 @@ describe('Residents Module - Property-Based Tests', () => {
       );
     });
   });
-});
 
   // Feature: remaining-hcm-features, Property 1: Resident Search Accuracy
   describe('Property 1: Resident Search Accuracy', () => {
@@ -271,7 +277,7 @@ describe('Residents Module - Property-Based Tests', () => {
 
             // Mock Prisma to return matching users
             jest
-              .spyOn(prismaService.userProfile, 'findMany')
+              .spyOn(prismaService.user_profiles, 'findMany')
               .mockResolvedValue(matchingUsers as any);
 
             // Execute: Search by name
@@ -317,22 +323,22 @@ describe('Residents Module - Property-Based Tests', () => {
             // Setup: User with committee memberships and apartments
             const userProfile = {
               ...user,
-              committee_memberships: buildings.map((b) => ({
+              building_committee_members: buildings.map((b) => ({
                 building_id: b.id,
                 role: 'Chairman',
                 created_at: new Date(),
-                building: {
+                buildings: {
                   id: b.id,
                   name: b.name,
                   address_line: b.address_line,
                 },
               })),
-              owned_apartments: apartments.map((apt, idx) => ({
-                apartment: {
+              apartment_owners: apartments.map((apt, idx) => ({
+                apartments: {
                   id: `apt-${idx}`,
                   apartment_number: apt.apartment_number,
                   building_id: buildings[0]?.id || 'building-1',
-                  building: {
+                  buildings: {
                     name: buildings[0]?.name || 'Building 1',
                     address_line: buildings[0]?.address_line || 'Address 1',
                   },
@@ -341,11 +347,11 @@ describe('Residents Module - Property-Based Tests', () => {
                 is_primary: idx === 0,
                 created_at: new Date(),
               })),
-              tenant_apartments: [],
+              apartment_tenants: [],
             };
 
             jest
-              .spyOn(prismaService.userProfile, 'findUnique')
+              .spyOn(prismaService.user_profiles, 'findUnique')
               .mockResolvedValue(userProfile as any);
 
             // Execute: Get resident profile
@@ -394,17 +400,17 @@ describe('Residents Module - Property-Based Tests', () => {
               building_id: building.id,
               user_id: u.id,
               role: 'Chairman',
-              user_profile: u,
+              user_profiles: u,
             }));
 
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'findMany')
+              .spyOn(prismaService.building_committee_members, 'findMany')
               .mockResolvedValue(committeeMembers as any);
             jest
-              .spyOn(prismaService.apartmentOwner, 'findMany')
+              .spyOn(prismaService.apartment_owners, 'findMany')
               .mockResolvedValue([]);
             jest
-              .spyOn(prismaService.apartmentTenant, 'findMany')
+              .spyOn(prismaService.apartment_tenants, 'findMany')
               .mockResolvedValue([]);
 
             const mockFileStorage = {
@@ -469,18 +475,18 @@ describe('Residents Module - Property-Based Tests', () => {
             }));
 
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'findMany')
+              .spyOn(prismaService.building_committee_members, 'findMany')
               .mockResolvedValue([]);
             jest
-              .spyOn(prismaService.apartmentOwner, 'findMany')
+              .spyOn(prismaService.apartment_owners, 'findMany')
               .mockResolvedValue(
                 largeDataset.map((u) => ({
-                  user_profile: u,
-                  apartment: { apartment_number: '101' },
+                  user_profiles: u,
+                  apartments: { apartment_number: '101' },
                 })) as any,
               );
             jest
-              .spyOn(prismaService.apartmentTenant, 'findMany')
+              .spyOn(prismaService.apartment_tenants, 'findMany')
               .mockResolvedValue([]);
 
             // Execute: Request with limit > 100
@@ -519,18 +525,18 @@ describe('Residents Module - Property-Based Tests', () => {
           async (building, users) => {
             // Setup: Residents with various names
             jest
-              .spyOn(prismaService.buildingCommitteeMember, 'findMany')
+              .spyOn(prismaService.building_committee_members, 'findMany')
               .mockResolvedValue([]);
             jest
-              .spyOn(prismaService.apartmentOwner, 'findMany')
+              .spyOn(prismaService.apartment_owners, 'findMany')
               .mockResolvedValue(
                 users.map((u) => ({
-                  user_profile: u,
-                  apartment: { apartment_number: '101' },
+                  user_profiles: u,
+                  apartments: { apartment_number: '101' },
                 })) as any,
               );
             jest
-              .spyOn(prismaService.apartmentTenant, 'findMany')
+              .spyOn(prismaService.apartment_tenants, 'findMany')
               .mockResolvedValue([]);
 
             // Execute: List residents
