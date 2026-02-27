@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '@horizon-hcm/shared';
 
-const WS_URL = 'http://localhost:3001';
+const WS_URL = 'http://192.168.42.1:3001';
 
 class WebSocketService {
   private socket: Socket | null = null;
