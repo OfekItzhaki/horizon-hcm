@@ -29,6 +29,7 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { MessagesModule } from './messages/messages.module';
 import { PollsModule } from './polls/polls.module';
 import { SeedModule } from './seed/seed.module';
+import { AuthOverrideModule } from './auth-override/auth-override.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { ApiVersioningMiddleware } from './common/middleware/api-versioning.middleware';
 
@@ -111,6 +112,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     WebhooksModule,
     HealthModule,
     SeedModule,
+    AuthOverrideModule,
   ],
   providers: [],
   exports: [],
