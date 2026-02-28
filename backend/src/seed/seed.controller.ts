@@ -1,78 +1,59 @@
-import { Controller, Post, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { SeedService } from './seed.service';
+import { Controller, Get, Post, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { PrismaService } from '../prisma/prisma.service';
+import { Public } from '@ofeklabs/horizon-auth';
+import * as bcrypt from 'bcrypt';
 
-@ApiTags('Seed')
+@ApiTags('seed')
 @Controller('seed')
 export class SeedController {
-  constructor(private readonly seedService: SeedService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
-    summary: 'Seed database with sample data',
-    description: 'Populates the database with sample users, buildings, apartments, and other test data. Safe to run multiple times (uses upsert).'
-  })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Database seeded successfully',
-    schema: {
-      example: {
-        message: 'Database seeded successfully',
-        details: {
-          users: 4,
-          profiles: 4,
-          buildings: 1,
-          apartments: 2,
-          invoices: 1,
-          announcements: 1,
-          maintenanceRequests: 1,
-          meetings: 1,
-          polls: 1,
-          notificationTemplates: 3,
-          credentials: {
-            admin: { email: 'admin@horizon.com', password: 'Password123!' },
-            committee: { email: 'committee@horizon.com', password: 'Password123!' },
-            owner: { email: 'owner@horizon.com', password: 'Password123!' },
-            tenant: { email: 'tenant@horizon.com', password: 'Password123!' }
-          }
-        }
-      }
-    }
-  })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  async seed() {
-    return this.seedService.seedDatabase();
+  @Public()
+  @Get('debug/users')
+  @ApiOperation({ summary: 'Debug: List all users (email only)' })
+  async debugUsers() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        emailVerified: true,
+        roles: true,
+        isActive: true,
+        passwordHash: true, // Check if password exists
+      },
+    });
+    return { 
+      count: users.length, 
+      users: users.map(u => ({
+        ...u,
+        hasPassword: !!u.passwordHash,
+        passwordHash: u.passwordHash ? `${u.passwordHash.substring(0, 10)}...` : null,
+      }))
+    };
   }
 
-  @Delete()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
-    summary: 'Remove all seeded data',
-    description: 'Deletes ALL data from the database. Use with caution! This will remove all users, buildings, apartments, and related data.'
-  })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Database unseeded successfully',
-    schema: {
-      example: {
-        message: 'Database unseeded successfully',
-        details: {
-          deletedUsers: 4,
-          deletedProfiles: 4,
-          deletedBuildings: 1,
-          deletedApartments: 2,
-          deletedInvoices: 1,
-          deletedAnnouncements: 1,
-          deletedMaintenanceRequests: 1,
-          deletedMeetings: 1,
-          deletedPolls: 1
-        }
-      }
+  @Public()
+  @Post('debug/test-password')
+  @ApiOperation({ summary: 'Debug: Test password verification' })
+  async testPassword(@Body() body: { email: string; password: string }) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: body.email },
+    });
+
+    if (!user) {
+      return { found: false };
     }
-  })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  async unseed() {
-    return this.seedService.unseedDatabase();
+
+    const isValid = await bcrypt.compare(body.password, user.passwordHash);
+    
+    return {
+      found: true,
+      email: user.email,
+      hasPassword: !!user.passwordHash,
+      passwordValid: isValid,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+    };
   }
 }
