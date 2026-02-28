@@ -28,9 +28,16 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: any) {
+    // Handle case where user might be from our override auth
+    const userId = user?.id || user?.sub;
+    
+    if (!userId) {
+      throw new BadRequestException('User ID not found in token');
+    }
+
     // Get user with profile
     const userWithProfile = await this.prisma.user.findUnique({
-      where: { id: user.id },
+      where: { id: userId },
       include: {
         profile: true,
       },
