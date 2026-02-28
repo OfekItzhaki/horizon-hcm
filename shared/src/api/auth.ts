@@ -2,14 +2,14 @@ import { apiClient } from './client';
 import type { AuthTokens, User, LoginCredentials, RegisterData } from '../types';
 
 export const authApi = {
-  login: (credentials: LoginCredentials) => apiClient.post<AuthTokens>('/auth/login', credentials),
+  login: (credentials: LoginCredentials) => apiClient.post<AuthTokens>('/auth-override/login', credentials),
 
   register: (data: RegisterData) => apiClient.post<User>('/api/register', data),
 
   logout: () => apiClient.post('/auth/logout'),
 
   refreshToken: (refreshToken: string) =>
-    apiClient.post<AuthTokens>('/auth/refresh', { refreshToken }),
+    apiClient.post<AuthTokens>('/auth-override/refresh', { refreshToken }),
 
   requestPasswordReset: (email: string) =>
     apiClient.post('/auth/password-reset/request', { email }),
@@ -23,5 +23,5 @@ export const authApi = {
 
   disable2FA: (password: string) => apiClient.post('/auth/2fa/disable', { password }),
 
-  getCurrentUser: () => apiClient.get<User>('/users/profile'),
+  getCurrentUser: () => apiClient.get<User>('/auth-override/profile'),
 };

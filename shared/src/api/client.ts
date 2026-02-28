@@ -64,7 +64,7 @@ apiClient.interceptors.response.use(
       try {
         const tokens = getTokens?.();
         if (tokens?.refreshToken) {
-          const response = await axios.post<AuthTokens>(`${API_BASE_URL}/auth/refresh`, {
+          const response = await axios.post<AuthTokens>(`${API_BASE_URL}/auth-override/refresh`, {
             refreshToken: tokens.refreshToken,
           });
 
