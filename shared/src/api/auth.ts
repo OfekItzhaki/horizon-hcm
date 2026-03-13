@@ -1,8 +1,9 @@
 import { apiClient } from './client';
-import type { AuthTokens, User, LoginCredentials, RegisterData } from '../types';
+import type { AuthTokens, User, RegisterData } from '../types';
+import type { LoginInput } from '../schemas/auth';
 
 export const authApi = {
-  login: (credentials: LoginCredentials) => apiClient.post<AuthTokens>('/auth-override/login', credentials),
+  login: (credentials: LoginInput) => apiClient.post<AuthTokens>('/auth-override/login', credentials),
 
   register: (data: RegisterData) => apiClient.post<User>('/api/register', data),
 

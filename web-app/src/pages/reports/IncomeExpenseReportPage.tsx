@@ -219,25 +219,25 @@ export default function IncomeExpenseReportPage() {
         <Typography variant="h6" mb={2}>
           Income & Expense Trend
         </Typography>
-        {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
         <ResponsiveContainer width="100%" height={300}>
-          {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
           <LineChart data={data.trend}>
             <CartesianGrid strokeDasharray="3 3" />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <XAxis dataKey="date" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <YAxis />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Tooltip
               labelFormatter={(value) => new Date(value).toLocaleDateString()}
               formatter={(value: number) => `₪${value.toFixed(2)}`}
             />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Legend />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Line type="monotone" dataKey="income" stroke="#00C49F" name="Income" strokeWidth={2} />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Line
               type="monotone"
               dataKey="expense"
@@ -256,11 +256,11 @@ export default function IncomeExpenseReportPage() {
             <Typography variant="h6" mb={2}>
               Income by Category
             </Typography>
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <ResponsiveContainer width="100%" height={300}>
-              {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
               <PieChart>
-                {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
                 <Pie
                   data={incomeCategories}
                   dataKey="amount"
@@ -271,14 +271,14 @@ export default function IncomeExpenseReportPage() {
                   label={(entry) => `${entry.category}: ₪${entry.amount.toFixed(0)}`}
                 >
                   {incomeCategories.map((_entry, index) => (
-                    // @ts-expect-error - Recharts types incompatible with React 18
+
                     <Cell
                       key={`cell-${index}`}
                       fill={INCOME_COLORS[index % INCOME_COLORS.length]}
                     />
                   ))}
                 </Pie>
-                {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
                 <Tooltip formatter={(value: number) => `₪${value.toFixed(2)}`} />
               </PieChart>
             </ResponsiveContainer>
@@ -290,11 +290,11 @@ export default function IncomeExpenseReportPage() {
             <Typography variant="h6" mb={2}>
               Expenses by Category
             </Typography>
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <ResponsiveContainer width="100%" height={300}>
-              {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
               <PieChart>
-                {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
                 <Pie
                   data={expenseCategories}
                   dataKey="amount"
@@ -305,14 +305,14 @@ export default function IncomeExpenseReportPage() {
                   label={(entry) => `${entry.category}: ₪${entry.amount.toFixed(0)}`}
                 >
                   {expenseCategories.map((_entry, index) => (
-                    // @ts-expect-error - Recharts types incompatible with React 18
+
                     <Cell
                       key={`cell-${index}`}
                       fill={EXPENSE_COLORS[index % EXPENSE_COLORS.length]}
                     />
                   ))}
                 </Pie>
-                {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
                 <Tooltip formatter={(value: number) => `₪${value.toFixed(2)}`} />
               </PieChart>
             </ResponsiveContainer>

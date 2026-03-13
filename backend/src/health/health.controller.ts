@@ -2,11 +2,15 @@ import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { HealthService } from './health.service';
+import { DeploymentHealthMonitorService } from '../common/services/deployment-health-monitor.service';
 
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
-  constructor(private healthService: HealthService) {}
+  constructor(
+    private healthService: HealthService,
+    private deploymentHealthMonitor: DeploymentHealthMonitorService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Basic health check' })
@@ -63,5 +67,24 @@ export class HealthController {
       timestamp: new Date().toISOString(),
       uptime: this.healthService.getUptime(),
     };
+  }
+
+  @Get('detailed')
+  @ApiOperation({ summary: 'Detailed health status with all checks' })
+  @ApiResponse({
+    status: 200,
+    description: 'Detailed health information',
+  })
+  async getDetailedHealth(@Res() res: Response) {
+    const health = await this.deploymentHealthMonitor.getDetailedHealth();
+
+    const statusCode =
+      health.status === 'healthy'
+        ? HttpStatus.OK
+        : health.status === 'degraded'
+          ? HttpStatus.OK
+          : HttpStatus.SERVICE_UNAVAILABLE;
+
+    return res.status(statusCode).json(health);
   }
 }

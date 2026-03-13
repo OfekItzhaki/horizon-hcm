@@ -1,13 +1,31 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { PrismaService } from '../prisma/prisma.service';
+import { SeedService } from './seed.service';
 import { Public } from '@ofeklabs/horizon-auth';
 import * as bcrypt from 'bcrypt';
 
 @ApiTags('seed')
 @Controller('seed')
 export class SeedController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly seedService: SeedService,
+  ) {}
+
+  @Public()
+  @Post()
+  @ApiOperation({ summary: 'Seed database with sample data' })
+  async seed() {
+    return this.seedService.seedDatabase();
+  }
+
+  @Public()
+  @Delete()
+  @ApiOperation({ summary: 'Remove all seeded data from database' })
+  async unseed() {
+    return this.seedService.unseedDatabase();
+  }
 
   @Public()
   @Get('debug/users')
@@ -23,8 +41,8 @@ export class SeedController {
         passwordHash: true, // Check if password exists
       },
     });
-    return { 
-      count: users.length, 
+    return {
+      count: users.length,
       users: users.map(u => ({
         ...u,
         hasPassword: !!u.passwordHash,
@@ -46,7 +64,7 @@ export class SeedController {
     }
 
     const isValid = await bcrypt.compare(body.password, user.passwordHash);
-    
+
     return {
       found: true,
       email: user.email,
@@ -57,3 +75,4 @@ export class SeedController {
     };
   }
 }
+

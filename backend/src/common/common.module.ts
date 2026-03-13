@@ -13,6 +13,8 @@ import { AnalyticsService } from './services/analytics.service';
 import { FeatureFlagService } from './services/feature-flag.service';
 import { FormattingService } from './services/formatting.service';
 import { TranslationService } from './services/translation.service';
+import { MonitoringService } from './services/monitoring.service';
+import { DeploymentHealthMonitorService } from './services/deployment-health-monitor.service';
 import { SecurityController } from './controllers/security.controller';
 import { AnalyticsController } from './controllers/analytics.controller';
 import { I18nController } from './controllers/i18n.controller';
@@ -43,6 +45,8 @@ const CommandHandlers = [
     FeatureFlagService,
     FormattingService,
     TranslationService,
+    MonitoringService,
+    DeploymentHealthMonitorService,
     ...CommandHandlers,
   ],
   exports: [
@@ -59,6 +63,8 @@ const CommandHandlers = [
     FeatureFlagService,
     FormattingService,
     TranslationService,
+    MonitoringService,
+    DeploymentHealthMonitorService,
   ],
 })
 export class CommonModule {}

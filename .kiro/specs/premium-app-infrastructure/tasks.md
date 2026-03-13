@@ -171,7 +171,7 @@ This implementation plan breaks down the premium infrastructure features into in
     - Implement chunk reassembly logic
     - _Requirements: 4.8_
   
-  - [ ] 6.4 Add malware scanning integration
+  - [x] 6.4 Add malware scanning integration
     - Integrate with ClamAV or cloud scanning service
     - Mark files as scanned in File model
     - Prevent access to unscanned files
@@ -485,7 +485,7 @@ This implementation plan breaks down the premium infrastructure features into in
     - Add environment validation on startup
     - _Requirements: 12.5_
   
-  - [ ] 18.3 Configure secrets management
+  - [x] 18.3 Configure secrets management
     - Set up secrets storage (GitHub Secrets, AWS Secrets Manager, etc.)
     - Update deployment scripts to use secrets
     - Document secrets rotation process
@@ -498,7 +498,7 @@ This implementation plan breaks down the premium infrastructure features into in
     - Add health check verification post-deployment
     - _Requirements: 12.3, 12.4, 12.8_
   
-  - [ ] 18.5 Set up monitoring and alerting
+  - [x] 18.5 Set up monitoring and alerting
     - Configure Seq alerting for critical errors
     - Set up deployment health check monitoring
     - Configure error rate spike alerts
@@ -527,7 +527,7 @@ This implementation plan breaks down the premium infrastructure features into in
     - _Requirements: General documentation_
 
 - [ ] 20. Final Integration and Testing
-  - [ ] 20.1 Integration testing
+  - [x] 20.1 Integration testing
     - Test logging + performance monitoring integration
     - Test cache + database query integration
     - Test notifications + job queue integration
@@ -535,14 +535,14 @@ This implementation plan breaks down the premium infrastructure features into in
     - Test file upload + image processing integration
     - _Requirements: All integration points_
   
-  - [ ] 20.2 End-to-end testing
+  - [x] 20.2 End-to-end testing
     - Test complete user registration flow with all infrastructure
     - Test building creation with caching, logging, analytics
     - Test file upload with processing, storage, notifications
     - Test real-time updates with WebSocket and presence
     - _Requirements: All user journeys_
   
-  - [ ] 20.3 Performance testing
+  - [x] 20.3 Performance testing
     - Run load tests on API endpoints
     - Verify response times under load
     - Test cache effectiveness
@@ -550,7 +550,7 @@ This implementation plan breaks down the premium infrastructure features into in
     - _Requirements: 7.1, 7.2, 2.7, 2.8, 2.9_
 
 
-- [ ] 21. Final Checkpoint - Complete infrastructure verification
+- [x] 21. Final Checkpoint - Complete infrastructure verification
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

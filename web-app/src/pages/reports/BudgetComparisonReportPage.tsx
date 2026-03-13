@@ -189,32 +189,32 @@ export default function BudgetComparisonReportPage() {
         <Typography variant="h6" mb={2}>
           Budget vs Actual Comparison
         </Typography>
-        {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
         <ResponsiveContainer width="100%" height={400}>
-          {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <XAxis dataKey="category" />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <YAxis />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Tooltip formatter={(value: number) => `₪${value.toFixed(2)}`} />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Legend />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Bar dataKey="budgeted" fill="#8884d8" name="Budgeted">
               {chartData.map((_entry, index) => (
-                // @ts-expect-error - Recharts types incompatible with React 18
+
                 <Cell key={`cell-${index}`} fill="#8884d8" />
               ))}
             </Bar>
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Bar dataKey="actual" fill="#82ca9d" name="Actual">
               {chartData.map((entry, index) => {
                 const isOverBudget = entry.actual > entry.budgeted;
                 return (
-                  // @ts-expect-error - Recharts types incompatible with React 18
+
                   <Cell key={`cell-${index}`} fill={isOverBudget ? '#ff8042' : '#82ca9d'} />
                 );
               })}

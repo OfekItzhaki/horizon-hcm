@@ -6,7 +6,9 @@ import { FilesController } from './files.controller';
 import { StorageService } from './services/storage.service';
 import { ImageProcessingService } from './services/image-processing.service';
 import { ChunkedUploadService } from './services/chunked-upload.service';
+import { MalwareScanningService } from './services/malware-scanning.service';
 import { ImageProcessingProcessor } from './processors/image-processing.processor';
+import { MalwareScanningProcessor } from './processors/malware-scanning.processor';
 
 // Command Handlers
 import { UploadFileHandler } from './commands/handlers/upload-file.handler';
@@ -41,16 +43,21 @@ const QueryHandlers = [
     BullModule.registerQueue({
       name: 'image-processing',
     }),
+    BullModule.registerQueue({
+      name: 'malware-scanning',
+    }),
   ],
   controllers: [FilesController],
   providers: [
     StorageService,
     ImageProcessingService,
     ChunkedUploadService,
+    MalwareScanningService,
     ImageProcessingProcessor,
+    MalwareScanningProcessor,
     ...CommandHandlers,
     ...QueryHandlers,
   ],
-  exports: [StorageService, ImageProcessingService, ChunkedUploadService],
+  exports: [StorageService, ImageProcessingService, ChunkedUploadService, MalwareScanningService],
 })
 export class FilesModule {}
