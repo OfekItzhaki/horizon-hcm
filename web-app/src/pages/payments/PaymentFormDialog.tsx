@@ -12,13 +12,8 @@ import {
   Alert,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { paymentsApi } from '@horizon-hcm/shared/src/api/financial';
-import {
-  paymentFormSchema,
-  type PaymentFormInput,
-} from '@horizon-hcm/shared/src/schemas/financial';
+import { apiClient } from '@horizon-hcm/shared/src/api/client';
 import { queryKeys } from '../../lib/query-keys';
 
 interface PaymentFormDialogProps {
@@ -26,6 +21,13 @@ interface PaymentFormDialogProps {
   onClose: () => void;
   invoiceId: string;
   invoiceAmount: number;
+}
+
+interface FormValues {
+  method: 'credit_card' | 'bank_transfer' | 'cash';
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
 }
 
 export default function PaymentFormDialog({
@@ -37,17 +39,8 @@ export default function PaymentFormDialog({
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<PaymentFormInput>({
-    resolver: zodResolver(paymentFormSchema),
+  const { handleSubmit, watch, reset, register, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
-      invoiceId,
-      amount: invoiceAmount,
       method: 'credit_card',
       cardNumber: '',
       expiryDate: '',
@@ -57,10 +50,13 @@ export default function PaymentFormDialog({
 
   const paymentMethod = watch('method');
 
-  const createPaymentMutation = useMutation({
-    mutationFn: (data: PaymentFormInput) => paymentsApi.create(data),
+  const payMutation = useMutation({
+    mutationFn: (data: FormValues) =>
+      apiClient.post(`/invoices/${invoiceId}/pay`, {
+        method: data.method,
+        amount: invoiceAmount,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
       reset();
       onClose();
@@ -70,13 +66,19 @@ export default function PaymentFormDialog({
     },
   });
 
-  const onSubmit = (data: PaymentFormInput) => {
+  const onSubmit = (data: FormValues) => {
+    if (data.method === 'credit_card') {
+      if (!data.cardNumber || !data.expiryDate || !data.cvv) {
+        setError('Please fill in all card details');
+        return;
+      }
+    }
     setError(null);
-    createPaymentMutation.mutate(data);
+    payMutation.mutate(data);
   };
 
   const handleClose = () => {
-    if (!createPaymentMutation.isPending) {
+    if (!payMutation.isPending) {
       reset();
       setError(null);
       onClose();
@@ -88,34 +90,24 @@ export default function PaymentFormDialog({
       <DialogTitle>Make Payment</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              {...register('amount')}
               label="Amount"
               type="number"
+              value={invoiceAmount}
               fullWidth
-              required
-              error={!!errors.amount}
-              helperText={errors.amount?.message}
-              InputProps={{
-                readOnly: true,
-              }}
+              InputProps={{ readOnly: true }}
             />
 
             <TextField
-              {...register('method')}
               select
               label="Payment Method"
+              value={paymentMethod}
+              onChange={(e) => setValue('method', e.target.value as FormValues['method'])}
               fullWidth
               required
-              error={!!errors.method}
-              helperText={errors.method?.message}
             >
               <MenuItem value="credit_card">Credit Card</MenuItem>
               <MenuItem value="bank_transfer">Bank Transfer</MenuItem>
@@ -130,13 +122,8 @@ export default function PaymentFormDialog({
                   fullWidth
                   required
                   placeholder="1234 5678 9012 3456"
-                  error={!!errors.cardNumber}
-                  helperText={errors.cardNumber?.message}
-                  inputProps={{
-                    maxLength: 19,
-                  }}
+                  inputProps={{ maxLength: 19 }}
                 />
-
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <TextField
                     {...register('expiryDate')}
@@ -144,28 +131,18 @@ export default function PaymentFormDialog({
                     fullWidth
                     required
                     placeholder="MM/YY"
-                    error={!!errors.expiryDate}
-                    helperText={errors.expiryDate?.message}
-                    inputProps={{
-                      maxLength: 5,
-                    }}
+                    inputProps={{ maxLength: 5 }}
                   />
-
                   <TextField
                     {...register('cvv')}
                     label="CVV"
                     fullWidth
                     required
                     placeholder="123"
-                    error={!!errors.cvv}
-                    helperText={errors.cvv?.message}
-                    inputProps={{
-                      maxLength: 4,
-                    }}
+                    inputProps={{ maxLength: 4 }}
                   />
                 </Box>
-
-                <Alert severity="info" sx={{ mt: 1 }}>
+                <Alert severity="info">
                   Your card details are securely processed and never stored on our servers.
                 </Alert>
               </>
@@ -173,8 +150,7 @@ export default function PaymentFormDialog({
 
             {paymentMethod === 'bank_transfer' && (
               <Alert severity="info">
-                Please transfer the amount to our bank account and provide the transaction
-                reference.
+                Please transfer the amount to our bank account and provide the transaction reference.
               </Alert>
             )}
 
@@ -187,16 +163,14 @@ export default function PaymentFormDialog({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} disabled={createPaymentMutation.isPending}>
-            Cancel
-          </Button>
+          <Button onClick={handleClose} disabled={payMutation.isPending}>Cancel</Button>
           <Button
             type="submit"
             variant="contained"
-            disabled={createPaymentMutation.isPending}
-            startIcon={createPaymentMutation.isPending && <CircularProgress size={20} />}
+            disabled={payMutation.isPending}
+            startIcon={payMutation.isPending ? <CircularProgress size={20} /> : undefined}
           >
-            {createPaymentMutation.isPending ? 'Processing...' : 'Pay Now'}
+            {payMutation.isPending ? 'Processing...' : 'Pay Now'}
           </Button>
         </DialogActions>
       </form>

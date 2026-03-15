@@ -5,9 +5,11 @@ import { JwtAuthGuard, CurrentUser } from '@ofeklabs/horizon-auth';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { CancelInvoiceDto } from './dto/cancel-invoice.dto';
+import { PayInvoiceDto } from './dto/pay-invoice.dto';
 import { CreateInvoiceCommand } from './commands/impl/create-invoice.command';
 import { UpdateInvoiceCommand } from './commands/impl/update-invoice.command';
 import { CancelInvoiceCommand } from './commands/impl/cancel-invoice.command';
+import { PayInvoiceCommand } from './commands/impl/pay-invoice.command';
 import { GetInvoicesQuery } from './queries/impl/get-invoices.query';
 import { GetInvoiceQuery } from './queries/impl/get-invoice.query';
 
@@ -76,6 +78,12 @@ export class InvoicesController {
   @ApiOperation({ summary: 'Cancel invoice' })
   async cancel(@CurrentUser() user: any, @Param('id') id: string, @Body() body: CancelInvoiceDto) {
     return this.commandBus.execute(new CancelInvoiceCommand(id, user.id, body.reason));
+  }
+
+  @Post(':id/pay')
+  @ApiOperation({ summary: 'Pay invoice' })
+  async pay(@CurrentUser() user: any, @Param('id') id: string, @Body() body: PayInvoiceDto) {
+    return this.commandBus.execute(new PayInvoiceCommand(id, user.id, body.method, body.amount));
   }
 
   @Post('bulk')

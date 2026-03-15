@@ -5,17 +5,15 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { CommonModule } from '../common/common.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
-// Command handlers
 import { CreateInvoiceHandler } from './commands/handlers/create-invoice.handler';
 import { UpdateInvoiceHandler } from './commands/handlers/update-invoice.handler';
 import { CancelInvoiceHandler } from './commands/handlers/cancel-invoice.handler';
+import { PayInvoiceHandler } from './commands/handlers/pay-invoice.handler';
 
-// Query handlers
 import { GetInvoiceHandler } from './queries/handlers/get-invoice.handler';
 import { GetInvoicesHandler } from './queries/handlers/get-invoices.handler';
 
-const CommandHandlers = [CreateInvoiceHandler, UpdateInvoiceHandler, CancelInvoiceHandler];
-
+const CommandHandlers = [CreateInvoiceHandler, UpdateInvoiceHandler, CancelInvoiceHandler, PayInvoiceHandler];
 const QueryHandlers = [GetInvoiceHandler, GetInvoicesHandler];
 
 @Module({
