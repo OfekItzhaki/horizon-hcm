@@ -192,9 +192,16 @@ export default function MessagesPage() {
                       {message.senderName || message.sender_id?.slice(0, 8) || 'Unknown'}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {message.createdAt || message.created_at
-                        ? new Date(message.createdAt || message.created_at).toLocaleString()
-                        : ''}
+                      {(() => {
+                        const ts = message.createdAt || message.created_at;
+                        if (!ts) return '';
+                        const d = new Date(ts);
+                        const now = new Date();
+                        const isToday = d.toDateString() === now.toDateString();
+                        return isToday
+                          ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                          : d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      })()}
                     </Typography>
                   </Box>
                   <Paper

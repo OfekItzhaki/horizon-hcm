@@ -25,8 +25,21 @@ export class GetMessagesHandler implements IQueryHandler<GetMessagesQuery> {
       this.prisma.messages.count({ where }),
     ]);
 
+    // Resolve sender names from user_profiles
+    const senderIds = [...new Set(messages.map((m) => m.sender_id))];
+    const profiles = await this.prisma.user_profiles.findMany({
+      where: { user_id: { in: senderIds } },
+      select: { user_id: true, full_name: true },
+    });
+    const nameMap = new Map(profiles.map((p) => [p.user_id, p.full_name]));
+
+    const enriched = messages.map((m) => ({
+      ...m,
+      senderName: nameMap.get(m.sender_id) || 'Unknown',
+    }));
+
     return {
-      data: messages,
+      data: enriched,
       meta: {
         total,
         page,
