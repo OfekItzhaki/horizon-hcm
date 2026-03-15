@@ -6,6 +6,7 @@ import { useNotificationStore, useAuthStore } from '../store';
 export function useNotifications(params?: { unreadOnly?: boolean; page?: number; limit?: number }) {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   return useQuery({
     queryKey: queryKeys.notifications.list(params),
@@ -15,7 +16,7 @@ export function useNotifications(params?: { unreadOnly?: boolean; page?: number;
       setUnreadCount(response.data.unreadCount);
       return response.data;
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!accessToken,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute
   });
@@ -54,6 +55,7 @@ export function useMarkAllAsRead() {
 export function useUnreadCount() {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   return useQuery({
     queryKey: queryKeys.notifications.unreadCount(),
@@ -62,7 +64,7 @@ export function useUnreadCount() {
       setUnreadCount(response.data.count);
       return response.data.count;
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!accessToken,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute
   });
