@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Box,
   Paper,
@@ -11,7 +11,10 @@ import {
   Switch,
   Alert,
   CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import { PhotoCamera } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/auth.store';
@@ -37,6 +40,27 @@ export default function SettingsPage() {
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError('Image must be under 5MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setAvatarError('Please select an image file');
+      return;
+    }
+    setAvatarError(null);
+    const reader = new FileReader();
+    reader.onload = (ev) => setAvatarPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+    // TODO: upload to backend when file upload endpoint is available
+  };
 
   const {
     register: registerProfile,
@@ -113,11 +137,43 @@ export default function SettingsPage() {
         </Typography>
 
         <Box display="flex" alignItems="center" gap={2} mb={3}>
-          <Avatar sx={{ width: 80, height: 80 }}>{user?.name?.charAt(0) || 'U'}</Avatar>
+          <Box position="relative">
+            <Avatar sx={{ width: 80, height: 80 }} src={avatarPreview || undefined}>
+              {!avatarPreview && (user?.name?.charAt(0) || 'U')}
+            </Avatar>
+            <Tooltip title="Change photo">
+              <IconButton
+                size="small"
+                onClick={() => avatarInputRef.current?.click()}
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  bgcolor: 'primary.main',
+                  color: 'white',
+                  width: 26,
+                  height: 26,
+                  '&:hover': { bgcolor: 'primary.dark' },
+                }}
+              >
+                <PhotoCamera sx={{ fontSize: 14 }} />
+              </IconButton>
+            </Tooltip>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleAvatarChange}
+            />
+          </Box>
           <Box>
             <Typography variant="body2" color="text.secondary">
               Role: {user?.role}
             </Typography>
+            {avatarError && (
+              <Typography variant="caption" color="error">{avatarError}</Typography>
+            )}
           </Box>
         </Box>
 

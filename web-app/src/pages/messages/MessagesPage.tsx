@@ -137,7 +137,7 @@ export default function MessagesPage() {
     );
   }
 
-  const messages = data?.data || [];
+  const messages: any[] = data?.data || [];
 
   return (
     <Box p={3} display="flex" flexDirection="column" height="calc(100vh - 100px)">
@@ -178,16 +178,20 @@ export default function MessagesPage() {
               </Typography>
             </Box>
           ) : (
-            messages.map((message: Message) => (
+            messages.map((message: any) => (
               <Box key={message.id} display="flex" gap={1} alignItems="flex-start">
                 <Avatar sx={{ width: 32, height: 32 }}>
-                  {message.senderName?.charAt(0) || 'U'}
+                  {(message.senderName || message.sender_id || 'U').charAt(0).toUpperCase()}
                 </Avatar>
                 <Box flex={1}>
                   <Box display="flex" alignItems="center" gap={1} mb={0.5}>
-                    <Typography variant="subtitle2">{message.senderName || 'Unknown'}</Typography>
+                    <Typography variant="subtitle2">
+                      {message.senderName || message.sender_id?.slice(0, 8) || 'Unknown'}
+                    </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {new Date(message.createdAt).toLocaleString()}
+                      {message.createdAt || message.created_at
+                        ? new Date(message.createdAt || message.created_at).toLocaleString()
+                        : ''}
                     </Typography>
                   </Box>
                   <Paper

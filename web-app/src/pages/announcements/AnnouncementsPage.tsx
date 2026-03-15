@@ -123,8 +123,8 @@ export default function AnnouncementsPage() {
     );
   }
 
-  const announcements = data?.data || [];
-  const totalPages = Math.ceil((data?.total || 0) / limit);
+  const announcements: any[] = data?.data || [];
+  const totalPages = Math.ceil((data?.meta?.total || 0) / limit);
 
   return (
     <Box p={3}>
@@ -140,7 +140,7 @@ export default function AnnouncementsPage() {
         <Box display="flex" gap={2} alignItems="center">
           <TextField
             select
-            label="Priority"
+            label="Category"
             value={priorityFilter}
             onChange={(e) => {
               setPriorityFilter(e.target.value);
@@ -150,9 +150,10 @@ export default function AnnouncementsPage() {
             size="small"
           >
             <MenuItem value="all">All</MenuItem>
-            <MenuItem value="urgent">Urgent</MenuItem>
-            <MenuItem value="normal">Normal</MenuItem>
-            <MenuItem value="low">Low</MenuItem>
+            <MenuItem value="general">General</MenuItem>
+            <MenuItem value="maintenance">Maintenance</MenuItem>
+            <MenuItem value="financial">Financial</MenuItem>
+            <MenuItem value="safety">Safety</MenuItem>
           </TextField>
         </Box>
       </Paper>
@@ -167,21 +168,23 @@ export default function AnnouncementsPage() {
       ) : (
         <>
           <Box display="flex" flexDirection="column" gap={2} mb={3}>
-            {announcements.map((announcement: Announcement) => (
+            {announcements.map((announcement: any) => (
               <Card key={announcement.id}>
                 <CardContent>
                   <Box display="flex" justifyContent="space-between" alignItems="start" mb={2}>
                     <Box flex={1}>
                       <Box display="flex" alignItems="center" gap={1} mb={1}>
                         <Typography variant="h6">{announcement.title}</Typography>
-                        <Chip
-                          label={announcement.priority}
-                          color={priorityColors[announcement.priority]}
-                          size="small"
-                          sx={{ textTransform: 'capitalize' }}
-                        />
-                        {announcement.requiresConfirmation && (
-                          <Chip label="Requires Confirmation" color="warning" size="small" />
+                        {announcement.is_urgent && (
+                          <Chip label="Urgent" color="error" size="small" />
+                        )}
+                        {announcement.category && (
+                          <Chip
+                            label={announcement.category}
+                            color="default"
+                            size="small"
+                            sx={{ textTransform: 'capitalize' }}
+                          />
                         )}
                       </Box>
                       <Typography
@@ -203,32 +206,20 @@ export default function AnnouncementsPage() {
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
                       <Typography variant="caption" color="text.secondary">
-                        {announcement.publishedAt
-                          ? `Published: ${new Date(announcement.publishedAt).toLocaleDateString()}`
-                          : announcement.scheduledFor
-                            ? `Scheduled: ${new Date(announcement.scheduledFor).toLocaleDateString()}`
-                            : `Created: ${new Date(announcement.createdAt).toLocaleDateString()}`}
+                        {`Created: ${new Date(announcement.created_at).toLocaleDateString()}`}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" display="block">
-                        Target:{' '}
-                        {announcement.targetAudience.type === 'all'
-                          ? 'All Residents'
-                          : announcement.targetAudience.type}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        Read by: {announcement.readBy?.length || 0} residents
-                        {announcement.requiresConfirmation &&
-                          ` | Confirmed: ${announcement.confirmedBy?.length || 0}`}
+                        Read by: {announcement.announcement_reads?.length || 0} residents
                       </Typography>
                     </Box>
                   </Box>
                 </CardContent>
 
                 <CardActions>
-                  <IconButton size="small" onClick={() => handleView(announcement)} title="View">
+                  <IconButton size="small" onClick={() => handleView(announcement as any)} title="View">
                     <ViewIcon />
                   </IconButton>
-                  <IconButton size="small" onClick={() => handleEdit(announcement)} title="Edit">
+                  <IconButton size="small" onClick={() => handleEdit(announcement as any)} title="Edit">
                     <EditIcon />
                   </IconButton>
                   <IconButton

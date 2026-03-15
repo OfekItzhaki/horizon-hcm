@@ -24,7 +24,7 @@ import { ListDocumentsQuery } from './queries/impl/list-documents.query';
 @ApiTags('documents')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@Controller('documents')
+@Controller('buildings/:buildingId/documents')
 export class DocumentsController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -34,10 +34,14 @@ export class DocumentsController {
   @Post()
   @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Upload document' })
-  async uploadDocument(@CurrentUser() user: any, @Body() dto: UploadDocumentDto) {
+  async uploadDocument(
+    @CurrentUser() user: any,
+    @Param('buildingId') buildingId: string,
+    @Body() dto: UploadDocumentDto,
+  ) {
     return this.commandBus.execute(
       new UploadDocumentCommand(
-        dto.buildingId,
+        dto.buildingId || buildingId,
         dto.fileId,
         dto.title,
         dto.category,
@@ -68,7 +72,7 @@ export class DocumentsController {
   @ApiOperation({ summary: 'List documents' })
   async listDocuments(
     @CurrentUser() user: any,
-    @Query('buildingId') buildingId: string,
+    @Param('buildingId') buildingId: string,
     @Query('category') category?: string,
     @Query('accessLevel') accessLevel?: string,
     @Query('page') page?: string,

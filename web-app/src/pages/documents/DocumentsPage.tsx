@@ -50,13 +50,13 @@ export default function DocumentsPage() {
     },
   });
 
-  const handleDownload = async (doc: Document) => {
+  const handleDownload = async (doc: any) => {
     try {
       const response = await documentsApi.download(selectedBuildingId!, doc.id);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', doc.fileName);
+      link.setAttribute('download', doc.title || doc.fileName || doc.file_id || 'document');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -101,7 +101,7 @@ export default function DocumentsPage() {
     );
   }
 
-  const documents = data?.data || [];
+  const documents: any[] = data?.data || [];
 
   return (
     <Box p={3}>
@@ -142,13 +142,13 @@ export default function DocumentsPage() {
         </Paper>
       ) : (
         <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={2}>
-          {documents.map((doc: Document) => (
+          {documents.map((doc: any) => (
             <Card key={doc.id}>
               <CardContent>
                 <Box display="flex" alignItems="center" gap={1} mb={2}>
                   <FileIcon color="primary" />
                   <Typography variant="h6" sx={{ fontSize: '1rem', wordBreak: 'break-word' }}>
-                    {doc.fileName}
+                    {doc.title || doc.fileName || doc.file_id}
                   </Typography>
                 </Box>
 
@@ -157,13 +157,13 @@ export default function DocumentsPage() {
                 </Box>
 
                 <Typography variant="caption" color="text.secondary" display="block">
-                  Size: {formatFileSize(doc.fileSize)}
+                  Access: {doc.access_level || doc.accessLevel || 'all'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" display="block">
-                  Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}
+                  Uploaded: {new Date(doc.created_at || doc.uploadedAt).toLocaleDateString()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" display="block">
-                  By: {doc.uploadedBy}
+                  By: {doc.uploaded_by || doc.uploadedBy}
                 </Typography>
               </CardContent>
 
