@@ -17,6 +17,16 @@ import { PrismaService } from './prisma/prisma.service';
 import helmet from 'helmet';
 import * as compression from 'compression';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[FATAL] Unhandled Rejection:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[FATAL] Uncaught Exception:', error);
+  process.exit(1);
+});
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -114,4 +124,7 @@ async function bootstrap() {
   logger.log(`Application is running on: http://localhost:${port}`, 'Bootstrap');
   logger.log(`Swagger documentation: http://localhost:${port}/api/docs`, 'Bootstrap');
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('[FATAL] Bootstrap failed:', err);
+  process.exit(1);
+});
