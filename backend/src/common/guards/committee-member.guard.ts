@@ -40,6 +40,11 @@ export class CommitteeMemberGuard implements CanActivate {
       return false;
     }
 
+    // Admin role bypasses committee membership check
+    if (user.roles?.includes('admin') || user.role === 'admin') {
+      return true;
+    }
+
     // Check cache first
     const cacheKey = `committee:${user.id}:${buildingId}`;
     const cached = await this.cache.get(cacheKey);

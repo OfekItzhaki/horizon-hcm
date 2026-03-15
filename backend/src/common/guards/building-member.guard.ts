@@ -41,6 +41,11 @@ export class BuildingMemberGuard implements CanActivate {
       return false;
     }
 
+    // Admin role bypasses building membership check
+    if (user.roles?.includes('admin') || user.role === 'admin') {
+      return true;
+    }
+
     // Check cache first
     const cacheKey = `building-member:${user.id}:${buildingId}`;
     const cached = await this.cache.get(cacheKey);

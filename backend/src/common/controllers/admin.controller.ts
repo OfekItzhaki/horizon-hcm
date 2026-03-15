@@ -32,19 +32,20 @@ export class AdminController {
     @Query('limit') limit = 100,
     @Query('offset') offset = 0,
   ) {
-    const logs = await this.auditLogService.searchAuditLogs(
-      {
-        userId,
-        action,
-        resourceType,
-        startDate: startDate ? new Date(startDate) : undefined,
-        endDate: endDate ? new Date(endDate) : undefined,
-      },
-      Number(limit),
-      Number(offset),
-    );
+    const filters = {
+      userId,
+      action,
+      resourceType,
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+    };
 
-    return { data: logs, total: logs.length, limit: Number(limit), offset: Number(offset) };
+    const [logs, total] = await Promise.all([
+      this.auditLogService.searchAuditLogs(filters, Number(limit), Number(offset)),
+      this.auditLogService.countAuditLogs(filters),
+    ]);
+
+    return { data: logs, total, limit: Number(limit), offset: Number(offset) };
   }
 
   @Get('users')

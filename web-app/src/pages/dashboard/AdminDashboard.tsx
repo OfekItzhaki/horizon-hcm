@@ -161,7 +161,7 @@ export function AdminDashboard() {
               <Typography variant="body2" color="text.secondary" paragraph>
                 {t('dashboard.systemSettingsDesc')}
               </Typography>
-              <Button variant="outlined" onClick={() => navigate('/admin/system')} fullWidth>
+              <Button variant="outlined" onClick={() => navigate('/admin/settings')} fullWidth>
                 {t('dashboard.systemSettings')}
               </Button>
             </CardContent>
@@ -175,7 +175,7 @@ export function AdminDashboard() {
               <Typography variant="body2" color="text.secondary" paragraph>
                 {t('dashboard.auditLogsDesc')}
               </Typography>
-              <Button variant="outlined" onClick={() => navigate('/admin/audit')} fullWidth>
+              <Button variant="outlined" onClick={() => navigate('/admin/audit-log')} fullWidth>
                 {t('dashboard.viewLogs')}
               </Button>
             </CardContent>

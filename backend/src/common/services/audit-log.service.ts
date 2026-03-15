@@ -159,19 +159,15 @@ export class AuditLogService {
   }
 
   /**
-   * Search audit logs
+   * Build where clause for audit log filters
    */
-  async searchAuditLogs(
-    filters: {
-      userId?: string;
-      action?: string;
-      resourceType?: string;
-      startDate?: Date;
-      endDate?: Date;
-    },
-    limit: number = 100,
-    offset: number = 0,
-  ) {
+  private buildAuditLogWhere(filters: {
+    userId?: string;
+    action?: string;
+    resourceType?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }) {
     const where: any = {};
 
     if (filters.userId) {
@@ -196,12 +192,45 @@ export class AuditLogService {
       }
     }
 
+    return where;
+  }
+
+  /**
+   * Search audit logs
+   */
+  async searchAuditLogs(
+    filters: {
+      userId?: string;
+      action?: string;
+      resourceType?: string;
+      startDate?: Date;
+      endDate?: Date;
+    },
+    limit: number = 100,
+    offset: number = 0,
+  ) {
+    const where = this.buildAuditLogWhere(filters);
+
     return this.prisma.audit_logs.findMany({
       where,
       orderBy: { created_at: 'desc' },
       take: limit,
       skip: offset,
     });
+  }
+
+  /**
+   * Count audit logs matching filters
+   */
+  async countAuditLogs(filters: {
+    userId?: string;
+    action?: string;
+    resourceType?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }) {
+    const where = this.buildAuditLogWhere(filters);
+    return this.prisma.audit_logs.count({ where });
   }
 
   /**

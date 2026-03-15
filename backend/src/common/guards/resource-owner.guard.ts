@@ -41,6 +41,11 @@ export class ResourceOwnerGuard implements CanActivate {
       return false;
     }
 
+    // Admin role bypasses resource ownership check
+    if (user.roles?.includes('admin') || user.role === 'admin') {
+      return true;
+    }
+
     // Special case: Users can always modify their own profile
     if (resourceType === 'UserProfile' && resourceId === user.id) {
       return true;
