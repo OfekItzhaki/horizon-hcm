@@ -17,7 +17,7 @@ import { residentSchema, type ResidentInput } from '@horizon-hcm/shared';
 import { residentsApi, apartmentsApi } from '@horizon-hcm/shared';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
-import type { Resident } from '@horizon-hcm/shared';
+import type { Resident, Apartment } from '@horizon-hcm/shared';
 
 interface ResidentFormDialogProps {
   open: boolean;
@@ -37,7 +37,7 @@ export default function ResidentFormDialog({
   const isEdit = !!resident;
 
   // Fetch apartments for the building
-  const { data: apartments = [] } = useQuery({
+  const { data: apartments = [] } = useQuery<Apartment[]>({
     queryKey: queryKeys.apartments.list(buildingId),
     queryFn: async () => {
       const response = await apartmentsApi.getByBuilding(buildingId);

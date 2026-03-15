@@ -39,7 +39,7 @@ export default function SettingsPage() {
   const updateUser = useAuthStore((state) => state.updateUser);
   const { language, setLanguage, theme, setTheme } = useAppStore();
   const navigate = useNavigate();
-  const isAdmin = user?.role === 'admin' || user?.role === 'system_admin';
+  const isAdmin = user?.role === 'admin' || (user?.role as string) === 'system_admin';
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);

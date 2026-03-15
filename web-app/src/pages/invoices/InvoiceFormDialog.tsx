@@ -17,7 +17,7 @@ import { invoiceSchema, type InvoiceInput } from '@horizon-hcm/shared';
 import { invoicesApi, apartmentsApi } from '@horizon-hcm/shared';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
-import type { Invoice } from '@horizon-hcm/shared';
+import type { Invoice, Apartment } from '@horizon-hcm/shared';
 
 interface InvoiceFormDialogProps {
   open: boolean;
@@ -36,7 +36,7 @@ export default function InvoiceFormDialog({
   const [error, setError] = useState<string | null>(null);
   const isEdit = !!invoice;
 
-  const { data: apartments = [] } = useQuery({
+  const { data: apartments = [] } = useQuery<Apartment[]>({
     queryKey: queryKeys.apartments.list(buildingId),
     queryFn: async () => {
       const response = await apartmentsApi.getByBuilding(buildingId);

@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
                       color={
                         stat.changeType === 'positive'
                           ? 'success'
-                          : stat.changeType === 'negative'
+                          : (stat.changeType as string) === 'negative'
                             ? 'error'
                             : 'default'
                       }

@@ -38,7 +38,7 @@ export default function ResidentsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
 
-  const { data: residents = [], isLoading } = useQuery({
+  const { data: residents = [], isLoading } = useQuery<Resident[]>({
     queryKey: queryKeys.residents.list(selectedBuilding || ''),
     queryFn: async () => {
       if (!selectedBuilding) return [];

@@ -9,8 +9,10 @@ const getApiBaseUrl = (): string => {
   }
 
   // For Expo (mobile) - process.env is available
-  if (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const proc = (typeof globalThis !== 'undefined' && (globalThis as any).process) as any;
+  if (proc?.env?.EXPO_PUBLIC_API_URL) {
+    return proc.env.EXPO_PUBLIC_API_URL;
   }
 
   // Default for development
