@@ -46,11 +46,11 @@ export class BuildingMemberGuard implements CanActivate {
       return true;
     }
 
-    // Check cache first
+    // Check cache first — only 'true' is cached (negative results not cached)
     const cacheKey = `building-member:${user.id}:${buildingId}`;
     const cached = await this.cache.get(cacheKey);
-    if (cached !== null) {
-      return cached === 'true';
+    if (cached === 'true') {
+      return true;
     }
 
     // Resolve profile ID — apartment_owners/tenants/committee store user_profiles.id
@@ -109,8 +109,10 @@ export class BuildingMemberGuard implements CanActivate {
 
     const isMember = !!isTenant;
 
-    // Cache result for 15 minutes
-    await this.cache.set(cacheKey, isMember ? 'true' : 'false', 900);
+    // Only cache positive results — negative results may change after seed/assignment
+    if (isMember) {
+      await this.cache.set(cacheKey, 'true', 900);
+    }
 
     if (!isMember) {
       await this.auditLog.log({

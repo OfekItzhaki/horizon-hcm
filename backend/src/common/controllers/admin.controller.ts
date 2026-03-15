@@ -1,7 +1,8 @@
-import { Controller, Get, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AuditLogService } from '../services/audit-log.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../services/cache.service';
 
 @ApiTags('admin')
 @Controller('admin')
@@ -10,7 +11,17 @@ export class AdminController {
   constructor(
     private readonly auditLogService: AuditLogService,
     private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
   ) {}
+
+  @Post('cache/clear')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Clear all cache (admin only)' })
+  @ApiResponse({ status: 200, description: 'Cache cleared' })
+  async clearCache() {
+    await this.cache.clear();
+    return { message: 'Cache cleared successfully' };
+  }
 
   @Get('audit-logs')
   @HttpCode(HttpStatus.OK)

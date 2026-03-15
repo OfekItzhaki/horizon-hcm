@@ -52,6 +52,18 @@ export class GetPollsHandler implements IQueryHandler<GetPollsQuery> {
           }
         }
 
+        const mappedOptions = options.map((opt: any, idx: number) => {
+          // opt can be a plain string, or an object with id/text/label
+          const isString = typeof opt === 'string';
+          const id = isString ? String(idx) : String(opt.id ?? opt.text ?? idx);
+          const text = isString ? opt : (opt.text || opt.label || String(opt));
+          return {
+            id,
+            text,
+            votes: voteCounts[id] || 0,
+          };
+        });
+
         return {
           id: poll.id,
           buildingId: poll.building_id,
@@ -62,11 +74,7 @@ export class GetPollsHandler implements IQueryHandler<GetPollsQuery> {
           status: poll.status,
           createdBy: poll.created_by,
           createdAt: poll.created_at,
-          options: options.map((opt: any) => ({
-            id: opt.id || opt.text,
-            text: opt.text || opt.label || String(opt),
-            votes: voteCounts[opt.id || opt.text] || 0,
-          })),
+          options: mappedOptions,
         };
       }),
       meta: {
