@@ -8,7 +8,6 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -89,10 +88,10 @@ export class PaymentsController {
     @Query('apartmentId') apartmentId?: string,
     @Query('buildingId') buildingId?: string,
     @Query('status') status?: string,
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    const query = new ListPaymentsQuery(apartmentId, buildingId, status, page, limit);
+    const query = new ListPaymentsQuery(apartmentId, buildingId, status, Number(page) || 1, Number(limit) || 20);
     return this.queryBus.execute(query);
   }
 

@@ -47,7 +47,8 @@ export default function PaymentDashboardPage() {
     enabled: !!selectedBuildingId,
     select: (response) => {
       const body = response.data as any;
-      return Array.isArray(body) ? body : (body?.data ?? []);
+      const arr = Array.isArray(body) ? body : (body?.data ?? body?.items ?? []);
+      return Array.isArray(arr) ? arr : [];
     },
   });
 
@@ -57,7 +58,8 @@ export default function PaymentDashboardPage() {
     enabled: !!selectedBuildingId,
     select: (response) => {
       const body = response.data as any;
-      return Array.isArray(body) ? body : (body?.data ?? []);
+      const arr = Array.isArray(body) ? body : (body?.data ?? body?.items ?? []);
+      return Array.isArray(arr) ? arr : [];
     },
   });
 
@@ -87,13 +89,13 @@ export default function PaymentDashboardPage() {
     );
   }
 
-  const pendingInvoices = invoices.filter((inv: Invoice) => inv.status === 'pending');
-  const overdueInvoices = invoices.filter((inv: Invoice) => inv.status === 'overdue');
-  const paidInvoices = invoices.filter((inv: Invoice) => inv.status === 'paid');
-  const recentPayments = payments.slice(0, 5);
+  const pendingInvoices = (Array.isArray(invoices) ? invoices : []).filter((inv: any) => inv.status === 'pending');
+  const overdueInvoices = (Array.isArray(invoices) ? invoices : []).filter((inv: any) => inv.status === 'overdue');
+  const paidInvoices = (Array.isArray(invoices) ? invoices : []).filter((inv: any) => inv.status === 'paid');
+  const recentPayments = (Array.isArray(payments) ? payments : []).slice(0, 5);
 
-  const totalPending = pendingInvoices.reduce((sum: number, inv: Invoice) => sum + inv.amount, 0);
-  const totalOverdue = overdueInvoices.reduce((sum: number, inv: Invoice) => sum + inv.amount, 0);
+  const totalPending = pendingInvoices.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
+  const totalOverdue = overdueInvoices.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
 
   return (
     <Box p={3}>
@@ -189,33 +191,36 @@ export default function PaymentDashboardPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {[...overdueInvoices, ...pendingInvoices].map((invoice: Invoice) => (
-                    <TableRow key={invoice.id} hover>
-                      <TableCell>{invoice.description}</TableCell>
-                      <TableCell>
-                        {invoice.currency} {invoice.amount.toFixed(2)}
-                      </TableCell>
-                      <TableCell>{new Date(invoice.dueDate).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={invoice.status}
-                          color={statusColors[invoice.status]}
-                          size="small"
-                          sx={{ textTransform: 'capitalize' }}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button
-                          variant="contained"
-                          size="small"
-                          startIcon={<PaymentIcon />}
-                          onClick={() => handlePayClick(invoice)}
-                        >
-                          Pay Now
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {[...overdueInvoices, ...pendingInvoices].map((invoice: any) => {
+                    const dueDate = invoice.dueDate || invoice.due_date;
+                    return (
+                      <TableRow key={invoice.id} hover>
+                        <TableCell>{invoice.description}</TableCell>
+                        <TableCell>
+                          {invoice.currency} {Number(invoice.amount).toFixed(2)}
+                        </TableCell>
+                        <TableCell>{dueDate ? new Date(dueDate).toLocaleDateString() : '—'}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={invoice.status}
+                            color={statusColors[invoice.status as InvoiceStatus] ?? 'default'}
+                            size="small"
+                            sx={{ textTransform: 'capitalize' }}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <Button
+                            variant="contained"
+                            size="small"
+                            startIcon={<PaymentIcon />}
+                            onClick={() => handlePayClick(invoice)}
+                          >
+                            Pay Now
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -246,26 +251,29 @@ export default function PaymentDashboardPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {recentPayments.map((payment: Payment) => (
-                    <TableRow key={payment.id} hover>
-                      <TableCell>{payment.transactionId}</TableCell>
-                      <TableCell>
-                        {payment.currency} {payment.amount.toFixed(2)}
-                      </TableCell>
-                      <TableCell sx={{ textTransform: 'capitalize' }}>
-                        {payment.method.replace('_', ' ')}
-                      </TableCell>
-                      <TableCell>{new Date(payment.paidAt).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={payment.status}
-                          color={payment.status === 'completed' ? 'success' : 'default'}
-                          size="small"
-                          sx={{ textTransform: 'capitalize' }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {recentPayments.map((payment: any) => {
+                    const paidAt = payment.paidAt || payment.paid_at || payment.createdAt || payment.created_at;
+                    return (
+                      <TableRow key={payment.id} hover>
+                        <TableCell>{payment.transactionId || payment.transaction_id || payment.id}</TableCell>
+                        <TableCell>
+                          {payment.currency} {Number(payment.amount).toFixed(2)}
+                        </TableCell>
+                        <TableCell sx={{ textTransform: 'capitalize' }}>
+                          {(payment.method || payment.payment_method || '').replace('_', ' ')}
+                        </TableCell>
+                        <TableCell>{paidAt ? new Date(paidAt).toLocaleDateString() : '—'}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={payment.status}
+                            color={payment.status === 'completed' ? 'success' : 'default'}
+                            size="small"
+                            sx={{ textTransform: 'capitalize' }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -279,7 +287,7 @@ export default function PaymentDashboardPage() {
           open={paymentDialogOpen}
           onClose={handleClosePaymentDialog}
           invoiceId={selectedInvoice.id}
-          invoiceAmount={selectedInvoice.amount}
+          invoiceAmount={Number(selectedInvoice.amount)}
         />
       )}
     </Box>

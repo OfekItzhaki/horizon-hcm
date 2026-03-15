@@ -43,13 +43,15 @@ export default function InvoicesPage() {
       if (!selectedBuilding) return [];
       const response = await invoicesApi.getAll({ buildingId: selectedBuilding });
       const body = response.data as any;
-      return Array.isArray(body) ? body : (body?.data ?? []);
+      const arr = Array.isArray(body) ? body : (body?.data ?? body?.items ?? []);
+      return Array.isArray(arr) ? arr : [];
     },
     enabled: !!selectedBuilding,
   });
 
-  const filteredInvoices = invoices.filter((invoice) => {
-    const matchesSearch = invoice.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredInvoices = (Array.isArray(invoices) ? invoices : []).filter((invoice: any) => {
+    const desc = (invoice.description || '').toLowerCase();
+    const matchesSearch = desc.includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -174,38 +176,43 @@ export default function InvoicesPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredInvoices.map((invoice) => (
-                <TableRow key={invoice.id}>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {invoice.description}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{invoice.apartmentId}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {invoice.currency} {invoice.amount.toFixed(2)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{format(new Date(invoice.dueDate), 'MMM dd, yyyy')}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={invoice.status.toUpperCase()}
-                      color={getStatusColor(invoice.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{format(new Date(invoice.createdAt), 'MMM dd, yyyy')}</TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleEdit(invoice)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" color="error">
-                      <CancelIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredInvoices.map((invoice: any) => {
+                const dueDate = invoice.dueDate || invoice.due_date;
+                const createdAt = invoice.createdAt || invoice.created_at;
+                const apartmentId = invoice.apartmentId || invoice.apartment_id;
+                return (
+                  <TableRow key={invoice.id}>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="medium">
+                        {invoice.description}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{apartmentId}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="medium">
+                        {invoice.currency} {Number(invoice.amount).toFixed(2)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{dueDate ? format(new Date(dueDate), 'MMM dd, yyyy') : '—'}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={invoice.status?.toUpperCase()}
+                        color={getStatusColor(invoice.status)}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>{createdAt ? format(new Date(createdAt), 'MMM dd, yyyy') : '—'}</TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={() => handleEdit(invoice)}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" color="error">
+                        <CancelIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
