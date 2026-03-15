@@ -73,6 +73,7 @@ describe('Residents Module - Property-Based Tests', () => {
             },
             user_profiles: {
               findUnique: jest.fn(),
+              findMany: jest.fn(),
             },
             building_committee_members: {
               findUnique: jest.fn(),
@@ -207,6 +208,9 @@ describe('Residents Module - Property-Based Tests', () => {
           uuidArbitrary(),
           uuidArbitrary(),
           async (building, user, role, memberId, currentUserId) => {
+            // Reset mocks between property iterations
+            jest.clearAllMocks();
+
             // Setup: Committee member exists
             const committeeMember = {
               id: memberId,
@@ -320,6 +324,9 @@ describe('Residents Module - Property-Based Tests', () => {
             { minLength: 0, maxLength: 5 },
           ),
           async (user, buildings, apartments) => {
+            // Reset mocks between property iterations
+            jest.clearAllMocks();
+
             // Setup: User with committee memberships and apartments
             const userProfile = {
               ...user,
@@ -375,8 +382,8 @@ describe('Residents Module - Property-Based Tests', () => {
             });
 
             // Verify: All apartments included
-            expect(result.owned_apartments.length).toBe(apartments.length);
-            result.owned_apartments.forEach((apt: any) => {
+            expect(result.apartment_owners.length).toBe(apartments.length);
+            result.apartment_owners.forEach((apt: any) => {
               expect(apt.apartment_number).toBeDefined();
               expect(apt.building_id).toBeDefined();
             });
@@ -395,6 +402,9 @@ describe('Residents Module - Property-Based Tests', () => {
           buildingArbitrary(),
           fc.array(userArbitrary(), { minLength: 1, maxLength: 10 }),
           async (building, users) => {
+            // Reset mocks between property iterations
+            jest.clearAllMocks();
+
             // Setup: Residents with known data
             const committeeMembers = users.slice(0, 2).map((u) => ({
               building_id: building.id,
@@ -414,7 +424,7 @@ describe('Residents Module - Property-Based Tests', () => {
               .mockResolvedValue([]);
 
             const mockFileStorage = {
-              uploadFile: jest.fn().mockResolvedValue({
+              upload: jest.fn().mockResolvedValue({
                 url: 'https://example.com/file.csv',
                 key: 'file-key',
               }),
@@ -434,9 +444,9 @@ describe('Residents Module - Property-Based Tests', () => {
             expect(result.expiresAt).toBeInstanceOf(Date);
 
             // Verify: File was uploaded
-            expect(mockFileStorage.uploadFile).toHaveBeenCalledTimes(1);
-            const uploadCall = mockFileStorage.uploadFile.mock.calls[0][0];
-            expect(uploadCall.mimeType).toBe('text/csv');
+            expect(mockFileStorage.upload).toHaveBeenCalledTimes(1);
+            const uploadCall = mockFileStorage.upload.mock.calls[0][0];
+            expect(uploadCall.mimetype).toBe('text/csv');
 
             // Verify: CSV content includes headers
             const csvContent = uploadCall.buffer.toString('utf-8');
@@ -445,9 +455,13 @@ describe('Residents Module - Property-Based Tests', () => {
             expect(csvContent).toContain('User Type');
             expect(csvContent).toContain('Committee Role');
 
-            // Verify: CSV includes user data
+            // Verify: CSV includes user data (accounting for CSV escaping)
             users.slice(0, 2).forEach((user) => {
-              expect(csvContent).toContain(user.full_name);
+              // The name may be CSV-escaped (wrapped in quotes if it contains special chars)
+              const escapedName = user.full_name.includes(',') || user.full_name.includes('"') || user.full_name.includes('\n')
+                ? `"${user.full_name.replace(/"/g, '""')}"`
+                : user.full_name;
+              expect(csvContent).toContain(escapedName);
             });
           },
         ),

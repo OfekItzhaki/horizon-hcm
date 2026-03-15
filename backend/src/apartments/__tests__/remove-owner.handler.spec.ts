@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { RemoveOwnerHandler } from '../commands/handlers/remove-owner.handler';
 import { RemoveOwnerCommand } from '../commands/impl/remove-owner.command';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -28,12 +29,17 @@ describe('RemoveOwnerHandler', () => {
     log: jest.fn(),
   };
 
+  const mockEventBus = {
+    publish: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RemoveOwnerHandler,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: AuditLogService, useValue: mockAuditLog },
+        { provide: EventBus, useValue: mockEventBus },
       ],
     }).compile();
 

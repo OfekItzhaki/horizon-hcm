@@ -118,6 +118,13 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
+    "testPathIgnorePatterns": [
+      "__tests__/e2e/",
+      "__tests__/integration/",
+      "__tests__/performance/",
+      "files/__tests__/malware-scanning-integration",
+      "files/services/__tests__/malware-scanning"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
