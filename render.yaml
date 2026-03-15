@@ -1,5 +1,5 @@
 services:
-  # Backend NestJS API
+  # Backend NestJS API — uses your single free service slot
   - type: web
     name: horizon-hcm-api
     runtime: node
@@ -14,21 +14,13 @@ services:
       - key: PORT
         value: 3001
       - key: DATABASE_URL
-        sync: false  # Set manually in Render dashboard
-      - key: REDIS_HOST
-        fromService:
-          name: horizon-hcm-redis
-          type: redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          name: horizon-hcm-redis
-          type: redis
-          property: port
+        sync: false  # Supabase connection string — set in Render dashboard
+      - key: REDIS_URL
+        sync: false  # Upstash Redis URL (rediss://...) — set in Render dashboard
       - key: JWT_PRIVATE_KEY
-        sync: false  # Set manually in Render dashboard
+        sync: false  # Copy from backend/.env — set in Render dashboard
       - key: JWT_PUBLIC_KEY
-        sync: false  # Set manually in Render dashboard
+        sync: false  # Copy from backend/.env — set in Render dashboard
       - key: AUTH_MODE
         value: full
       - key: CACHE_NAMESPACE
@@ -43,18 +35,9 @@ services:
         value: true
       - key: ALLOW_REACTIVATION
         value: true
-      - key: FRONTEND_URL
-        sync: false  # Set to your Vercel URL after deploying web app
       - key: ALLOWED_ORIGINS
-        sync: false  # Comma-separated list: https://your-app.vercel.app,https://yourdomain.com
+        sync: false  # Your Vercel URL, e.g. https://your-app.vercel.app
       - key: RESEND_API_KEY
-        sync: false  # Set manually in Render dashboard
+        sync: false
       - key: EMAIL_FROM
         sync: false
-
-  # Redis
-  - type: redis
-    name: horizon-hcm-redis
-    region: oregon
-    plan: free
-    maxmemoryPolicy: allkeys-lru

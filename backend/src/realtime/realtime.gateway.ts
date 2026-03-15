@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
 import { PresenceService } from './services/presence.service';
+import { getRedisClientOptions } from '../common/utils/redis-config';
 
 @WebSocketGateway({
   cors: {
@@ -42,12 +43,7 @@ export class RealtimeGateway
   async afterInit(server: Server) {
     try {
       // Set up Redis adapter for multi-instance WebSocket support
-      const redisHost = this.configService.get<string>('REDIS_HOST') || 'localhost';
-      const redisPort = this.configService.get<number>('REDIS_PORT') || 6379;
-
-      const pubClient = createClient({
-        socket: { host: redisHost, port: redisPort },
-      });
+      const pubClient = createClient(getRedisClientOptions() as any);
       const subClient = pubClient.duplicate();
 
       await Promise.all([pubClient.connect(), subClient.connect()]);

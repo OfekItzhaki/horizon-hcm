@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { LoggerService } from '../../common/logger/logger.service';
 import { randomBytes } from 'crypto';
+import { getRedisConnection } from '../../common/utils/redis-config';
 
 export interface ChunkedUploadSession {
   uploadId: string;
@@ -26,14 +27,7 @@ export class ChunkedUploadService {
     private configService: ConfigService,
     private logger: LoggerService,
   ) {
-    const redisHost = this.configService.get<string>('REDIS_HOST') || 'localhost';
-    const redisPort = parseInt(this.configService.get<string>('REDIS_PORT') || '6379');
-
-    this.redis = new Redis({
-      host: redisHost,
-      port: redisPort,
-    });
-
+    this.redis = new Redis(getRedisConnection() as any);
     this.logger.log('ChunkedUploadService initialized', 'ChunkedUploadService');
   }
 

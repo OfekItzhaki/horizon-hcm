@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, RedisClientType } from 'redis';
 import { LoggerService } from '../logger/logger.service';
+import { getRedisClientOptions } from '../utils/redis-config';
 
 @Injectable()
 export class CacheService implements OnModuleInit, OnModuleDestroy {
@@ -14,15 +15,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    const redisHost = this.configService.get<string>('REDIS_HOST') || 'localhost';
-    const redisPort = this.configService.get<number>('REDIS_PORT') || 6379;
-
-    this.client = createClient({
-      socket: {
-        host: redisHost,
-        port: redisPort,
-      },
-    });
+    this.client = createClient(getRedisClientOptions() as any);
 
     this.client.on('error', (err) => {
       this.logger.error('Redis Client Error', err);

@@ -31,6 +31,7 @@ import { PollsModule } from './polls/polls.module';
 import { SeedModule } from './seed/seed.module';
 import { AuthOverrideModule } from './auth-override/auth-override.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
+import { getRedisConnection } from './common/utils/redis-config';
 import { ApiVersioningMiddleware } from './common/middleware/api-versioning.middleware';
 
 @Module({
@@ -54,14 +55,8 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     // Import PrismaModule first so it's available for HorizonAuthModule
     PrismaModule,
     // BullMQ configuration
-    BullModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('REDIS_HOST') || 'localhost',
-          port: parseInt(configService.get<string>('REDIS_PORT') || '6379'),
-        },
-      }),
-      inject: [ConfigService],
+    BullModule.forRoot({
+      connection: getRedisConnection(),
     }),
     // Rate limiting
     ThrottlerModule.forRoot([
@@ -79,10 +74,7 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
         publicKey: process.env.JWT_PUBLIC_KEY,
         privateKey: process.env.JWT_PRIVATE_KEY,
       },
-      redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT) || 6379,
-      },
+      redis: getRedisConnection(),
       email: {
         provider: 'resend',
         apiKey: process.env.RESEND_API_KEY,
