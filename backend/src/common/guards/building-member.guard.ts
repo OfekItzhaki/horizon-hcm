@@ -48,15 +48,24 @@ export class BuildingMemberGuard implements CanActivate {
       return cached === 'true';
     }
 
-    // Check committee membership
-    const isCommittee = await this.prisma.building_committee_members.findUnique({
-      where: {
-        building_id_user_id: {
-          building_id: buildingId,
-          user_id: user.id,
-        },
-      },
+    // Resolve profile ID — apartment_owners/tenants/committee store user_profiles.id
+    const profile = await this.prisma.user_profiles.findUnique({
+      where: { user_id: user.id },
+      select: { id: true },
     });
+    const profileId = profile?.id;
+
+    // Check committee membership
+    const isCommittee = profileId
+      ? await this.prisma.building_committee_members.findUnique({
+          where: {
+            building_id_user_id: {
+              building_id: buildingId,
+              user_id: profileId,
+            },
+          },
+        })
+      : null;
 
     if (isCommittee) {
       await this.cache.set(cacheKey, 'true', 900);
@@ -64,14 +73,16 @@ export class BuildingMemberGuard implements CanActivate {
     }
 
     // Check apartment ownership
-    const isOwner = await this.prisma.apartment_owners.findFirst({
-      where: {
-        user_id: user.id,
-        apartments: {
-          building_id: buildingId,
-        },
-      },
-    });
+    const isOwner = profileId
+      ? await this.prisma.apartment_owners.findFirst({
+          where: {
+            user_id: profileId,
+            apartments: {
+              building_id: buildingId,
+            },
+          },
+        })
+      : null;
 
     if (isOwner) {
       await this.cache.set(cacheKey, 'true', 900);
@@ -79,15 +90,17 @@ export class BuildingMemberGuard implements CanActivate {
     }
 
     // Check active tenancy
-    const isTenant = await this.prisma.apartment_tenants.findFirst({
-      where: {
-        user_id: user.id,
-        is_active: true,
-        apartments: {
-          building_id: buildingId,
-        },
-      },
-    });
+    const isTenant = profileId
+      ? await this.prisma.apartment_tenants.findFirst({
+          where: {
+            user_id: profileId,
+            is_active: true,
+            apartments: {
+              building_id: buildingId,
+            },
+          },
+        })
+      : null;
 
     const isMember = !!isTenant;
 

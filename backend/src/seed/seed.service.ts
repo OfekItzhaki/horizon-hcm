@@ -166,11 +166,12 @@ export class SeedService {
         },
       });
 
-      // Create apartment owners
-      await this.prisma.apartment_owners.upsert({
+      // Create apartment owners — user_id references user_profiles.id per schema
+      await this.prisma.apartment_owners.deleteMany({
         where: { id: '00000000-0000-0000-0000-000000000030' },
-        update: {},
-        create: {
+      });
+      await this.prisma.apartment_owners.create({
+        data: {
           id: '00000000-0000-0000-0000-000000000030',
           apartment_id: apartment1.id,
           user_id: ownerProfile.id,
@@ -179,25 +180,28 @@ export class SeedService {
         },
       });
 
-      // Create apartment tenant
-      await this.prisma.apartment_tenants.upsert({
+      // Create apartment tenant — delete first to avoid FK constraint on user_id update
+      // user_id references user_profiles.id per schema
+      await this.prisma.apartment_tenants.deleteMany({
         where: { id: '00000000-0000-0000-0000-000000000040' },
-        update: {},
-        create: {
+      });
+      await this.prisma.apartment_tenants.create({
+        data: {
           id: '00000000-0000-0000-0000-000000000040',
           apartment_id: apartment2.id,
           user_id: tenantProfile.id,
           move_in_date: new Date('2024-01-01'),
-          move_out_date: new Date('2025-12-31'),
+          move_out_date: new Date('2027-12-31'),
           is_active: true,
         },
       });
 
-      // Create committee member
-      await this.prisma.building_committee_members.upsert({
+      // Create committee member — user_id references user_profiles.id per schema
+      await this.prisma.building_committee_members.deleteMany({
         where: { id: '00000000-0000-0000-0000-000000000050' },
-        update: {},
-        create: {
+      });
+      await this.prisma.building_committee_members.create({
+        data: {
           id: '00000000-0000-0000-0000-000000000050',
           building_id: building.id,
           user_id: committeeProfile.id,
