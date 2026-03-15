@@ -42,9 +42,10 @@ export default function SettingsPage() {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -56,10 +57,24 @@ export default function SettingsPage() {
       return;
     }
     setAvatarError(null);
+
+    // Show local preview immediately
     const reader = new FileReader();
     reader.onload = (ev) => setAvatarPreview(ev.target?.result as string);
     reader.readAsDataURL(file);
-    // TODO: upload to backend when file upload endpoint is available
+
+    // Upload to backend
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const res = await usersApi.uploadAvatar(formData);
+      setAvatarPreview((res.data as any).avatarUrl);
+    } catch (err: any) {
+      setAvatarError(err.response?.data?.message || 'Failed to upload photo');
+    } finally {
+      setAvatarUploading(false);
+    }
   };
 
   const {
@@ -145,6 +160,7 @@ export default function SettingsPage() {
               <IconButton
                 size="small"
                 onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
                 sx={{
                   position: 'absolute',
                   bottom: 0,
@@ -156,7 +172,7 @@ export default function SettingsPage() {
                   '&:hover': { bgcolor: 'primary.dark' },
                 }}
               >
-                <PhotoCamera sx={{ fontSize: 14 }} />
+                {avatarUploading ? <CircularProgress size={14} color="inherit" /> : <PhotoCamera sx={{ fontSize: 14 }} />}
               </IconButton>
             </Tooltip>
             <input

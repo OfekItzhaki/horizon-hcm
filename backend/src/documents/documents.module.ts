@@ -26,5 +26,4 @@ const QueryHandlers = [
   imports: [CqrsModule, PrismaModule, CommonModule],
   controllers: [DocumentsController],
   providers: [...CommandHandlers, ...QueryHandlers],
-})
-export class DocumentsModule {}
+})export class DocumentsModule {}

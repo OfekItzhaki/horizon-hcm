@@ -112,10 +112,17 @@ export class UsersController {
       throw new BadRequestException('No file uploaded');
     }
 
-    // TODO: Upload file to storage service and get URL
-    const avatarUrl = `/uploads/avatars/${user.id}/${file.filename}`;
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException('Only image files are allowed');
+    }
 
-    // Update profile with avatar URL
+    if (file.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('File size must be under 5MB');
+    }
+
+    // Store as base64 data URL — works without S3
+    const avatarUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+
     await this.prisma.user_profiles.updateMany({
       where: { user_id: user.id },
       data: {
