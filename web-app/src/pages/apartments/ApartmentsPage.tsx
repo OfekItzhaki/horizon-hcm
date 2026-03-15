@@ -42,7 +42,8 @@ export default function ApartmentsPage() {
     queryFn: async () => {
       if (!selectedBuilding) return [];
       const response = await apartmentsApi.getByBuilding(selectedBuilding);
-      return response.data;
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
     },
     enabled: !!selectedBuilding,
   });

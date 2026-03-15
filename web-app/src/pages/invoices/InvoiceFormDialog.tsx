@@ -40,7 +40,8 @@ export default function InvoiceFormDialog({
     queryKey: queryKeys.apartments.list(buildingId),
     queryFn: async () => {
       const response = await apartmentsApi.getByBuilding(buildingId);
-      return response.data;
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
     },
     enabled: open && !!buildingId,
   });

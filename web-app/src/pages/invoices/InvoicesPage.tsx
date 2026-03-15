@@ -42,7 +42,8 @@ export default function InvoicesPage() {
     queryFn: async () => {
       if (!selectedBuilding) return [];
       const response = await invoicesApi.getAll({ buildingId: selectedBuilding });
-      return response.data;
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
     },
     enabled: !!selectedBuilding,
   });
