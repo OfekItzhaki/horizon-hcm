@@ -53,7 +53,10 @@ export default function PollsPage() {
         limit,
       }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
+    },
   });
 
   const deletePollMutation = useMutation({
@@ -141,8 +144,8 @@ export default function PollsPage() {
     );
   }
 
-  const polls = data?.data || [];
-  const totalPages = Math.ceil((data?.total || 0) / limit);
+  const polls = data || [];
+  const totalPages = 1; // pagination handled server-side
 
   return (
     <Box p={3}>

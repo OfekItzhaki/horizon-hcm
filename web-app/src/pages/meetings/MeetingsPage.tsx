@@ -36,7 +36,10 @@ export default function MeetingsPage() {
     queryKey: queryKeys.meetings.list(selectedBuildingId || ''),
     queryFn: () => meetingsApi.getAll(selectedBuildingId || ''),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
+    },
   });
 
   const getMeetingStatus = (meeting: Meeting) => {
@@ -85,7 +88,7 @@ export default function MeetingsPage() {
     );
   }
 
-  const meetings = data?.data || [];
+  const meetings = data || [];
 
   const handleCreate = () => {
     setSelectedMeeting(undefined);

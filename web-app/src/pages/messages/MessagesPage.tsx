@@ -39,7 +39,10 @@ export default function MessagesPage() {
     queryKey: queryKeys.messages.list(selectedBuildingId || '', { page, limit }),
     queryFn: () => messagesApi.getAll(selectedBuildingId || '', { page, limit }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? body ?? []);
+    },
   });
 
   const sendMessageMutation = useMutation({
@@ -137,7 +140,7 @@ export default function MessagesPage() {
     );
   }
 
-  const messages: any[] = data?.data || [];
+  const messages: any[] = data || [];
 
   return (
     <Box p={3} display="flex" flexDirection="column" height="calc(100vh - 100px)">

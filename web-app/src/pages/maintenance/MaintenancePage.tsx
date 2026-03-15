@@ -65,7 +65,10 @@ export default function MaintenancePage() {
         limit,
       }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? body ?? []);
+    },
   });
 
   const handleCreate = () => {
@@ -117,8 +120,8 @@ export default function MaintenancePage() {
     );
   }
 
-  const requests = data?.data || [];
-  const totalPages = Math.ceil((data?.total || 0) / limit);
+  const requests = data || [];
+  const totalPages = Math.ceil(((data as any)?.length ? Math.ceil((data as any).length / limit) : 0));
 
   return (
     <Box p={3}>

@@ -45,14 +45,20 @@ export default function PaymentDashboardPage() {
     queryKey: queryKeys.invoices.list(selectedBuildingId || ''),
     queryFn: () => invoicesApi.getAll({ buildingId: selectedBuildingId }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
+    },
   });
 
   const { data: payments = [], isLoading: paymentsLoading } = useQuery({
     queryKey: queryKeys.payments.list(selectedBuildingId || ''),
     queryFn: () => paymentsApi.getAll({ buildingId: selectedBuildingId }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
+    },
   });
 
   const handlePayClick = (invoice: Invoice) => {

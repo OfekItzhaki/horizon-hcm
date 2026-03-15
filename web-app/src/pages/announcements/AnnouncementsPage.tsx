@@ -58,7 +58,10 @@ export default function AnnouncementsPage() {
         limit,
       }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? body ?? []);
+    },
   });
 
   const deleteAnnouncementMutation = useMutation({
@@ -123,7 +126,7 @@ export default function AnnouncementsPage() {
     );
   }
 
-  const announcements: any[] = data?.data || [];
+  const announcements: any[] = data || [];
   const totalPages = Math.ceil((data?.meta?.total || 0) / limit);
 
   return (

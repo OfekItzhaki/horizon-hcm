@@ -46,7 +46,10 @@ export default function PaymentsPage() {
     queryKey: queryKeys.payments.list(selectedBuildingId || ''),
     queryFn: () => paymentsApi.getAll({ buildingId: selectedBuildingId }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? []);
+    },
   });
 
   const handleDownloadReceipt = async (paymentId: string) => {

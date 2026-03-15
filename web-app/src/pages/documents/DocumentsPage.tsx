@@ -40,7 +40,10 @@ export default function DocumentsPage() {
         category: categoryFilter === 'all' ? undefined : categoryFilter,
       }),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => {
+      const body = response.data as any;
+      return Array.isArray(body) ? body : (body?.data ?? body ?? []);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -101,7 +104,7 @@ export default function DocumentsPage() {
     );
   }
 
-  const documents: any[] = data?.data || [];
+  const documents: any[] = data || [];
 
   return (
     <Box p={3}>
