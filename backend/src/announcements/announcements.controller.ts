@@ -19,7 +19,7 @@ import { GetAnnouncementStatsQuery } from './queries/impl/get-announcement-stats
 @ApiTags('announcements')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@Controller('announcements')
+@Controller('buildings/:buildingId/announcements')
 export class AnnouncementsController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -29,10 +29,14 @@ export class AnnouncementsController {
   @Post()
   @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Create announcement' })
-  async createAnnouncement(@CurrentUser() user: any, @Body() dto: CreateAnnouncementDto) {
+  async createAnnouncement(
+    @CurrentUser() user: any,
+    @Param('buildingId') buildingId: string,
+    @Body() dto: CreateAnnouncementDto,
+  ) {
     return this.commandBus.execute(
       new CreateAnnouncementCommand(
-        dto.buildingId,
+        dto.buildingId || buildingId,
         user.id,
         dto.title,
         dto.content,
@@ -87,7 +91,7 @@ export class AnnouncementsController {
   @ApiOperation({ summary: 'List announcements' })
   async listAnnouncements(
     @CurrentUser() user: any,
-    @Query('buildingId') buildingId: string,
+    @Param('buildingId') buildingId: string,
     @Query('category') category?: string,
     @Query('isUrgent') isUrgent?: string,
     @Query('page') page?: string,

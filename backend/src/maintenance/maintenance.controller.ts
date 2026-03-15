@@ -20,7 +20,7 @@ import { ListMaintenanceRequestsQuery } from './queries/impl/list-maintenance-re
 @ApiTags('maintenance')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@Controller('maintenance')
+@Controller('buildings/:buildingId/maintenance')
 export class MaintenanceController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -30,10 +30,14 @@ export class MaintenanceController {
   @Post()
   @UseGuards(BuildingMemberGuard)
   @ApiOperation({ summary: 'Create maintenance request' })
-  async createRequest(@CurrentUser() user: any, @Body() dto: CreateMaintenanceRequestDto) {
+  async createRequest(
+    @CurrentUser() user: any,
+    @Param('buildingId') buildingId: string,
+    @Body() dto: CreateMaintenanceRequestDto,
+  ) {
     return this.commandBus.execute(
       new CreateMaintenanceRequestCommand(
-        dto.buildingId,
+        dto.buildingId || buildingId,
         dto.apartmentId,
         user.id,
         dto.title,
@@ -102,7 +106,7 @@ export class MaintenanceController {
   @ApiOperation({ summary: 'List maintenance requests' })
   async listRequests(
     @CurrentUser() user: any,
-    @Query('buildingId') buildingId?: string,
+    @Param('buildingId') buildingId: string,
     @Query('apartmentId') apartmentId?: string,
     @Query('status') status?: string,
     @Query('category') category?: string,

@@ -31,7 +31,7 @@ export class InvoicesController {
     @Query('limit') limit: number = 20,
   ) {
     return this.queryBus.execute(
-      new GetInvoicesQuery(buildingId, apartmentId, status, Number(page), Number(limit)),
+      new GetInvoicesQuery(buildingId, apartmentId, status, Number(page) || 1, Number(limit) || 20),
     );
   }
 
