@@ -183,7 +183,9 @@ export function Sidebar({ onClose }: SidebarProps) {
 
   const filteredMenuItems = useMemo(() => {
     if (!user?.role) return [];
-    return menuItems.filter((item) => item.roles.includes(user.role));
+    // Normalize 'admin' to 'system_admin' for role matching
+    const role = user.role === 'admin' ? USER_ROLES.SYSTEM_ADMIN : user.role;
+    return menuItems.filter((item) => item.roles.includes(role));
   }, [menuItems, user?.role]);
 
   const handleNavigate = (path: string) => {

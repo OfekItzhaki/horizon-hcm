@@ -14,9 +14,10 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { PhotoCamera } from '@mui/icons-material';
+import { PhotoCamera, ArrowBack } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { useAppStore } from '../../store/app.store';
 import { usersApi } from '@horizon-hcm/shared/src/api/users';
@@ -37,6 +38,8 @@ export default function SettingsPage() {
   const user = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
   const { language, setLanguage, theme, setTheme } = useAppStore();
+  const navigate = useNavigate();
+  const isAdmin = user?.role === 'admin' || user?.role === 'system_admin';
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -155,9 +158,14 @@ export default function SettingsPage() {
 
   return (
     <Box p={3}>
-      <Typography variant="h4" mb={3}>
-        Settings
-      </Typography>
+      <Box display="flex" alignItems="center" gap={1} mb={3}>
+        {isAdmin && (
+          <IconButton onClick={() => navigate('/admin')} size="small" sx={{ mr: 0.5 }}>
+            <ArrowBack />
+          </IconButton>
+        )}
+        <Typography variant="h4">Settings</Typography>
+      </Box>
 
       {/* Profile Section */}
       <Paper sx={{ p: 3, mb: 3 }}>
