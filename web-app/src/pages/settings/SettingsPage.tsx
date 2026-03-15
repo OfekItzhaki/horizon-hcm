@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -35,6 +35,7 @@ interface PasswordFormData {
 
 export default function SettingsPage() {
   const user = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
   const { language, setLanguage, theme, setTheme } = useAppStore();
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState(false);
@@ -44,6 +45,17 @@ export default function SettingsPage() {
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Load latest avatar from backend on mount
+  useEffect(() => {
+    usersApi.getProfile().then((res) => {
+      const avatar = (res.data as any)?.avatar;
+      if (avatar) {
+        setAvatarPreview(avatar);
+        updateUser({ avatar });
+      }
+    }).catch(() => {});
+  }, []);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,7 +81,9 @@ export default function SettingsPage() {
       const formData = new FormData();
       formData.append('avatar', file);
       const res = await usersApi.uploadAvatar(formData);
-      setAvatarPreview((res.data as any).avatarUrl);
+      const avatarUrl = (res.data as any).avatarUrl;
+      setAvatarPreview(avatarUrl);
+      updateUser({ avatar: avatarUrl });
     } catch (err: any) {
       setAvatarError(err.response?.data?.message || 'Failed to upload photo');
     } finally {

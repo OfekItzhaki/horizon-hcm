@@ -42,7 +42,7 @@ export class DocumentsController {
   @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Upload document file (multipart)' })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { storage: require('multer').memoryStorage() }))
   async uploadDocumentFile(
     @CurrentUser() user: any,
     @Param('buildingId') buildingId: string,
