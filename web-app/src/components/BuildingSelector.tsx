@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   FormControl,
   InputLabel,
@@ -19,6 +19,13 @@ export function BuildingSelector() {
   const { selectedBuildingId, setSelectedBuilding } = useAppStore();
   const { data: buildings, isLoading } = useBuildings();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Auto-select the first building if none is selected
+  useEffect(() => {
+    if (!selectedBuildingId && buildings && Array.isArray(buildings) && buildings.length > 0) {
+      setSelectedBuilding((buildings[0] as any).id);
+    }
+  }, [buildings, selectedBuildingId, setSelectedBuilding]);
 
   // Filter buildings based on search query
   const filteredBuildings = useMemo(() => {
@@ -67,7 +74,7 @@ export function BuildingSelector() {
     );
   }
 
-  // Single building - just display it
+  // Single building - just display it (auto-selected via useEffect above)
   if (buildings.length === 1) {
     return (
       <Box display="flex" alignItems="center" gap={1}>

@@ -44,6 +44,8 @@ export class AuthOverrideController {
     const accessToken = jwt.sign(payload, process.env.JWT_PRIVATE_KEY, {
       algorithm: 'RS256',
       expiresIn: '24h',
+      issuer: 'horizon-auth',
+      audience: 'horizon-api',
     });
 
     // Generate refresh token (simplified - in production use proper refresh token logic)
@@ -53,6 +55,8 @@ export class AuthOverrideController {
       {
         algorithm: 'RS256',
         expiresIn: '7d',
+        issuer: 'horizon-auth',
+        audience: 'horizon-api',
       }
     );
 
@@ -84,9 +88,9 @@ export class AuthOverrideController {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_PUBLIC_KEY, {
         algorithms: ['RS256'],
+        issuer: 'horizon-auth',
+        audience: 'horizon-api',
       }) as any;
-
-      // Get user with profile
       const userWithProfile = await this.prisma.user.findUnique({
         where: { id: decoded.sub },
         include: {
@@ -132,9 +136,9 @@ export class AuthOverrideController {
       // Verify refresh token
       const decoded = jwt.verify(body.refreshToken, process.env.JWT_PUBLIC_KEY, {
         algorithms: ['RS256'],
+        issuer: 'horizon-auth',
+        audience: 'horizon-api',
       }) as any;
-
-      if (decoded.type !== 'refresh') {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
@@ -157,6 +161,8 @@ export class AuthOverrideController {
       const accessToken = jwt.sign(payload, process.env.JWT_PRIVATE_KEY, {
         algorithm: 'RS256',
         expiresIn: '24h',
+        issuer: 'horizon-auth',
+        audience: 'horizon-api',
       });
 
       const refreshToken = jwt.sign(
@@ -165,6 +171,8 @@ export class AuthOverrideController {
         {
           algorithm: 'RS256',
           expiresIn: '7d',
+          issuer: 'horizon-auth',
+          audience: 'horizon-api',
         }
       );
 
