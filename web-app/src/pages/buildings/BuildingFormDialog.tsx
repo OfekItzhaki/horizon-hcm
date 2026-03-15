@@ -12,8 +12,7 @@ import {
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { buildingSchema, type BuildingInput } from '@horizon-hcm/shared';
-import { buildingsApi } from '@horizon-hcm/shared';
+import { buildingSchema, type BuildingInput, buildingsApi } from '@horizon-hcm/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
 import type { Building } from '@horizon-hcm/shared';
@@ -38,22 +37,18 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
     resolver: zodResolver(buildingSchema),
     defaultValues: building
       ? {
-          name: building.name,
-          address: building.address,
-          contactEmail: building.contactEmail,
-          contactPhone: building.contactPhone,
+          name: building.name || '',
+          addressLine: building.address_line || '',
+          city: building.city || '',
+          postalCode: building.postal_code || '',
+          numUnits: building.num_units,
         }
       : {
           name: '',
-          address: {
-            street: '',
-            city: '',
-            state: '',
-            postalCode: '',
-            country: '',
-          },
-          contactEmail: '',
-          contactPhone: '',
+          addressLine: '',
+          city: '',
+          postalCode: '',
+          numUnits: undefined,
         },
   });
 
@@ -64,8 +59,7 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
       handleClose();
     },
     onError: (err: any) => {
-      const message = err.response?.data?.message || 'Failed to create building. Please try again.';
-      setError(message);
+      setError(err.response?.data?.message || 'Failed to create building.');
     },
   });
 
@@ -73,12 +67,10 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
     mutationFn: (data: BuildingInput) => buildingsApi.update(building!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.buildings.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.buildings.detail(building!.id) });
       handleClose();
     },
     onError: (err: any) => {
-      const message = err.response?.data?.message || 'Failed to update building. Please try again.';
-      setError(message);
+      setError(err.response?.data?.message || 'Failed to update building.');
     },
   });
 
@@ -100,7 +92,7 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{isEdit ? 'Edit Building' : 'Add New Building'}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
@@ -133,15 +125,15 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
             <Grid item xs={12}>
               {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
               <Controller
-                name="address.street"
+                name="addressLine"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Street Address"
+                    label="Address *"
                     fullWidth
-                    error={!!errors.address?.street}
-                    helperText={errors.address?.street?.message}
+                    error={!!errors.addressLine}
+                    helperText={errors.addressLine?.message}
                     disabled={isLoading}
                   />
                 )}
@@ -151,15 +143,15 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
             <Grid item xs={12} sm={6}>
               {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
               <Controller
-                name="address.city"
+                name="city"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     label="City"
                     fullWidth
-                    error={!!errors.address?.city}
-                    helperText={errors.address?.city?.message}
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
                     disabled={isLoading}
                   />
                 )}
@@ -169,33 +161,15 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
             <Grid item xs={12} sm={6}>
               {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
               <Controller
-                name="address.state"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="State"
-                    fullWidth
-                    error={!!errors.address?.state}
-                    helperText={errors.address?.state?.message}
-                    disabled={isLoading}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
-              <Controller
-                name="address.postalCode"
+                name="postalCode"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     label="Postal Code"
                     fullWidth
-                    error={!!errors.address?.postalCode}
-                    helperText={errors.address?.postalCode?.message}
+                    error={!!errors.postalCode}
+                    helperText={errors.postalCode?.message}
                     disabled={isLoading}
                   />
                 )}
@@ -205,54 +179,20 @@ export default function BuildingFormDialog({ open, building, onClose }: Building
             <Grid item xs={12} sm={6}>
               {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
               <Controller
-                name="address.country"
+                name="numUnits"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Country"
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                    label="Number of Units"
+                    type="number"
                     fullWidth
-                    error={!!errors.address?.country}
-                    helperText={errors.address?.country?.message}
+                    error={!!errors.numUnits}
+                    helperText={errors.numUnits?.message}
                     disabled={isLoading}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
-              <Controller
-                name="contactEmail"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Contact Email"
-                    type="email"
-                    fullWidth
-                    error={!!errors.contactEmail}
-                    helperText={errors.contactEmail?.message}
-                    disabled={isLoading}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              {/* @ts-expect-error - React Hook Form types mismatch with React 18 */}
-              <Controller
-                name="contactPhone"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Contact Phone"
-                    type="tel"
-                    fullWidth
-                    error={!!errors.contactPhone}
-                    helperText={errors.contactPhone?.message}
-                    disabled={isLoading}
+                    inputProps={{ min: 1 }}
                   />
                 )}
               />

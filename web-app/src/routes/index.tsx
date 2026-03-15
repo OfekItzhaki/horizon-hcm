@@ -35,6 +35,8 @@ const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('../pages/admin/UserManagementPage'));
 const SystemConfigPage = lazy(() => import('../pages/admin/SystemConfigPage'));
+const AdminBuildingsPage = lazy(() => import('../pages/admin/AdminBuildingsPage'));
+const AuditLogPage = lazy(() => import('../pages/admin/AuditLogPage'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -288,11 +290,19 @@ export const router = createBrowserRouter([
       },
       {
         path: 'admin/buildings',
-        element: <Box p={3}>Admin Buildings Management (Coming Soon)</Box>,
+        element: (
+          <LazyLoad>
+            <AdminBuildingsPage />
+          </LazyLoad>
+        ),
       },
       {
         path: 'admin/audit-log',
-        element: <Box p={3}>Audit Log (Coming Soon)</Box>,
+        element: (
+          <LazyLoad>
+            <AuditLogPage />
+          </LazyLoad>
+        ),
       },
       {
         path: 'admin/settings',

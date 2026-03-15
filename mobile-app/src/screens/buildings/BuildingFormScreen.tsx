@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, HelperText } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BuildingsStackParamList } from '../../types/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { buildingsApi } from '@horizon-hcm/shared/src/api/buildings';
 
 const buildingSchema = z.object({
   name: z.string().min(1, 'Building name is required'),
@@ -45,11 +46,20 @@ export default function BuildingFormScreen({ route, navigation }: Props) {
   const onSubmit = async (data: BuildingFormData) => {
     setLoading(true);
     try {
-      // TODO: Call API to create/update building
-      console.log('Building data:', data);
+      const payload = {
+        name: data.name,
+        address: data.address,
+        yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : undefined,
+      };
+      if (building?.id) {
+        await buildingsApi.update(building.id, payload);
+      } else {
+        await buildingsApi.create(payload);
+      }
       navigation.goBack();
     } catch (error) {
       console.error('Error saving building:', error);
+      Alert.alert('Error', 'Failed to save building. Please try again.');
     } finally {
       setLoading(false);
     }

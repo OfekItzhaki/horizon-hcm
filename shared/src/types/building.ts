@@ -3,21 +3,15 @@
 export interface Building {
   id: string;
   name: string;
-  address: Address;
-  contactEmail: string;
-  contactPhone: string;
-  apartmentCount: number;
-  residentCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
+  address_line: string;
+  city?: string;
+  postal_code?: string;
+  num_units?: number;
+  is_active?: boolean;
+  current_balance?: number;
+  _count?: { apartments: number };
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface Apartment {

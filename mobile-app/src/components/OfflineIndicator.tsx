@@ -1,45 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Banner } from 'react-native-paper';
+import { Banner, ActivityIndicator, Text } from 'react-native-paper';
+import { useOfflineSync } from '../hooks/useOfflineSync';
+import { t } from '../i18n';
 
 export default function OfflineIndicator() {
-  const [isOffline, setIsOffline] = useState(false);
+  const { isOnline, isSyncing, pendingCount, syncNow } = useOfflineSync();
 
-  useEffect(() => {
-    // Simple connectivity check using fetch
-    const checkConnection = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/health', {
-          method: 'HEAD',
-          timeout: 5000,
-        } as any);
-        setIsOffline(!response.ok);
-      } catch (error) {
-        setIsOffline(true);
-      }
-    };
+  if (isOnline && !isSyncing) return null;
 
-    // Check immediately
-    checkConnection();
-
-    // Check every 30 seconds
-    const interval = setInterval(checkConnection, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!isOffline) {
-    return null;
-  }
+  const message = isSyncing
+    ? t('common.syncing')
+    : pendingCount > 0
+    ? `${t('offline.cachedData')} · ${pendingCount} ${t('offline.pendingSync')}`
+    : t('offline.banner');
 
   return (
     <View style={styles.container}>
       <Banner
-        visible={isOffline}
-        icon="wifi-off"
-        style={styles.banner}
+        visible
+        icon={isSyncing ? undefined : 'wifi-off'}
+        style={[styles.banner, isSyncing && styles.syncing]}
+        actions={
+          !isSyncing && pendingCount > 0
+            ? [{ label: t('offline.syncNow'), onPress: syncNow }]
+            : []
+        }
       >
-        You are offline. Some features may be limited.
+        <View style={styles.row}>
+          {isSyncing && <ActivityIndicator size={14} style={styles.spinner} />}
+          <Text style={styles.text}>{message}</Text>
+        </View>
       </Banner>
     </View>
   );
@@ -55,5 +46,19 @@ const styles = StyleSheet.create({
   },
   banner: {
     backgroundColor: '#ff9800',
+  },
+  syncing: {
+    backgroundColor: '#1976d2',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  spinner: {
+    marginRight: 8,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 13,
   },
 });

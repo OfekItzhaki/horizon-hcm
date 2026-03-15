@@ -9,13 +9,44 @@ export default defineConfig({
     'process.env': {},
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@shared': path.resolve(__dirname, '../shared/src'),
-    },
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+    alias: [
+      {
+        find: 'react',
+        replacement: path.resolve(__dirname, 'node_modules/react'),
+      },
+      {
+        find: 'react-dom',
+        replacement: path.resolve(__dirname, 'node_modules/react-dom'),
+      },
+      {
+        find: 'react/jsx-runtime',
+        replacement: path.resolve(__dirname, 'node_modules/react/jsx-runtime'),
+      },
+      {
+        find: /^@horizon-hcm\/shared\/src\/store(.*)/,
+        replacement: path.resolve(__dirname, './src/lib/shared-store-shim.ts'),
+      },
+      {
+        find: /^@horizon-hcm\/shared\/src\/(.*)/,
+        replacement: path.resolve(__dirname, '../shared/src/$1'),
+      },
+      {
+        find: '@horizon-hcm/shared',
+        replacement: path.resolve(__dirname, './src/lib/shared-entry.ts'),
+      },
+      {
+        find: '@',
+        replacement: path.resolve(__dirname, './src'),
+      },
+      {
+        find: '@shared',
+        replacement: path.resolve(__dirname, '../shared/src'),
+      },
+    ],
   },
   server: {
-    port: 3000,
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
@@ -73,6 +104,7 @@ export default defineConfig({
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@tanstack/react-query'],
+    include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@tanstack/react-query', 'zustand'],
+    exclude: ['@horizon-hcm/shared'],
   },
 });

@@ -8,3 +8,4 @@ export * from './maintenance';
 export * from './meetings';
 export * from './documents';
 export * from './users';
+export * from './admin';

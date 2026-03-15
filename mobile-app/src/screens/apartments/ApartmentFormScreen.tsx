@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BuildingsStackParamList } from '../../types/navigation';
@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormField, SelectField } from '../../components';
+import { apartmentsApi } from '@horizon-hcm/shared/src/api/buildings';
 
 const apartmentSchema = z.object({
   number: z.string().min(1, 'Apartment number is required'),
@@ -44,11 +45,23 @@ export default function ApartmentFormScreen({ route, navigation }: Props) {
   const onSubmit = async (data: ApartmentFormData) => {
     setLoading(true);
     try {
-      // TODO: Call API to create/update apartment
-      console.log('Apartment data:', data, 'Building ID:', buildingId);
+      const payload = {
+        number: data.number,
+        floor: parseInt(data.floor),
+        size: data.size ? parseFloat(data.size) : undefined,
+        bedrooms: data.bedrooms ? parseInt(data.bedrooms) : undefined,
+        bathrooms: data.bathrooms ? parseFloat(data.bathrooms) : undefined,
+        occupancyStatus: data.occupancyStatus,
+      };
+      if (apartment?.id) {
+        await apartmentsApi.update(apartment.id, payload);
+      } else if (buildingId) {
+        await apartmentsApi.create(buildingId, payload);
+      }
       navigation.goBack();
     } catch (error) {
       console.error('Error saving apartment:', error);
+      Alert.alert('Error', 'Failed to save apartment. Please try again.');
     } finally {
       setLoading(false);
     }

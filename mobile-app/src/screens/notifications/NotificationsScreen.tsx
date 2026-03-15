@@ -1,78 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Card, Text, IconButton, Badge } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAppStore } from '@horizon-hcm/shared/src/store/app.store';
+import { notificationsApi } from '@horizon-hcm/shared';
 import { EmptyState, LoadingSpinner, ErrorMessage } from '../../components';
-import { websocketService } from '../../utils/websocket';
 
 export default function NotificationsScreen() {
-  const { selectedBuildingId } = useAppStore();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
 
-  // Listen for real-time notifications
-  useEffect(() => {
-    const handleNewNotification = (notification: any) => {
-      // Invalidate notifications query to refetch
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    };
-
-    websocketService.on('notification:new', handleNewNotification);
-
-    return () => {
-      websocketService.off('notification:new', handleNewNotification);
-    };
-  }, [queryClient]);
-
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['notifications', selectedBuildingId],
+    queryKey: ['mobile-notifications'],
     queryFn: async () => {
-      // Mock data - replace with actual API call
-      return {
-        data: [
-          {
-            id: '1',
-            type: 'announcement',
-            title: 'New Announcement',
-            message: 'Building maintenance scheduled for next week',
-            read: false,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: '2',
-            type: 'invoice',
-            title: 'Invoice Due',
-            message: 'Your monthly invoice is due in 3 days',
-            read: false,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-          },
-          {
-            id: '3',
-            type: 'maintenance',
-            title: 'Maintenance Update',
-            message: 'Your maintenance request has been completed',
-            read: true,
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-          },
-        ],
-      };
+      const res = await notificationsApi.getAll({ limit: 50 });
+      return res.data;
     },
-    enabled: !!selectedBuildingId,
   });
 
   const markAsReadMutation = useMutation({
-    mutationFn: async (notificationId: string) => {
-      // TODO: Call API to mark notification as read
-      console.log('Mark as read:', notificationId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    },
+    mutationFn: (id: string) => notificationsApi.markAsRead(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mobile-notifications'] }),
   });
 
-  const notifications = data?.data || [];
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const notifications: any[] = (data as any)?.data ?? (Array.isArray(data) ? data : []);
+  const unreadCount = notifications.filter((n) => !n.read_at && !n.is_read).length;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -80,142 +31,81 @@ export default function NotificationsScreen() {
     setRefreshing(false);
   };
 
-  const handleNotificationPress = (notification: any) => {
-    if (!notification.read) {
+  const handlePress = (notification: any) => {
+    const isRead = notification.read_at || notification.is_read;
+    if (!isRead) {
       markAsReadMutation.mutate(notification.id);
     }
-    // TODO: Navigate to related screen based on notification type
   };
 
-  const getNotificationIcon = (type: string) => {
+  const getIcon = (type: string) => {
     switch (type) {
-      case 'announcement':
-        return 'bullhorn';
-      case 'invoice':
-        return 'file-document';
-      case 'maintenance':
-        return 'wrench';
-      case 'meeting':
-        return 'calendar';
-      case 'poll':
-        return 'poll';
-      default:
-        return 'bell';
+      case 'announcement': return 'bullhorn';
+      case 'invoice': return 'file-document';
+      case 'maintenance': return 'wrench';
+      case 'meeting': return 'calendar';
+      case 'poll': return 'poll';
+      default: return 'bell';
     }
   };
 
-  if (!selectedBuildingId) {
-    return <EmptyState message="Please select a building first" />;
-  }
-
-  if (isLoading) {
-    return <LoadingSpinner message="Loading notifications..." />;
-  }
-
-  if (error) {
-    return <ErrorMessage message="Failed to load notifications" />;
-  }
+  if (isLoading) return <LoadingSpinner message="Loading notifications..." />;
+  if (error) return <ErrorMessage message="Failed to load notifications" />;
 
   return (
     <View style={styles.container}>
       {unreadCount > 0 && (
         <View style={styles.header}>
-          <Text variant="titleMedium">
-            {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-          </Text>
+          <Text variant="titleMedium">{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</Text>
         </View>
       )}
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        renderItem={({ item }) => (
-          <Card
-            style={[styles.card, !item.read && styles.unreadCard]}
-            onPress={() => handleNotificationPress(item)}
-          >
-            <Card.Content>
-              <View style={styles.cardHeader}>
-                <View style={styles.iconContainer}>
-                  <IconButton
-                    icon={getNotificationIcon(item.type)}
-                    size={24}
-                    iconColor={!item.read ? '#1976d2' : '#757575'}
-                  />
-                  {!item.read && <Badge style={styles.badge} size={8} />}
+        renderItem={({ item }) => {
+          const isRead = item.read_at || item.is_read;
+          return (
+            <Card style={[styles.card, !isRead && styles.unreadCard]} onPress={() => handlePress(item)}>
+              <Card.Content>
+                <View style={styles.cardHeader}>
+                  <View style={styles.iconContainer}>
+                    <IconButton icon={getIcon(item.type)} size={24} iconColor={!isRead ? '#1976d2' : '#757575'} />
+                    {!isRead && <Badge style={styles.badge} size={8} />}
+                  </View>
+                  <View style={styles.content}>
+                    <Text variant="titleMedium" style={[styles.title, !isRead && styles.unreadTitle]}>
+                      {item.title}
+                    </Text>
+                    <Text variant="bodyMedium" style={styles.message} numberOfLines={2}>
+                      {item.body || item.message}
+                    </Text>
+                    <Text variant="bodySmall" style={styles.date}>
+                      {new Date(item.created_at || item.createdAt).toLocaleString()}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.content}>
-                  <Text
-                    variant="titleMedium"
-                    style={[styles.title, !item.read && styles.unreadTitle]}
-                  >
-                    {item.title}
-                  </Text>
-                  <Text variant="bodyMedium" style={styles.message} numberOfLines={2}>
-                    {item.message}
-                  </Text>
-                  <Text variant="bodySmall" style={styles.date}>
-                    {new Date(item.createdAt).toLocaleString()}
-                  </Text>
-                </View>
-              </View>
-            </Card.Content>
-          </Card>
-        )}
-        ListEmptyComponent={
-          <EmptyState message="No notifications" icon="bell-outline" />
-        }
+              </Card.Content>
+            </Card>
+          );
+        }}
+        ListEmptyComponent={<EmptyState message="No notifications" icon="bell-outline" />}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  card: {
-    margin: 8,
-    marginHorizontal: 16,
-  },
-  unreadCard: {
-    backgroundColor: '#e3f2fd',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  iconContainer: {
-    position: 'relative',
-    marginRight: 8,
-  },
-  badge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#1976d2',
-  },
-  content: {
-    flex: 1,
-  },
-  title: {
-    marginBottom: 4,
-  },
-  unreadTitle: {
-    fontWeight: 'bold',
-  },
-  message: {
-    color: '#666',
-    marginBottom: 4,
-  },
-  date: {
-    color: '#999',
-  },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  header: { padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e0e0e0' },
+  card: { margin: 8, marginHorizontal: 16 },
+  unreadCard: { backgroundColor: '#e3f2fd' },
+  cardHeader: { flexDirection: 'row', alignItems: 'flex-start' },
+  iconContainer: { position: 'relative', marginRight: 8 },
+  badge: { position: 'absolute', top: 8, right: 8, backgroundColor: '#1976d2' },
+  content: { flex: 1 },
+  title: { marginBottom: 4 },
+  unreadTitle: { fontWeight: 'bold' },
+  message: { color: '#666', marginBottom: 4 },
+  date: { color: '#999' },
 });

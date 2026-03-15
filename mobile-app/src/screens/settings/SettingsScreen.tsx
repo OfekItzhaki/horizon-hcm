@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { checkBiometricCapabilities, getBiometricName } from '../../utils/biometric';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
+import { t } from '../../i18n';
+import { useRTL } from '../../i18n/useRTL';
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'Settings'>;
 
@@ -16,6 +18,7 @@ export default function SettingsScreen({ navigation }: Props) {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricName, setBiometricName] = useState('Biometric');
+  const { textAlign } = useRTL();
 
   const isDarkMode = theme === 'dark';
   const isHebrew = language === 'he';
@@ -39,26 +42,24 @@ export default function SettingsScreen({ navigation }: Props) {
 
   const handleBiometricToggle = async () => {
     if (!biometricEnabled) {
-      // Enabling biometric
       const savedCredentials = await AsyncStorage.getItem('saved_credentials');
       if (!savedCredentials) {
         Alert.alert(
-          'Setup Required',
-          'Please login with your email and password first to enable biometric authentication.'
+          t('settings.security'),
+          t('auth.loginWithBiometric')
         );
         return;
       }
       await AsyncStorage.setItem('biometric_enabled', 'true');
       setBiometricEnabled(true);
     } else {
-      // Disabling biometric
       Alert.alert(
-        'Disable Biometric Login',
-        'Are you sure you want to disable biometric login?',
+        t('settings.biometricLogin'),
+        t('settings.logoutConfirm'),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           {
-            text: 'Disable',
+            text: t('common.confirm'),
             style: 'destructive',
             onPress: async () => {
               await AsyncStorage.setItem('biometric_enabled', 'false');
@@ -85,10 +86,10 @@ export default function SettingsScreen({ navigation }: Props) {
   return (
     <ScrollView style={[styles.container, { backgroundColor: paperTheme.colors.background }]}>
       <List.Section>
-        <List.Subheader>Appearance</List.Subheader>
+        <List.Subheader style={{ textAlign }}>{t('settings.appearance')}</List.Subheader>
         <List.Item
-          title="Dark Mode"
-          description="Use dark theme"
+          title={t('settings.darkMode')}
+          titleStyle={{ textAlign }}
           left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
           right={() => <Switch value={isDarkMode} onValueChange={handleThemeToggle} />}
         />
@@ -96,10 +97,11 @@ export default function SettingsScreen({ navigation }: Props) {
       </List.Section>
 
       <List.Section>
-        <List.Subheader>Language</List.Subheader>
+        <List.Subheader style={{ textAlign }}>{t('settings.language')}</List.Subheader>
         <List.Item
-          title="Hebrew"
-          description="Use Hebrew language (RTL)"
+          title={t('settings.hebrew')}
+          description="עברית (RTL)"
+          titleStyle={{ textAlign }}
           left={(props) => <List.Icon {...props} icon="translate" />}
           right={() => <Switch value={isHebrew} onValueChange={handleLanguageToggle} />}
         />
@@ -107,12 +109,12 @@ export default function SettingsScreen({ navigation }: Props) {
       </List.Section>
 
       <List.Section>
-        <List.Subheader>Security</List.Subheader>
+        <List.Subheader style={{ textAlign }}>{t('settings.security')}</List.Subheader>
         {biometricAvailable && (
           <>
             <List.Item
-              title={`${biometricName} Login`}
-              description={`Use ${biometricName} for quick login`}
+              title={`${biometricName} ${t('auth.login')}`}
+              titleStyle={{ textAlign }}
               left={(props) => <List.Icon {...props} icon="fingerprint" />}
               right={() => <Switch value={biometricEnabled} onValueChange={handleBiometricToggle} />}
             />
@@ -122,16 +124,16 @@ export default function SettingsScreen({ navigation }: Props) {
       </List.Section>
 
       <List.Section>
-        <List.Subheader>Notifications</List.Subheader>
+        <List.Subheader style={{ textAlign }}>{t('settings.notifications')}</List.Subheader>
         <List.Item
-          title="Push Notifications"
-          description="Receive push notifications"
+          title={t('settings.pushNotifications')}
+          titleStyle={{ textAlign }}
           left={(props) => <List.Icon {...props} icon="bell" />}
           right={() => <Switch value={true} onValueChange={() => {}} />}
         />
         <List.Item
-          title="Email Notifications"
-          description="Receive email notifications"
+          title={t('settings.emailNotifications')}
+          titleStyle={{ textAlign }}
           left={(props) => <List.Icon {...props} icon="email" />}
           right={() => <Switch value={true} onValueChange={() => {}} />}
         />
@@ -139,17 +141,17 @@ export default function SettingsScreen({ navigation }: Props) {
       </List.Section>
 
       <List.Section>
-        <List.Subheader>Account</List.Subheader>
+        <List.Subheader style={{ textAlign }}>{t('settings.account')}</List.Subheader>
         <List.Item
-          title="Profile"
-          description="View and edit your profile"
+          title={t('nav.profile')}
+          titleStyle={{ textAlign }}
           left={(props) => <List.Icon {...props} icon="account" />}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => navigation.navigate('Profile')}
         />
         <List.Item
-          title="Change Password"
-          description="Update your password"
+          title={t('profile.changePassword')}
+          titleStyle={{ textAlign }}
           left={(props) => <List.Icon {...props} icon="lock" />}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => {}}
@@ -159,10 +161,9 @@ export default function SettingsScreen({ navigation }: Props) {
 
       <List.Section>
         <List.Item
-          title="Logout"
-          description="Sign out of your account"
+          title={t('auth.logout')}
+          titleStyle={{ color: '#f44336', textAlign }}
           left={(props) => <List.Icon {...props} icon="logout" color="#f44336" />}
-          titleStyle={{ color: '#f44336' }}
           onPress={handleLogout}
         />
       </List.Section>

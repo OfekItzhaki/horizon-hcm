@@ -53,7 +53,15 @@ export default function ProfileEditScreen({ navigation }: Props) {
     const result = await showImagePickerOptions();
     if (result) {
       setAvatarUri(result.uri);
-      // TODO: Upload avatar to server
+      try {
+        const formData = new FormData();
+        formData.append('avatar', { uri: result.uri, name: 'avatar.jpg', type: 'image/jpeg' } as any);
+        const response = await usersApi.uploadAvatar(formData);
+        updateUser({ avatar: response.data.avatarUrl });
+      } catch (error) {
+        console.error('Error uploading avatar:', error);
+        Alert.alert('Error', 'Failed to upload photo. Please try again.');
+      }
     }
   };
 

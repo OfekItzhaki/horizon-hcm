@@ -7,16 +7,19 @@ import {
   Button,
   Chip,
   LinearProgress,
+  CircularProgress,
 } from '@mui/material';
 import {
-  People as PeopleIcon,
   Business as BusinessIcon,
   Assessment as AssessmentIcon,
   Settings as SettingsIcon,
   Security as SecurityIcon,
   Storage as StorageIcon,
+  People as PeopleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { buildingsApi } from '@horizon-hcm/shared';
 
 interface StatCard {
   title: string;
@@ -30,22 +33,26 @@ interface StatCard {
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
 
-  const stats: StatCard[] = [
-    {
-      title: 'Total Users',
-      value: '1,234',
-      icon: <PeopleIcon />,
-      color: '#1976d2',
-      change: '+12%',
-      changeType: 'positive',
+  const { data: buildingsData, isLoading: buildingsLoading } = useQuery({
+    queryKey: ['admin-buildings-stats'],
+    queryFn: async () => {
+      const res = await buildingsApi.getAll();
+      return res.data;
     },
+    staleTime: 60_000,
+  });
+
+  const buildingsList = Array.isArray(buildingsData) ? buildingsData : [];
+  const activeBuildings = buildingsList.filter((b: any) => b.is_active !== false).length;
+
+  const stats = [
     {
       title: 'Active Buildings',
-      value: '45',
+      value: buildingsLoading ? '…' : activeBuildings,
       icon: <BusinessIcon />,
       color: '#2e7d32',
-      change: '+3',
-      changeType: 'positive',
+      change: `${buildingsList.length} total`,
+      changeType: 'neutral' as const,
     },
     {
       title: 'System Health',
@@ -53,7 +60,7 @@ export default function AdminDashboardPage() {
       icon: <AssessmentIcon />,
       color: '#ed6c02',
       change: 'Excellent',
-      changeType: 'positive',
+      changeType: 'positive' as const,
     },
     {
       title: 'Storage Used',
@@ -61,7 +68,7 @@ export default function AdminDashboardPage() {
       icon: <StorageIcon />,
       color: '#9c27b0',
       change: '65%',
-      changeType: 'neutral',
+      changeType: 'neutral' as const,
     },
   ];
 

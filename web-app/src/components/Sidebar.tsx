@@ -26,6 +26,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useAuthStore } from '../store';
 import { USER_ROLES } from '@horizon-hcm/shared';
+import { useTranslation } from '../i18n/i18nContext';
 
 interface MenuItem {
   label: string;
@@ -42,11 +43,12 @@ export function Sidebar({ onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
+  const { t } = useTranslation();
 
   const menuItems: MenuItem[] = useMemo(
     () => [
       {
-        label: 'Dashboard',
+        label: t('nav.dashboard'),
         path: '/dashboard',
         icon: <DashboardIcon />,
         roles: [
@@ -57,25 +59,25 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Buildings',
+        label: t('nav.buildings'),
         path: '/buildings',
         icon: <ApartmentIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER],
       },
       {
-        label: 'Apartments',
+        label: t('nav.apartments'),
         path: '/apartments',
         icon: <ApartmentIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER],
       },
       {
-        label: 'Residents',
+        label: t('nav.residents'),
         path: '/residents',
         icon: <PeopleIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER],
       },
       {
-        label: 'Invoices',
+        label: t('nav.invoices'),
         path: '/invoices',
         icon: <ReceiptIcon />,
         roles: [
@@ -86,7 +88,7 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Payments',
+        label: t('nav.payments'),
         path: '/payments',
         icon: <PaymentIcon />,
         roles: [
@@ -97,13 +99,13 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Reports',
+        label: t('nav.reports'),
         path: '/reports',
         icon: <AssessmentIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER, USER_ROLES.OWNER],
       },
       {
-        label: 'Announcements',
+        label: t('nav.announcements'),
         path: '/announcements',
         icon: <AnnouncementIcon />,
         roles: [
@@ -114,7 +116,7 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Messages',
+        label: t('nav.messages'),
         path: '/messages',
         icon: <ChatIcon />,
         roles: [
@@ -125,13 +127,13 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Polls',
+        label: t('nav.polls'),
         path: '/polls',
         icon: <PollIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER, USER_ROLES.OWNER],
       },
       {
-        label: 'Maintenance',
+        label: t('nav.maintenance'),
         path: '/maintenance',
         icon: <BuildIcon />,
         roles: [
@@ -142,13 +144,13 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Meetings',
+        label: t('nav.meetings'),
         path: '/meetings',
         icon: <EventIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.COMMITTEE_MEMBER, USER_ROLES.OWNER],
       },
       {
-        label: 'Documents',
+        label: t('nav.documents'),
         path: '/documents',
         icon: <FolderIcon />,
         roles: [
@@ -159,7 +161,7 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Settings',
+        label: t('nav.settings'),
         path: '/settings',
         icon: <SettingsIcon />,
         roles: [
@@ -170,13 +172,13 @@ export function Sidebar({ onClose }: SidebarProps) {
         ],
       },
       {
-        label: 'Admin',
+        label: t('nav.admin'),
         path: '/admin',
         icon: <AdminPanelSettingsIcon />,
         roles: [USER_ROLES.SYSTEM_ADMIN],
       },
     ],
-    []
+    [t]
   );
 
   const filteredMenuItems = useMemo(() => {

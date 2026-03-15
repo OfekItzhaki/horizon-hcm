@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationsApi } from '@horizon-hcm/shared';
 import { queryKeys } from '../lib/query-keys';
-import { useNotificationStore } from '../store';
+import { useNotificationStore, useAuthStore } from '../store';
 
 export function useNotifications(params?: { unreadOnly?: boolean; page?: number; limit?: number }) {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
     queryKey: queryKeys.notifications.list(params),
@@ -14,6 +15,7 @@ export function useNotifications(params?: { unreadOnly?: boolean; page?: number;
       setUnreadCount(response.data.unreadCount);
       return response.data;
     },
+    enabled: isAuthenticated,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute
   });
@@ -51,6 +53,7 @@ export function useMarkAllAsRead() {
 
 export function useUnreadCount() {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
     queryKey: queryKeys.notifications.unreadCount(),
@@ -59,6 +62,7 @@ export function useUnreadCount() {
       setUnreadCount(response.data.count);
       return response.data.count;
     },
+    enabled: isAuthenticated,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute
   });

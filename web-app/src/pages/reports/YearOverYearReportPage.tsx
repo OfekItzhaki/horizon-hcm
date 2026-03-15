@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Alert,
   MenuItem,
-  Chip,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
@@ -35,6 +34,16 @@ import { reportsApi } from '@horizon-hcm/shared/src/api/financial';
 import { queryKeys } from '../../lib/query-keys';
 import { useAppStore } from '../../store/app.store';
 
+interface YearOverYearData {
+  currentYear: { income: number; expenses: number };
+  previousYear: { income: number; expenses: number };
+  change: { income: number; expenses: number };
+  changePercent: { income: number; expenses: number };
+  monthlyBreakdown: Array<{ month: number; income: number; expenses: number }>;
+}
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export default function YearOverYearReportPage() {
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
   const currentYear = new Date().getFullYear();
@@ -48,7 +57,7 @@ export default function YearOverYearReportPage() {
     queryKey: queryKeys.reports.yearOverYear(selectedBuildingId || '', selectedYears),
     queryFn: () => reportsApi.getYearOverYear(selectedBuildingId || '', selectedYears),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => response.data as unknown as YearOverYearData,
   });
 
   const handleExportPDF = async () => {
@@ -60,10 +69,7 @@ export default function YearOverYearReportPage() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute(
-        'download',
-        `year-over-year-report-${new Date().toISOString().split('T')[0]}.pdf`
-      );
+      link.setAttribute('download', `year-over-year-report-${new Date().toISOString().split('T')[0]}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -82,10 +88,7 @@ export default function YearOverYearReportPage() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute(
-        'download',
-        `year-over-year-report-${new Date().toISOString().split('T')[0]}.xlsx`
-      );
+      link.setAttribute('download', `year-over-year-report-${new Date().toISOString().split('T')[0]}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -119,17 +122,20 @@ export default function YearOverYearReportPage() {
     );
   }
 
-  if (!report) {
-    return null;
-  }
+  if (!report) return null;
 
-  const { data } = report;
-  const changePercentage = data.comparison?.changePercentage || 0;
-  const isPositiveChange = changePercentage > 0;
-  const isSignificantChange = Math.abs(changePercentage) > 20;
+  const incomeChange = report.changePercent?.income ?? 0;
+  const isPositiveChange = incomeChange > 0;
+  const isSignificantChange = Math.abs(incomeChange) > 20;
 
-  // Generate available years for selection
   const availableYears = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
+  // Map monthly breakdown to chart-friendly format
+  const monthlyChartData = (report.monthlyBreakdown || []).map((m) => ({
+    month: MONTH_NAMES[m.month - 1],
+    income: m.income,
+    expenses: m.expenses,
+  }));
 
   return (
     <Box p={3}>
@@ -156,9 +162,7 @@ export default function YearOverYearReportPage() {
             sx={{ minWidth: 150 }}
           >
             {availableYears.map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
+              <MenuItem key={year} value={year}>{year}</MenuItem>
             ))}
           </TextField>
           <Typography variant="body1">vs</Typography>
@@ -170,222 +174,104 @@ export default function YearOverYearReportPage() {
             sx={{ minWidth: 150 }}
           >
             {availableYears.map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
+              <MenuItem key={year} value={year}>{year}</MenuItem>
             ))}
           </TextField>
         </Box>
       </Paper>
 
-      {/* Significant Change Alert */}
       {isSignificantChange && (
         <Alert
           severity={isPositiveChange ? 'success' : 'warning'}
           icon={isPositiveChange ? <TrendingUpIcon /> : <TrendingDownIcon />}
           sx={{ mb: 3 }}
         >
-          Significant {isPositiveChange ? 'increase' : 'decrease'} of{' '}
-          {Math.abs(changePercentage).toFixed(1)}% compared to previous year
+          Significant {isPositiveChange ? 'increase' : 'decrease'} of {Math.abs(incomeChange).toFixed(1)}% in income compared to previous year
         </Alert>
       )}
 
       {/* Summary Cards */}
       <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {selectedYears[0]} Total
+                {selectedYears[0]} Income
               </Typography>
-              <Typography variant="h4">
-                ₪{data.comparison?.previous.toFixed(2) || '0.00'}
-              </Typography>
+              <Typography variant="h5">₪{(report.previousYear?.income ?? 0).toFixed(2)}</Typography>
             </CardContent>
           </Card>
         </Grid>
-
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {selectedYears[1]} Total
+                {selectedYears[1]} Income
               </Typography>
-              <Typography variant="h4">₪{data.comparison?.current.toFixed(2) || '0.00'}</Typography>
+              <Typography variant="h5">₪{(report.currentYear?.income ?? 0).toFixed(2)}</Typography>
             </CardContent>
           </Card>
         </Grid>
-
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Year-over-Year Change
+                Income Change
               </Typography>
               <Box display="flex" alignItems="center" gap={1}>
-                {isPositiveChange ? (
-                  <TrendingUpIcon color="success" />
-                ) : (
-                  <TrendingDownIcon color="error" />
-                )}
-                <Typography variant="h4" color={isPositiveChange ? 'success.main' : 'error.main'}>
-                  {isPositiveChange ? '+' : ''}
-                  {changePercentage.toFixed(1)}%
+                {isPositiveChange ? <TrendingUpIcon color="success" /> : <TrendingDownIcon color="error" />}
+                <Typography variant="h5" color={isPositiveChange ? 'success.main' : 'error.main'}>
+                  {isPositiveChange ? '+' : ''}{incomeChange.toFixed(1)}%
                 </Typography>
               </Box>
-              <Typography variant="body2" color="text.secondary" mt={1}>
-                {isPositiveChange ? '+' : ''}₪{data.comparison?.change.toFixed(2) || '0.00'}
+              <Typography variant="body2" color="text.secondary" mt={0.5}>
+                {(report.change?.income ?? 0) >= 0 ? '+' : ''}₪{(report.change?.income ?? 0).toFixed(2)}
               </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {selectedYears[1]} Expenses
+              </Typography>
+              <Typography variant="h5">₪{(report.currentYear?.expenses ?? 0).toFixed(2)}</Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Year-over-Year Trend Chart */}
+      {/* Monthly Income Trend */}
       <Paper sx={{ mb: 3, p: 2 }}>
-        <Typography variant="h6" mb={2}>
-          Year-over-Year Trend
-        </Typography>
-
+        <Typography variant="h6" mb={2}>{selectedYears[1]} Monthly Trend</Typography>
         <ResponsiveContainer width="100%" height={350}>
-
-          <LineChart data={data.trend}>
+          <LineChart data={monthlyChartData}>
             <CartesianGrid strokeDasharray="3 3" />
-
-            <XAxis
-              dataKey="date"
-              tickFormatter={(value) =>
-                new Date(value).toLocaleDateString('en-US', { month: 'short' })
-              }
-            />
-
+            <XAxis dataKey="month" />
             <YAxis />
-
-            <Tooltip
-              labelFormatter={(value) => new Date(value).toLocaleDateString()}
-              formatter={(value: number) => `₪${value.toFixed(2)}`}
-            />
-
+            <Tooltip formatter={(value: number) => `₪${value.toFixed(2)}`} />
             <Legend />
-
-            <Line
-              type="monotone"
-              dataKey="income"
-              stroke="#00C49F"
-              name={`${selectedYears[1]} Income`}
-              strokeWidth={2}
-            />
-
-            <Line
-              type="monotone"
-              dataKey="expense"
-              stroke="#FF8042"
-              name={`${selectedYears[1]} Expense`}
-              strokeWidth={2}
-            />
+            <Line type="monotone" dataKey="income" stroke="#00C49F" name="Income" strokeWidth={2} />
+            <Line type="monotone" dataKey="expenses" stroke="#FF8042" name="Expenses" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
       </Paper>
 
-      {/* Monthly Breakdown */}
-      <Paper sx={{ mb: 3, p: 2 }}>
-        <Typography variant="h6" mb={2}>
-          Monthly Breakdown
-        </Typography>
-
+      {/* Monthly Bar Breakdown */}
+      <Paper sx={{ p: 2 }}>
+        <Typography variant="h6" mb={2}>Monthly Breakdown</Typography>
         <ResponsiveContainer width="100%" height={350}>
-
-          <BarChart data={data.trend}>
+          <BarChart data={monthlyChartData}>
             <CartesianGrid strokeDasharray="3 3" />
-
-            <XAxis
-              dataKey="date"
-              tickFormatter={(value) =>
-                new Date(value).toLocaleDateString('en-US', { month: 'short' })
-              }
-            />
-
+            <XAxis dataKey="month" />
             <YAxis />
-
-            <Tooltip
-              labelFormatter={(value) => new Date(value).toLocaleDateString()}
-              formatter={(value: number) => `₪${value.toFixed(2)}`}
-            />
-
+            <Tooltip formatter={(value: number) => `₪${value.toFixed(2)}`} />
             <Legend />
-
             <Bar dataKey="income" fill="#00C49F" name="Income" />
-
-            <Bar dataKey="expense" fill="#FF8042" name="Expense" />
+            <Bar dataKey="expenses" fill="#FF8042" name="Expenses" />
           </BarChart>
         </ResponsiveContainer>
-      </Paper>
-
-      {/* Category Comparison */}
-      <Paper sx={{ p: 2 }}>
-        <Typography variant="h6" mb={2}>
-          Category Comparison
-        </Typography>
-        <Grid container spacing={2}>
-          {data.categories.map((category) => {
-            const prevAmount = category.amount * 0.85; // Mock previous year data
-            const change = ((category.amount - prevAmount) / prevAmount) * 100;
-            const isIncrease = change > 0;
-            const isSignificant = Math.abs(change) > 20;
-
-            return (
-              <Grid item xs={12} md={6} key={category.category}>
-                <Box
-                  p={2}
-                  border={1}
-                  borderColor="divider"
-                  borderRadius={1}
-                  bgcolor={
-                    isSignificant ? (isIncrease ? 'success.50' : 'error.50') : 'background.paper'
-                  }
-                >
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography variant="body1" fontWeight="bold">
-                      {category.category}
-                    </Typography>
-                    {isSignificant && (
-                      <Chip
-                        label={`${Math.abs(change).toFixed(0)}% ${isIncrease ? 'increase' : 'decrease'}`}
-                        color={isIncrease ? 'success' : 'error'}
-                        size="small"
-                      />
-                    )}
-                  </Box>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="caption" color="text.secondary">
-                        {selectedYears[0]}
-                      </Typography>
-                      <Typography variant="h6">₪{prevAmount.toFixed(2)}</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="caption" color="text.secondary">
-                        {selectedYears[1]}
-                      </Typography>
-                      <Typography variant="h6">₪{category.amount.toFixed(2)}</Typography>
-                    </Grid>
-                  </Grid>
-                  <Box display="flex" alignItems="center" gap={0.5} mt={1}>
-                    {isIncrease ? (
-                      <TrendingUpIcon fontSize="small" color={isIncrease ? 'success' : 'error'} />
-                    ) : (
-                      <TrendingDownIcon fontSize="small" color="error" />
-                    )}
-                    <Typography variant="body2" color={isIncrease ? 'success.main' : 'error.main'}>
-                      {isIncrease ? '+' : ''}
-                      {change.toFixed(1)}%
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            );
-          })}
-        </Grid>
       </Paper>
     </Box>
   );

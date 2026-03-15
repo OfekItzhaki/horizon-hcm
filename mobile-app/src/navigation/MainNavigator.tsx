@@ -37,6 +37,9 @@ import {
   FinanceStackParamList,
   MainTabParamList,
 } from '../types/navigation';
+import { t } from '../i18n';
+import { useAppStore, useAuthStore } from '@horizon-hcm/shared';
+import AdminScreen from '../screens/admin/AdminScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const BuildingsStackNav = createNativeStackNavigator<BuildingsStackParamList>();
@@ -184,7 +187,12 @@ function FinanceStack() {
   );
 }
 
-export default function MainNavigator() {
+function MainNavigator() {
+  // Re-render tabs when language changes so titles update
+  useAppStore((state) => state.language);
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = (user as any)?.role === 'admin';
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -196,6 +204,7 @@ export default function MainNavigator() {
         name="Dashboard"
         component={DashboardScreen}
         options={{
+          title: t('nav.dashboard'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="view-dashboard" size={size} color={color} />
           ),
@@ -206,7 +215,7 @@ export default function MainNavigator() {
         component={BuildingsStack}
         options={{
           headerShown: false,
-          title: 'Buildings',
+          title: t('nav.buildings'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="office-building" size={size} color={color} />
           ),
@@ -217,7 +226,7 @@ export default function MainNavigator() {
         component={FinanceStack}
         options={{
           headerShown: false,
-          title: 'Finance',
+          title: t('nav.finance'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cash" size={size} color={color} />
           ),
@@ -228,12 +237,26 @@ export default function MainNavigator() {
         component={CommunicationStack}
         options={{
           headerShown: false,
-          title: 'More',
+          title: t('nav.more'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="dots-horizontal" size={size} color={color} />
           ),
         }}
       />
+      {isAdmin && (
+        <Tab.Screen
+          name={'AdminTab' as any}
+          component={AdminScreen}
+          options={{
+            title: 'Admin',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="shield-account" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }
+
+export default MainNavigator;

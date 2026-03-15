@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import type { Notification } from '@horizon-hcm/shared';
+import { useTranslation } from '../i18n/i18nContext';
 
 interface NotificationPanelProps {
   onClose: () => void;
@@ -53,6 +54,7 @@ const notificationRoutes: Record<string, (id: string) => string> = {
 
 export function NotificationPanel({ onClose }: NotificationPanelProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, isLoading } = useNotifications({ limit: 10 });
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
@@ -90,7 +92,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
           borderColor: 'divider',
         }}
       >
-        <Typography variant="h6">Notifications</Typography>
+        <Typography variant="h6">{t('header.notifications')}</Typography>
         <IconButton size="small" onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -105,7 +107,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
             disabled={markAllAsRead.isPending}
             fullWidth
           >
-            Mark all as read
+            {t('header.markAllAsRead')}
           </Button>
         </Box>
       )}
@@ -120,7 +122,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
           <Box p={4} textAlign="center">
             <InfoIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
             <Typography variant="body2" color="text.secondary">
-              No notifications yet
+              {t('header.noNotifications')}
             </Typography>
           </Box>
         ) : (
@@ -180,7 +182,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
               onClose();
             }}
           >
-            View all notifications ({data.total})
+            {t('header.viewAll')} ({data.total})
           </Button>
         </Box>
       )}

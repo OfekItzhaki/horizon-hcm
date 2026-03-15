@@ -1,13 +1,17 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { Card, Title, Paragraph, Button, Chip } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
+import { announcementsApi } from '@horizon-hcm/shared/src/api/communication';
+import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'AnnouncementDetail'>;
 
 function AnnouncementDetailScreen({ route, navigation }: Props) {
   const { announcement } = route.params;
+  const [marking, setMarking] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -24,10 +28,18 @@ function AnnouncementDetailScreen({ route, navigation }: Props) {
     }
   };
 
-  const handleMarkAsRead = () => {
-    // TODO: Call API to mark as read
-    console.log('Mark as read');
-    navigation.goBack();
+  const handleMarkAsRead = async () => {
+    setMarking(true);
+    try {
+      const buildingId = (user as any)?.buildingId || announcement.buildingId;
+      await announcementsApi.markAsRead(buildingId, announcement.id);
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error marking as read:', error);
+      Alert.alert('Error', 'Failed to mark as read. Please try again.');
+    } finally {
+      setMarking(false);
+    }
   };
 
   const isRead = announcement.readBy && announcement.readBy.length > 0;
@@ -63,7 +75,14 @@ function AnnouncementDetailScreen({ route, navigation }: Props) {
       {!isRead && (
         <Card style={styles.card}>
           <Card.Content>
-            <Button mode="contained" icon="check" onPress={handleMarkAsRead} style={styles.button}>
+            <Button
+              mode="contained"
+              icon="check"
+              onPress={handleMarkAsRead}
+              loading={marking}
+              disabled={marking}
+              style={styles.button}
+            >
               Mark as Read
             </Button>
           </Card.Content>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { TextInput, Button, HelperText, Card, Title, Paragraph } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FinanceStackParamList } from '../../types/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { paymentsApi } from '@horizon-hcm/shared/src/api/financial';
 
 const paymentSchema = z.object({
   cardNumber: z.string().min(13, 'Invalid card number').max(19, 'Invalid card number'),
@@ -39,11 +40,17 @@ export default function PaymentFormScreen({ route, navigation }: Props) {
   const onSubmit = async (data: PaymentFormData) => {
     setLoading(true);
     try {
-      // TODO: Call API to process payment
-      console.log('Payment data:', data);
-      navigation.navigate('InvoicesList');
+      await paymentsApi.create({
+        invoiceId: invoice.id,
+        amount: invoice.amount,
+        method: 'credit_card',
+      });
+      Alert.alert('Success', 'Payment processed successfully', [
+        { text: 'OK', onPress: () => navigation.navigate('InvoicesList') },
+      ]);
     } catch (error) {
       console.error('Error processing payment:', error);
+      Alert.alert('Error', 'Failed to process payment. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BuildingsStackParamList } from '../../types/navigation';
@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormField, SelectField } from '../../components';
+import { residentsApi } from '@horizon-hcm/shared/src/api/buildings';
 
 const residentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -42,11 +43,15 @@ export default function ResidentFormScreen({ route, navigation }: Props) {
   const onSubmit = async (data: ResidentFormData) => {
     setLoading(true);
     try {
-      // TODO: Call API to create/update resident
-      console.log('Resident data:', data, 'Apartment ID:', apartmentId);
+      if (resident?.id) {
+        await residentsApi.update(resident.id, data);
+      } else {
+        await residentsApi.create({ ...data, apartmentId });
+      }
       navigation.goBack();
     } catch (error) {
       console.error('Error saving resident:', error);
+      Alert.alert('Error', 'Failed to save resident. Please try again.');
     } finally {
       setLoading(false);
     }

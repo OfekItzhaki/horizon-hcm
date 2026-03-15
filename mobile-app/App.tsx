@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
+import { AppState, AppStateStatus, I18nManager } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,6 +9,8 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { configureAPIClient } from '@horizon-hcm/shared/src/api/client';
 import { useAuthStore, useAppStore } from '@horizon-hcm/shared';
 import { websocketService } from './src/utils/websocket';
+import { setLocale } from './src/i18n';
+import OfflineIndicator from './src/components/OfflineIndicator';
 
 // Configure API client with backend URL and token management
 // Use your computer's IP address so Android device can connect
@@ -48,10 +50,22 @@ const queryClient = new QueryClient({
 
 export default function App() {
   const theme = useAppStore((state) => state.theme);
+  const language = useAppStore((state) => state.language);
   const currentTheme = theme === 'dark' ? darkTheme : lightTheme;
   const user = useAuthStore((state) => state.user);
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
   const appState = useRef(AppState.currentState);
+
+  // Sync i18n locale and RTL layout when language changes
+  useEffect(() => {
+    const isHebrew = language === 'he';
+    setLocale(isHebrew ? 'he' : 'en');
+    if (I18nManager.isRTL !== isHebrew) {
+      I18nManager.forceRTL(isHebrew);
+      // Note: a full reload is needed for RTL to take effect on native components.
+      // In Expo Go you can shake the device and reload; in production builds it reloads automatically.
+    }
+  }, [language]);
 
   // Connect WebSocket when user logs in
   useEffect(() => {
@@ -120,6 +134,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={currentTheme}>
           <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+          <OfflineIndicator />
           <RootNavigator />
         </PaperProvider>
       </QueryClientProvider>

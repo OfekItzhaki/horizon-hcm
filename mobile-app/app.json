@@ -66,7 +66,8 @@
         {
           "faceIDPermission": "Allow Horizon HCM to use Face ID for secure authentication."
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "extra": {
       "eas": {

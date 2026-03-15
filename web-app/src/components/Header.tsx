@@ -27,6 +27,7 @@ import { BuildingSelector } from './BuildingSelector';
 import { NotificationPanel } from './NotificationPanel';
 import { LanguageSelector } from './LanguageSelector';
 import { GlobalSearch } from './GlobalSearch';
+import { useTranslation } from '../i18n/i18nContext';
 
 export function Header() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export function Header() {
   const user = useAuthStore((state) => state.user);
   const { theme, setTheme } = useAppStore();
   const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const { t } = useTranslation();
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
@@ -152,20 +154,20 @@ export function Header() {
           <ListItemIcon>
             <AccountCircleIcon fontSize="small" />
           </ListItemIcon>
-          Profile
+          {t('auth.profile')}
         </MenuItem>
         <MenuItem onClick={handleSettingsClick}>
           <ListItemIcon>
             <SettingsIcon fontSize="small" />
           </ListItemIcon>
-          Settings
+          {t('nav.settings')}
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
-          Logout
+          {t('auth.logout')}
         </MenuItem>
       </Menu>
 

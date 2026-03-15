@@ -303,7 +303,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
 - [x] 4. Checkpoint - Financial Reports Module Complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Implement Authorization Guards
+- [x] 5. Implement Authorization Guards
   - [x] 5.1 Create CommitteeMemberGuard
     - Implement CanActivate interface
     - Extract buildingId from request.params or request.body
@@ -384,10 +384,10 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Test audit logging
     - _Requirements: 10.1-12.8_
 
-- [ ] 6. Checkpoint - Authorization Guards Complete
+- [x] 6. Checkpoint - Authorization Guards Complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement User Context Integration
+- [x] 7. Implement User Context Integration
   - [x] 7.1 Import @CurrentUser() decorator from @ofeklabs/horizon-auth
     - Add import statement: `import { CurrentUser } from '@ofeklabs/horizon-auth';`
     - Verify HorizonAuthModule is imported in AppModule
@@ -477,7 +477,7 @@ All features integrate with existing infrastructure (AuditLogService, CacheServi
     - Test error conditions (missing authentication)
     - _Requirements: 13.1-14.8_
 
-- [ ] 8. Checkpoint - User Context Integration Complete
+- [x] 8. Checkpoint - User Context Integration Complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 9. Implement Guard Composition and Execution Order

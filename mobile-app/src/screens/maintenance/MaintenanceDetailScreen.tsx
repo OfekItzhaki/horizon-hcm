@@ -1,13 +1,41 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View, Image } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View, Image, Alert } from 'react-native';
 import { Card, Title, Paragraph, Chip, List, Divider, Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CommunicationStackParamList } from '../../types/navigation';
+import { maintenanceApi } from '@horizon-hcm/shared/src/api/maintenance';
+import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 
 type Props = NativeStackScreenProps<CommunicationStackParamList, 'MaintenanceDetail'>;
 
-export default function MaintenanceDetailScreen({ route }: Props) {
+export default function MaintenanceDetailScreen({ route, navigation }: Props) {
   const { request } = route.params;
+  const [cancelling, setCancelling] = useState(false);
+  const user = useAuthStore((state) => state.user);
+
+  const handleCancel = async () => {
+    Alert.alert('Cancel Request', 'Are you sure you want to cancel this request?', [
+      { text: 'No', style: 'cancel' },
+      {
+        text: 'Yes, Cancel',
+        style: 'destructive',
+        onPress: async () => {
+          setCancelling(true);
+          try {
+            const buildingId = (user as any)?.buildingId;
+            if (!buildingId) return;
+            await maintenanceApi.updateStatus(request.id, 'cancelled');
+            navigation.goBack();
+          } catch (error) {
+            console.error('Error cancelling request:', error);
+            Alert.alert('Error', 'Failed to cancel request. Please try again.');
+          } finally {
+            setCancelling(false);
+          }
+        },
+      },
+    ]);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -121,10 +149,9 @@ export default function MaintenanceDetailScreen({ route }: Props) {
             <Button
               mode="outlined"
               icon="close"
-              onPress={() => {
-                // TODO: Cancel request
-                console.log('Cancel request');
-              }}
+              onPress={handleCancel}
+              loading={cancelling}
+              disabled={cancelling}
               style={styles.button}
             >
               Cancel Request

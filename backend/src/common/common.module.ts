@@ -18,6 +18,7 @@ import { DeploymentHealthMonitorService } from './services/deployment-health-mon
 import { SecurityController } from './controllers/security.controller';
 import { AnalyticsController } from './controllers/analytics.controller';
 import { I18nController } from './controllers/i18n.controller';
+import { AdminController } from './controllers/admin.controller';
 import { ExportUserDataCommandHandler } from './commands/handlers/export-user-data.handler';
 import { DeleteUserDataCommandHandler } from './commands/handlers/delete-user-data.handler';
 import { PrismaModule } from '../prisma/prisma.module';
@@ -30,7 +31,7 @@ const CommandHandlers = [
 @Global()
 @Module({
   imports: [CqrsModule, PrismaModule],
-  controllers: [SecurityController, AnalyticsController, I18nController],
+  controllers: [SecurityController, AnalyticsController, I18nController, AdminController],
   providers: [
     ETagService,
     PaginationService,

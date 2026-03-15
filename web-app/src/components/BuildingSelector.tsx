@@ -22,15 +22,15 @@ export function BuildingSelector() {
 
   // Filter buildings based on search query
   const filteredBuildings = useMemo(() => {
-    if (!buildings) return [];
+    if (!buildings || !Array.isArray(buildings)) return [];
     if (!searchQuery) return buildings;
 
     const query = searchQuery.toLowerCase();
     return buildings.filter(
-      (building) =>
-        building.name.toLowerCase().includes(query) ||
-        building.address.city.toLowerCase().includes(query) ||
-        building.address.street.toLowerCase().includes(query)
+      (building: any) =>
+        building.name?.toLowerCase().includes(query) ||
+        building.city?.toLowerCase().includes(query) ||
+        building.address_line?.toLowerCase().includes(query),
     );
   }, [buildings, searchQuery]);
 
@@ -56,7 +56,7 @@ export function BuildingSelector() {
   }
 
   // Show message if no buildings
-  if (!buildings || buildings.length === 0) {
+  if (!buildings || !Array.isArray(buildings) || buildings.length === 0) {
     return (
       <Box display="flex" alignItems="center" gap={1}>
         <ApartmentIcon fontSize="small" color="disabled" />
@@ -74,10 +74,10 @@ export function BuildingSelector() {
         <ApartmentIcon fontSize="small" color="primary" />
         <Box>
           <Typography variant="body2" fontWeight="medium">
-            {buildings[0].name}
+            {(buildings[0] as any).name || (buildings[0] as any).address_line}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {buildings[0].address.city}
+            {(buildings[0] as any).city}
           </Typography>
         </Box>
       </Box>
@@ -118,14 +118,14 @@ export function BuildingSelector() {
             </Typography>
           </MenuItem>
         ) : (
-          filteredBuildings.map((building) => (
+          filteredBuildings.map((building: any) => (
             <MenuItem key={building.id} value={building.id}>
               <Box>
                 <Typography variant="body2" fontWeight="medium">
-                  {building.name}
+                  {building.name || building.address_line}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {building.address.street}, {building.address.city}
+                  {building.address_line}{building.city ? `, ${building.city}` : ''}
                 </Typography>
               </Box>
             </MenuItem>

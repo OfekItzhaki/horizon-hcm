@@ -11,7 +11,7 @@ export const initializeApiClient = () => {
         return {
           accessToken: state.token,
           refreshToken: state.refreshToken,
-          expiresIn: 3600, // Default 1 hour
+          expiresIn: 3600,
         };
       }
       return null;

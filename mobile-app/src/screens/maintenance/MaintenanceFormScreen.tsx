@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormField, SelectField } from '../../components';
 import { showImagePickerOptions } from '../../utils/camera';
+import { maintenanceApi } from '@horizon-hcm/shared/src/api/maintenance';
+import { useAuthStore } from '@horizon-hcm/shared/src/store/auth.store';
 
 const maintenanceSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -40,6 +42,7 @@ const priorities = [
 export default function MaintenanceFormScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  const user = useAuthStore((state) => state.user);
 
   const {
     control,
@@ -60,11 +63,25 @@ export default function MaintenanceFormScreen({ navigation }: Props) {
   const onSubmit = async (data: MaintenanceFormData) => {
     setLoading(true);
     try {
-      // TODO: Call API to create maintenance request
-      console.log('Maintenance request:', data, 'Photos:', photos);
+      const buildingId = (user as any)?.buildingId;
+      if (!buildingId) {
+        Alert.alert('Error', 'No building associated with your account.');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('category', data.category);
+      formData.append('priority', data.priority);
+      formData.append('location', data.location);
+      photos.forEach((uri, index) => {
+        formData.append('photos', { uri, name: `photo_${index}.jpg`, type: 'image/jpeg' } as any);
+      });
+      await maintenanceApi.create(buildingId, formData);
       navigation.goBack();
     } catch (error) {
       console.error('Error creating maintenance request:', error);
+      Alert.alert('Error', 'Failed to submit request. Please try again.');
     } finally {
       setLoading(false);
     }

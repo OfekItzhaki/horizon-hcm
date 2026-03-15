@@ -7,9 +7,11 @@ export function useBuildings() {
     queryKey: queryKeys.buildings.all,
     queryFn: async () => {
       const response = await buildingsApi.getAll();
-      return response.data;
+      // API now returns { data: [...], total, page } — unwrap the array
+      const payload = response.data as any;
+      return Array.isArray(payload) ? payload : (payload?.data ?? []);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -22,6 +24,6 @@ export function useBuilding(id: string | null) {
       return response.data;
     },
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 }

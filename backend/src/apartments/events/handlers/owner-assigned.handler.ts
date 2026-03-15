@@ -17,14 +17,14 @@ export class OwnerAssignedHandler implements IEventHandler<OwnerAssignedEvent> {
 
   async handle(event: OwnerAssignedEvent) {
     this.logger.log(
-      `Owner assigned to apartment ${event.apartmentId}: resident ${event.residentId} with ${event.ownershipShare}% share`,
+      `Owner assigned to apartment ${event.apartmentId}: user ${event.userId} with ${event.ownershipShare}% share`,
       'OwnerAssignedHandler',
     );
 
     // Future: Send welcome notification
     // await this.notificationService.notify({
     //   type: 'owner_assigned',
-    //   residentId: event.residentId,
+    //   userId: event.userId,
     //   message: `You have been assigned as owner of apartment with ${event.ownershipShare}% ownership`,
     // });
   }

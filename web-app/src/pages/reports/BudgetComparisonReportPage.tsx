@@ -37,6 +37,15 @@ import { reportsApi } from '@horizon-hcm/shared/src/api/financial';
 import { queryKeys } from '../../lib/query-keys';
 import { useAppStore } from '../../store/app.store';
 
+interface BudgetCategory {
+  name: string;
+  budgeted: number | null;
+  actual: number;
+  variance: number | null;
+  variancePercent: number | null;
+  isFavorable: boolean | null;
+}
+
 export default function BudgetComparisonReportPage() {
   const selectedBuildingId = useAppStore((state) => state.selectedBuildingId);
   const [dateRange, setDateRange] = useState({
@@ -52,7 +61,7 @@ export default function BudgetComparisonReportPage() {
     queryKey: queryKeys.reports.budget(selectedBuildingId || '', dateRange),
     queryFn: () => reportsApi.getBudgetComparison(selectedBuildingId || '', dateRange),
     enabled: !!selectedBuildingId,
-    select: (response) => response.data,
+    select: (response) => response.data as unknown as { categories: BudgetCategory[] },
   });
 
   const handleExportPDF = async () => {
@@ -64,10 +73,7 @@ export default function BudgetComparisonReportPage() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute(
-        'download',
-        `budget-comparison-${new Date().toISOString().split('T')[0]}.pdf`
-      );
+      link.setAttribute('download', `budget-comparison-${new Date().toISOString().split('T')[0]}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -86,10 +92,7 @@ export default function BudgetComparisonReportPage() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute(
-        'download',
-        `budget-comparison-${new Date().toISOString().split('T')[0]}.xlsx`
-      );
+      link.setAttribute('download', `budget-comparison-${new Date().toISOString().split('T')[0]}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -123,24 +126,19 @@ export default function BudgetComparisonReportPage() {
     );
   }
 
-  if (!report) {
-    return null;
-  }
+  if (!report) return null;
 
-  const { data } = report;
+  const categories: BudgetCategory[] = report.categories || [];
 
-  // Prepare chart data with budgeted vs actual
-  const chartData = data.categories.map((cat) => ({
-    category: cat.category,
-    budgeted: cat.amount, // Assuming amount is budgeted
-    actual: cat.amount * (1 + (Math.random() * 0.4 - 0.2)), // Mock actual for demo
+  const chartData = categories.map((cat) => ({
+    category: cat.name,
+    budgeted: cat.budgeted ?? 0,
+    actual: cat.actual,
   }));
 
-  // Calculate categories exceeding budget by >10%
-  const overBudgetCategories = data.categories.filter((cat) => {
-    const variance = ((cat.amount - cat.amount * 0.9) / (cat.amount * 0.9)) * 100;
-    return variance > 10;
-  });
+  const overBudgetCategories = categories.filter(
+    (cat) => cat.variancePercent !== null && cat.variancePercent > 10
+  );
 
   return (
     <Box p={3}>
@@ -176,48 +174,31 @@ export default function BudgetComparisonReportPage() {
         </Box>
       </Paper>
 
-      {/* Over Budget Alert */}
       {overBudgetCategories.length > 0 && (
         <Alert severity="warning" icon={<WarningIcon />} sx={{ mb: 3 }}>
-          {overBudgetCategories.length} categor{overBudgetCategories.length === 1 ? 'y' : 'ies'}{' '}
-          exceeding budget by more than 10%
+          {overBudgetCategories.length} categor{overBudgetCategories.length === 1 ? 'y' : 'ies'} exceeding budget by more than 10%
         </Alert>
       )}
 
       {/* Budget vs Actual Chart */}
       <Paper sx={{ mb: 3, p: 2 }}>
-        <Typography variant="h6" mb={2}>
-          Budget vs Actual Comparison
-        </Typography>
-
+        <Typography variant="h6" mb={2}>Budget vs Actual Comparison</Typography>
         <ResponsiveContainer width="100%" height={400}>
-
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
-
             <XAxis dataKey="category" />
-
             <YAxis />
-
             <Tooltip formatter={(value: number) => `₪${value.toFixed(2)}`} />
-
             <Legend />
-
             <Bar dataKey="budgeted" fill="#8884d8" name="Budgeted">
               {chartData.map((_entry, index) => (
-
                 <Cell key={`cell-${index}`} fill="#8884d8" />
               ))}
             </Bar>
-
             <Bar dataKey="actual" fill="#82ca9d" name="Actual">
-              {chartData.map((entry, index) => {
-                const isOverBudget = entry.actual > entry.budgeted;
-                return (
-
-                  <Cell key={`cell-${index}`} fill={isOverBudget ? '#ff8042' : '#82ca9d'} />
-                );
-              })}
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.actual > entry.budgeted ? '#ff8042' : '#82ca9d'} />
+              ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -232,60 +213,52 @@ export default function BudgetComparisonReportPage() {
               <TableCell align="right">Budgeted</TableCell>
               <TableCell align="right">Actual</TableCell>
               <TableCell align="right">Variance</TableCell>
-              <TableCell align="right">% Used</TableCell>
+              <TableCell align="right">Variance %</TableCell>
               <TableCell align="center">Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.categories.map((category) => {
-              const budgeted = category.amount;
-              const actual = budgeted * (1 + (Math.random() * 0.4 - 0.2)); // Mock actual
-              const variance = actual - budgeted;
-              const percentUsed = (actual / budgeted) * 100;
-              const isOverBudget = percentUsed > 100;
-              const isWarning = percentUsed > 90;
+            {categories.map((category) => {
+              const isOverBudget = category.variancePercent !== null && category.variancePercent > 10;
+              const isWarning = category.variancePercent !== null && category.variancePercent > 0 && category.variancePercent <= 10;
+              const variance = category.variance ?? 0;
 
               return (
-                <TableRow key={category.category} hover>
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body2">{category.category}</Typography>
-                    </Box>
+                <TableRow key={category.name} hover>
+                  <TableCell>{category.name}</TableCell>
+                  <TableCell align="right">
+                    {category.budgeted !== null ? `₪${category.budgeted.toFixed(2)}` : '—'}
+                  </TableCell>
+                  <TableCell align="right">₪{category.actual.toFixed(2)}</TableCell>
+                  <TableCell align="right">
+                    {category.variance !== null ? (
+                      <Box display="flex" alignItems="center" justifyContent="flex-end" gap={0.5}>
+                        {variance > 0 ? (
+                          <TrendingUpIcon fontSize="small" color="error" />
+                        ) : (
+                          <TrendingDownIcon fontSize="small" color="success" />
+                        )}
+                        <Typography variant="body2" color={variance > 0 ? 'error.main' : 'success.main'}>
+                          {variance > 0 ? '+' : ''}₪{variance.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    ) : '—'}
                   </TableCell>
                   <TableCell align="right">
-                    <Typography variant="body2">₪{budgeted.toFixed(2)}</Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography variant="body2">₪{actual.toFixed(2)}</Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Box display="flex" alignItems="center" justifyContent="flex-end" gap={0.5}>
-                      {variance > 0 ? (
-                        <TrendingUpIcon fontSize="small" color="error" />
-                      ) : (
-                        <TrendingDownIcon fontSize="small" color="success" />
-                      )}
+                    {category.variancePercent !== null ? (
                       <Typography
                         variant="body2"
-                        color={variance > 0 ? 'error.main' : 'success.main'}
+                        color={isOverBudget ? 'error.main' : isWarning ? 'warning.main' : 'text.primary'}
+                        fontWeight={isOverBudget || isWarning ? 'bold' : 'normal'}
                       >
-                        {variance > 0 ? '+' : ''}₪{variance.toFixed(2)}
+                        {category.variancePercent > 0 ? '+' : ''}{category.variancePercent.toFixed(1)}%
                       </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography
-                      variant="body2"
-                      color={
-                        isOverBudget ? 'error.main' : isWarning ? 'warning.main' : 'text.primary'
-                      }
-                      fontWeight={isOverBudget || isWarning ? 'bold' : 'normal'}
-                    >
-                      {percentUsed.toFixed(1)}%
-                    </Typography>
+                    ) : '—'}
                   </TableCell>
                   <TableCell align="center">
-                    {isOverBudget ? (
+                    {category.budgeted === null ? (
+                      <Chip label="No Budget Set" size="small" />
+                    ) : isOverBudget ? (
                       <Chip label="Over Budget" color="error" size="small" />
                     ) : isWarning ? (
                       <Chip label="Near Limit" color="warning" size="small" />

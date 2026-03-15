@@ -1,17 +1,12 @@
 import { z } from 'zod';
 
-// Building schema
+// Building schema — matches backend CreateBuildingDto / UpdateBuildingDto flat fields
 export const buildingSchema = z.object({
-  name: z.string().min(1, 'Building name is required'),
-  address: z.object({
-    street: z.string().min(1, 'Street address is required'),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    postalCode: z.string().min(1, 'Postal code is required'),
-    country: z.string().min(1, 'Country is required'),
-  }),
-  contactEmail: z.string().email('Invalid email format'),
-  contactPhone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  name: z.string().optional(),
+  addressLine: z.string().min(1, 'Address is required'),
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
+  numUnits: z.number().int().min(1).optional(),
 });
 
 // Apartment schema
