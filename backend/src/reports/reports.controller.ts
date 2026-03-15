@@ -17,7 +17,6 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser, JwtAuthGuard } from '@ofeklabs/horizon-auth';
 import { BuildingMemberGuard } from '../common/guards/building-member.guard';
-import { CommitteeMemberGuard } from '../common/guards/committee-member.guard';
 import { DateRangeDto } from './dto/date-range.dto';
 import { TransactionFiltersDto } from './dto/transaction-filters.dto';
 import { BudgetComparisonDto } from './dto/budget-comparison.dto';
@@ -39,7 +38,7 @@ export class ReportsController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get('buildings/:buildingId/reports/balance')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get building balance' })
   @ApiResponse({
@@ -51,7 +50,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/transactions')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get transaction history' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -81,7 +80,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/income')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get income report' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
@@ -105,7 +104,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/expenses')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get expense report' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
@@ -129,7 +128,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/budget-comparison')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get budget comparison' })
   @ApiQuery({ name: 'startDate', required: true, type: String })
@@ -149,7 +148,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/payment-status')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get payment status summary' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
@@ -173,7 +172,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/year-over-year')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get year-over-year comparison' })
   @ApiQuery({ name: 'year', required: false, type: Number })
@@ -190,7 +189,7 @@ export class ReportsController {
   }
 
   @Get('buildings/:buildingId/reports/export')
-  @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
+  @UseGuards(BuildingMemberGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Export financial report' })
   @ApiQuery({ name: 'reportType', required: true, enum: ['balance', 'transactions', 'income', 'expenses', 'budget', 'payment-status', 'yoy'] })
