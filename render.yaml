@@ -1,0 +1,60 @@
+services:
+  # Backend NestJS API
+  - type: web
+    name: horizon-hcm-api
+    runtime: node
+    region: oregon
+    rootDir: backend
+    buildCommand: npm ci --legacy-peer-deps && npx prisma generate && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: REDIS_HOST
+        fromService:
+          name: horizon-hcm-redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: horizon-hcm-redis
+          type: redis
+          property: port
+      - key: JWT_PRIVATE_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_PUBLIC_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: AUTH_MODE
+        value: full
+      - key: CACHE_NAMESPACE
+        value: horizon-hcm
+      - key: ENABLE_2FA
+        value: false
+      - key: ENABLE_DEVICE_MGMT
+        value: false
+      - key: ENABLE_PUSH
+        value: false
+      - key: ENABLE_ACCOUNT_MGMT
+        value: true
+      - key: ALLOW_REACTIVATION
+        value: true
+      - key: FRONTEND_URL
+        sync: false  # Set to your Vercel URL after deploying web app
+      - key: ALLOWED_ORIGINS
+        sync: false  # Comma-separated list: https://your-app.vercel.app,https://yourdomain.com
+      - key: RESEND_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: EMAIL_FROM
+        sync: false
+
+  # Redis
+  - type: redis
+    name: horizon-hcm-redis
+    region: oregon
+    plan: free
+    maxmemoryPolicy: allkeys-lru
