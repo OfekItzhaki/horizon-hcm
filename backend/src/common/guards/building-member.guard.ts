@@ -123,9 +123,9 @@ export class BuildingMemberGuard implements CanActivate {
   }
 
   /**
-   * Extracts building ID from request params or body.
+   * Extracts building ID from request params, query, or body.
    */
   private extractBuildingId(request: any): string | null {
-    return request.params?.buildingId || request.body?.buildingId || null;
+    return request.params?.buildingId || request.query?.buildingId || request.body?.buildingId || null;
   }
 }
