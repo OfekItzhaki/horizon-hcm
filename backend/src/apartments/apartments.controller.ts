@@ -113,7 +113,6 @@ export class ApartmentsController {
     const query = new ListApartmentsQuery(buildingId, page, limit, isVacant);
     return this.queryBus.execute(query);
   }
-
   @Post(':id/owners')
   @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @HttpCode(HttpStatus.CREATED)

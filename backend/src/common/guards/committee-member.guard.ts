@@ -52,12 +52,25 @@ export class CommitteeMemberGuard implements CanActivate {
       return cached === 'true';
     }
 
+    // Resolve user_profiles.id from users.id
+    // building_committee_members.user_id references user_profiles.id, not users.id
+    const profile = await this.prisma.user_profiles.findUnique({
+      where: { user_id: user.id },
+      select: { id: true },
+    });
+    const profileId = profile?.id;
+
+    if (!profileId) {
+      await this.cache.set(cacheKey, 'false', 900);
+      throw new ForbiddenException('Access denied: Committee member role required');
+    }
+
     // Query database
     const membership = await this.prisma.building_committee_members.findUnique({
       where: {
         building_id_user_id: {
           building_id: buildingId,
-          user_id: user.id,
+          user_id: profileId,
         },
       },
     });

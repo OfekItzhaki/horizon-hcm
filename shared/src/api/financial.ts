@@ -35,35 +35,35 @@ export const paymentsApi = {
 };
 
 export const reportsApi = {
-  getBalance: (buildingId: string, dateRange: DateRange) =>
-    apiClient.get<FinancialReport>('/reports/balance', {
-      params: { buildingId, ...dateRange },
+  getBalance: (buildingId: string, dateRange?: DateRange) =>
+    apiClient.get<FinancialReport>(`/buildings/${buildingId}/reports/balance`, {
+      params: dateRange,
     }),
 
-  getIncomeExpense: (buildingId: string, dateRange: DateRange) =>
-    apiClient.get<FinancialReport>('/reports/income-expense', {
-      params: { buildingId, ...dateRange },
+  getIncomeExpense: (buildingId: string, dateRange?: DateRange) =>
+    apiClient.get<FinancialReport>(`/buildings/${buildingId}/reports/income`, {
+      params: dateRange,
     }),
 
-  getBudgetComparison: (buildingId: string, dateRange: DateRange) =>
-    apiClient.get<FinancialReport>('/reports/budget-comparison', {
-      params: { buildingId, ...dateRange },
+  getBudgetComparison: (buildingId: string, dateRange?: DateRange) =>
+    apiClient.get<FinancialReport>(`/buildings/${buildingId}/reports/budget-comparison`, {
+      params: dateRange,
     }),
 
-  getYearOverYear: (buildingId: string, years: number[]) =>
-    apiClient.get<FinancialReport>('/reports/year-over-year', {
-      params: { buildingId, years },
+  getYearOverYear: (buildingId: string, years?: number[]) =>
+    apiClient.get<FinancialReport>(`/buildings/${buildingId}/reports/year-over-year`, {
+      params: years ? { year: years[1] } : undefined,
     }),
 
   exportToPDF: (reportType: ReportType, params: any) =>
-    apiClient.get(`/reports/${reportType}/pdf`, {
-      params,
+    apiClient.get(`/buildings/${params.buildingId}/reports/export`, {
+      params: { ...params, reportType, format: 'pdf' },
       responseType: 'blob',
     }),
 
   exportToExcel: (reportType: ReportType, params: any) =>
-    apiClient.get(`/reports/${reportType}/excel`, {
-      params,
+    apiClient.get(`/buildings/${params.buildingId}/reports/export`, {
+      params: { ...params, reportType, format: 'csv' },
       responseType: 'blob',
     }),
 };

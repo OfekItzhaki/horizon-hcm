@@ -16,7 +16,7 @@ export const buildingsApi = {
 
 export const apartmentsApi = {
   getByBuilding: (buildingId: string) =>
-    apiClient.get<Apartment[]>(`/buildings/${buildingId}/apartments`),
+    apiClient.get<Apartment[]>(`/apartments/building/${buildingId}`),
 
   getById: (id: string) => apiClient.get<Apartment>(`/apartments/${id}`),
 

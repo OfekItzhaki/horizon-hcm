@@ -34,7 +34,7 @@ import { GetVoteResultsQuery } from './queries/impl/get-vote-results.query';
 @ApiTags('meetings')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@Controller('meetings')
+@Controller('buildings/:buildingId/meetings')
 export class MeetingsController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -44,10 +44,14 @@ export class MeetingsController {
   @Post()
   @UseGuards(BuildingMemberGuard, CommitteeMemberGuard)
   @ApiOperation({ summary: 'Create meeting' })
-  async createMeeting(@CurrentUser() user: any, @Body() dto: CreateMeetingDto) {
+  async createMeeting(
+    @CurrentUser() user: any,
+    @Param('buildingId') buildingId: string,
+    @Body() dto: CreateMeetingDto,
+  ) {
     return this.commandBus.execute(
       new CreateMeetingCommand(
-        dto.buildingId,
+        buildingId,
         user.id,
         dto.title,
         dto.description,
@@ -126,7 +130,7 @@ export class MeetingsController {
   @ApiOperation({ summary: 'List meetings' })
   async listMeetings(
     @CurrentUser() user: any,
-    @Query('buildingId') buildingId: string,
+    @Param('buildingId') buildingId: string,
     @Query('status') status?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
