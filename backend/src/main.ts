@@ -12,6 +12,7 @@ import { CacheInterceptor } from './common/interceptors/cache.interceptor';
 import { LoggerService } from './common/logger/logger.service';
 import { ETagService } from './common/services/etag.service';
 import { CacheService } from './common/services/cache.service';
+import { MonitoringService } from './common/services/monitoring.service';
 import { PrismaService } from './prisma/prisma.service';
 import helmet from 'helmet';
 import * as compression from 'compression';
@@ -25,6 +26,7 @@ async function bootstrap() {
   const cacheService = app.get(CacheService);
   const reflector = app.get(Reflector);
   const prisma = app.get(PrismaService);
+  const monitoring = app.get(MonitoringService);
 
   // Security headers
   app.use(helmet());
@@ -51,14 +53,23 @@ async function bootstrap() {
 
   // Enable global interceptors (order matters!)
   app.useGlobalInterceptors(new LoggingInterceptor(logger));
-  app.useGlobalInterceptors(new PerformanceInterceptor(logger, prisma));
+  app.useGlobalInterceptors(new PerformanceInterceptor(logger, prisma, monitoring));
   app.useGlobalInterceptors(new CacheInterceptor(reflector, cacheService)); // Cache before ETag
   app.useGlobalInterceptors(new ETagInterceptor(etagService));
   app.useGlobalInterceptors(new FieldFilterInterceptor(reflector));
 
   // Enable CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow all localhost origins in development
+      if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        callback(null, true);
+      } else if (process.env.NODE_ENV === 'production' && origin === process.env.FRONTEND_URL) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 

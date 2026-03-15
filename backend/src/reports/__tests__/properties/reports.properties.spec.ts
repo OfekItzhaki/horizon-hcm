@@ -46,10 +46,10 @@ describe('Reports Module - Property-Based Tests', () => {
         {
           provide: PrismaService,
           useValue: {
-            payments: {
+            payment: {
               aggregate: jest.fn(),
             },
-            maintenance_requests: {
+            maintenanceRequest: {
               aggregate: jest.fn(),
             },
           },
@@ -76,22 +76,36 @@ describe('Reports Module - Property-Based Tests', () => {
   });
 
   describe('Property 8: Balance Calculation Accuracy', () => {
-    it('should calculate balance from paid payments with 2 decimal precision', async () => {
+    it('should calculate balance as income minus expenses with 2 decimal precision', async () => {
       await fc.assert(
         fc.asyncProperty(
           uuidArbitrary(),
           fc.array(paymentArbitrary(), { minLength: 0, maxLength: 20 }),
-          async (buildingId, payments) => {
+          fc.array(maintenanceRequestArbitrary(), { minLength: 0, maxLength: 20 }),
+          async (buildingId, payments, maintenanceRequests) => {
             // Calculate expected values
             const paidPayments = payments.filter((p) => p.status === 'paid');
+            const completedRequests = maintenanceRequests.filter(
+              (r) => r.status === 'completed',
+            );
+
             const totalIncome = paidPayments.reduce((sum, p) => sum + p.amount, 0);
-            const expectedBalance = Number(totalIncome.toFixed(2));
+            const totalExpenses = completedRequests.reduce(
+              (sum, r) => sum + r.estimated_cost,
+              0,
+            );
+            const expectedBalance = Number((totalIncome - totalExpenses).toFixed(2));
 
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
             jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: totalIncome },
             } as any);
+            jest
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
+              .mockResolvedValue({
+                _sum: { estimated_cost: totalExpenses },
+              } as any);
 
             // Execute query
             const result = await getBuildingBalanceHandler.execute(
@@ -119,12 +133,18 @@ describe('Reports Module - Property-Based Tests', () => {
         fc.asyncProperty(
           uuidArbitrary(),
           decimalArbitrary(),
-          async (buildingId, income) => {
+          decimalArbitrary(),
+          async (buildingId, income, expenses) => {
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
             jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: income },
             } as any);
+            jest
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
+              .mockResolvedValue({
+                _sum: { estimated_cost: expenses },
+              } as any);
 
             // Execute query
             const result = await getBuildingBalanceHandler.execute(
@@ -149,20 +169,27 @@ describe('Reports Module - Property-Based Tests', () => {
   });
 
   describe('Property 10: Balance Update Atomicity', () => {
-    it('should produce consistent balance regardless of payment order', async () => {
+    it('should produce consistent balance regardless of payment/expense order', async () => {
       await fc.assert(
         fc.asyncProperty(
           uuidArbitrary(),
           fc.array(decimalArbitrary(), { minLength: 1, maxLength: 10 }),
-          async (buildingId, incomeAmounts) => {
+          fc.array(decimalArbitrary(), { minLength: 1, maxLength: 10 }),
+          async (buildingId, incomeAmounts, expenseAmounts) => {
             // Calculate totals
             const totalIncome = incomeAmounts.reduce((sum, a) => sum + a, 0);
+            const totalExpenses = expenseAmounts.reduce((sum, a) => sum + a, 0);
 
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
             jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: totalIncome },
             } as any);
+            jest
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
+              .mockResolvedValue({
+                _sum: { estimated_cost: totalExpenses },
+              } as any);
 
             // Execute query
             const result = await getBuildingBalanceHandler.execute(
@@ -170,7 +197,7 @@ describe('Reports Module - Property-Based Tests', () => {
             );
 
             // Verify balance is deterministic
-            const expectedBalance = Number(totalIncome.toFixed(2));
+            const expectedBalance = Number((totalIncome - totalExpenses).toFixed(2));
             expect(result.balance).toBe(expectedBalance);
 
             // Execute again with same data
@@ -193,12 +220,18 @@ describe('Reports Module - Property-Based Tests', () => {
         fc.asyncProperty(
           uuidArbitrary(),
           decimalArbitrary(),
-          async (buildingId, income) => {
+          decimalArbitrary(),
+          async (buildingId, income, expenses) => {
             // Mock Prisma responses
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
             jest.spyOn(prismaService.payments, 'aggregate').mockResolvedValue({
               _sum: { amount: income },
             } as any);
+            jest
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
+              .mockResolvedValue({
+                _sum: { estimated_cost: expenses },
+              } as any);
 
             const setSpy = jest.spyOn(cacheService, 'set');
 
@@ -226,7 +259,8 @@ describe('Reports Module - Property-Based Tests', () => {
         fc.asyncProperty(
           uuidArbitrary(),
           decimalArbitrary(),
-          async (buildingId, income) => {
+          decimalArbitrary(),
+          async (buildingId, income, expenses) => {
             // Mock cache miss
             jest.spyOn(cacheService, 'get').mockResolvedValue(null);
 
@@ -235,6 +269,11 @@ describe('Reports Module - Property-Based Tests', () => {
               .spyOn(prismaService.payments, 'aggregate')
               .mockResolvedValue({
                 _sum: { amount: income },
+              } as any);
+            jest
+              .spyOn(prismaService.maintenance_requests, 'aggregate')
+              .mockResolvedValue({
+                _sum: { estimated_cost: expenses },
               } as any);
 
             // Execute query
@@ -250,7 +289,6 @@ describe('Reports Module - Property-Based Tests', () => {
       );
     });
   });
-});
 
   describe('Property 13: Date Range Filter Accuracy', () => {
     it('should only return transactions within the specified date range', async () => {
@@ -271,7 +309,7 @@ describe('Reports Module - Property-Based Tests', () => {
                   Math.random() * (endDate.getTime() - startDate.getTime()),
               ),
               amount: 100,
-              apartment: { apartment_number: '101', building_id: buildingId },
+              apartments: { apartment_number: '101', building_id: buildingId },
             }));
 
             const transactionsOutOfRange = [
@@ -279,13 +317,13 @@ describe('Reports Module - Property-Based Tests', () => {
                 id: 'before',
                 created_at: new Date(startDate.getTime() - 86400000), // 1 day before
                 amount: 100,
-                apartment: { apartment_number: '102', building_id: buildingId },
+                apartments: { apartment_number: '102', building_id: buildingId },
               },
               {
                 id: 'after',
                 created_at: new Date(endDate.getTime() + 86400000), // 1 day after
                 amount: 100,
-                apartment: { apartment_number: '103', building_id: buildingId },
+                apartments: { apartment_number: '103', building_id: buildingId },
               },
             ];
 
@@ -938,3 +976,4 @@ describe('Reports Module - Property-Based Tests', () => {
       );
     });
   });
+});

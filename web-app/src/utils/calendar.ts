@@ -11,8 +11,9 @@ export function generateICalendar(meeting: Meeting): string {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   };
 
-  const escapeText = (text: string): string => {
-    return text.replace(/[,;\\]/g, '\\$&').replace(/\n/g, '\\n');
+  const escapeText = (text: string | string[]): string => {
+    const str = Array.isArray(text) ? text.join('\n') : text;
+    return str.replace(/[,;\\]/g, '\\$&').replace(/\n/g, '\\n');
   };
 
   const icsContent = [
@@ -69,7 +70,7 @@ export function getGoogleCalendarUrl(meeting: Meeting): string {
     action: 'TEMPLATE',
     text: meeting.title,
     dates: `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`,
-    details: meeting.agenda || '',
+    details: Array.isArray(meeting.agenda) ? meeting.agenda.join('\n') : (meeting.agenda || ''),
     location: meeting.location,
   });
 
@@ -93,7 +94,7 @@ export function getOutlookCalendarUrl(meeting: Meeting): string {
     subject: meeting.title,
     startdt: formatOutlookDate(startDate),
     enddt: formatOutlookDate(endDate),
-    body: meeting.agenda || '',
+    body: Array.isArray(meeting.agenda) ? meeting.agenda.join('\n') : (meeting.agenda || ''),
     location: meeting.location,
   });
 

@@ -11,8 +11,9 @@ import { useAuthStore, useAppStore } from '@horizon-hcm/shared';
 import { websocketService } from './src/utils/websocket';
 
 // Configure API client with backend URL and token management
+// Use your computer's IP address so Android device can connect
 configureAPIClient({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: 'http://192.168.42.1:3001',
   getTokens: () => {
     const state = useAuthStore.getState();
     if (!state.accessToken || !state.refreshToken) return null;

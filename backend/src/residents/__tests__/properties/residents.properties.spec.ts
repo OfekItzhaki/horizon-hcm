@@ -6,19 +6,8 @@ import { RemoveCommitteeMemberHandler } from '../../commands/handlers/remove-com
 import { ListResidentsHandler } from '../../queries/handlers/list-residents.handler';
 import { GetResidentProfileHandler } from '../../queries/handlers/get-resident-profile.handler';
 import { SearchResidentsHandler } from '../../queries/handlers/search-residents.handler';
-import { PrismaService } from '../../../prisma/prisma.service';
-
-// Mock StorageService to avoid AWS SDK ESM import issues
-jest.mock('../../../files/services/storage.service', () => ({
-  StorageService: jest.fn().mockImplementation(() => ({
-    upload: jest.fn().mockResolvedValue({
-      url: 'https://example.com/file.csv',
-      key: 'file-key',
-    }),
-  })),
-}));
-
 import { ExportResidentsHandler } from '../../queries/handlers/export-residents.handler';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { CacheService } from '../../../common/services/cache.service';
 import { AddCommitteeMemberCommand } from '../../commands/impl/add-committee-member.command';
@@ -84,13 +73,12 @@ describe('Residents Module - Property-Based Tests', () => {
             },
             user_profiles: {
               findUnique: jest.fn(),
-              findMany: jest.fn(),
             },
             building_committee_members: {
               findUnique: jest.fn(),
-              findMany: jest.fn(),
               create: jest.fn(),
               delete: jest.fn(),
+              findMany: jest.fn(),
             },
             apartment_owners: {
               findMany: jest.fn(),
@@ -154,7 +142,7 @@ describe('Residents Module - Property-Based Tests', () => {
               .mockResolvedValueOnce(null);
 
             const createdMember = {
-              id: fc.sample(uuidArbitrary(), 1)[0],
+              id: 'generated-uuid-' + Math.random().toString(36).substring(7),
               building_id: building.id,
               user_id: user.id,
               role: role,
@@ -240,9 +228,6 @@ describe('Residents Module - Property-Based Tests', () => {
               .mockResolvedValue(committeeMember as any);
 
             const auditLogSpy = jest.spyOn(auditLogService, 'log');
-
-            // Clear any previous calls
-            auditLogSpy.mockClear();
 
             // Execute: Remove committee member
             const command = new RemoveCommitteeMemberCommand(
@@ -390,8 +375,8 @@ describe('Residents Module - Property-Based Tests', () => {
             });
 
             // Verify: All apartments included
-            expect(result.apartment_owners.length).toBe(apartments.length);
-            result.apartment_owners.forEach((apt: any) => {
+            expect(result.owned_apartments.length).toBe(apartments.length);
+            result.owned_apartments.forEach((apt: any) => {
               expect(apt.apartment_number).toBeDefined();
               expect(apt.building_id).toBeDefined();
             });
@@ -429,7 +414,7 @@ describe('Residents Module - Property-Based Tests', () => {
               .mockResolvedValue([]);
 
             const mockFileStorage = {
-              upload: jest.fn().mockResolvedValue({
+              uploadFile: jest.fn().mockResolvedValue({
                 url: 'https://example.com/file.csv',
                 key: 'file-key',
               }),
@@ -449,9 +434,9 @@ describe('Residents Module - Property-Based Tests', () => {
             expect(result.expiresAt).toBeInstanceOf(Date);
 
             // Verify: File was uploaded
-            expect(mockFileStorage.upload).toHaveBeenCalledTimes(1);
-            const uploadCall = mockFileStorage.upload.mock.calls[0][0];
-            expect(uploadCall.mimetype).toBe('text/csv');
+            expect(mockFileStorage.uploadFile).toHaveBeenCalledTimes(1);
+            const uploadCall = mockFileStorage.uploadFile.mock.calls[0][0];
+            expect(uploadCall.mimeType).toBe('text/csv');
 
             // Verify: CSV content includes headers
             const csvContent = uploadCall.buffer.toString('utf-8');
@@ -460,10 +445,10 @@ describe('Residents Module - Property-Based Tests', () => {
             expect(csvContent).toContain('User Type');
             expect(csvContent).toContain('Committee Role');
 
-            // Verify: CSV includes at least the expected number of rows (header + data)
-            const csvLines = csvContent.split('\n').filter(line => line.trim().length > 0);
-            // Should have header + at least 1 data row (users may be deduplicated by ID)
-            expect(csvLines.length).toBeGreaterThanOrEqual(2);
+            // Verify: CSV includes user data
+            users.slice(0, 2).forEach((user) => {
+              expect(csvContent).toContain(user.full_name);
+            });
           },
         ),
         { numRuns: 50 }, // Fewer runs for file operations
@@ -572,4 +557,3 @@ describe('Residents Module - Property-Based Tests', () => {
     });
   });
 });
-

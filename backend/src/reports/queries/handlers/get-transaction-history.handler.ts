@@ -19,7 +19,7 @@ export class GetTransactionHistoryHandler implements IQueryHandler<GetTransactio
 
     // Build where clause
     const where: any = {
-      apartment: {
+      apartments: {
         building_id: buildingId,
       },
       created_at: {

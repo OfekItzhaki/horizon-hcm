@@ -190,6 +190,7 @@ export default function RegisterPage() {
 
             {/* Show confirm password field only when password has been entered */}
             {password && password.length > 0 && (
+              // @ts-ignore - React Hook Form Controller type compatibility with React 18
               <Controller
                 name="confirmPassword"
                 control={control}

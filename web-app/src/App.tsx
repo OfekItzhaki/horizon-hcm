@@ -32,7 +32,6 @@ function AppContent() {
   return (
     <ThemeProvider theme={selectedTheme}>
       <CssBaseline />
-      {/* @ts-expect-error - React Router types mismatch with React 18 */}
       <RouterProvider router={router} />
     </ThemeProvider>
   );

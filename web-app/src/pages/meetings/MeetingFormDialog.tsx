@@ -53,7 +53,7 @@ export const MeetingFormDialog = ({ open, onClose, meeting }: MeetingFormDialogP
           date: new Date(meeting.date).toISOString().split('T')[0],
           time: new Date(meeting.date).toTimeString().slice(0, 5),
           location: meeting.location,
-          agenda: meeting.agenda || '',
+          agenda: Array.isArray(meeting.agenda) ? meeting.agenda.join('\n') : (meeting.agenda || ''),
         }
       : {
           title: '',

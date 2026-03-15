@@ -3,6 +3,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { StorageService } from '../../services/storage.service';
 import { ImageProcessingService } from '../../services/image-processing.service';
+import { MalwareScanningService } from '../../services/malware-scanning.service';
 import { UploadFileCommand } from '../impl/upload-file.command';
 import { generateId } from '../../../common/utils/id-generator';
 
@@ -13,6 +14,7 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
     private prisma: PrismaService,
     private storageService: StorageService,
     private imageProcessingService: ImageProcessingService,
+    private malwareScanningService: MalwareScanningService,
   ) {}
 
   async execute(command: UploadFileCommand) {
@@ -55,6 +57,9 @@ export class UploadFileHandler implements ICommandHandler<UploadFileCommand> {
         generateThumbnails: true,
       });
     }
+
+    // Queue malware scanning
+    await this.malwareScanningService.queueScan(fileRecord.id);
 
     return fileRecord;
   }

@@ -1,628 +1,510 @@
 # Deployment Guide
 
-**Last Updated**: 2026-02-24  
-**Version**: 1.0  
-**Status**: Production Ready
+## Overview
 
-This guide covers deployment procedures, environment setup, and operational tasks for Horizon-HCM.
+This guide covers deploying Horizon-HCM to production environments. The deployment process includes secrets management, database migrations, health checks, and rollback procedures.
 
----
+## Prerequisites
 
-## Table of Contents
+### Required Software
 
-1. [Environment Setup](#environment-setup)
-2. [Database Migrations](#database-migrations)
-3. [Deployment Strategies](#deployment-strategies)
-4. [Blue-Green Deployment](#blue-green-deployment)
-5. [Rollback Procedures](#rollback-procedures)
-6. [Health Checks](#health-checks)
-7. [Database Backup Strategy](#database-backup-strategy)
-8. [Monitoring and Alerts](#monitoring-and-alerts)
+- Node.js 18+ and npm
+- PostgreSQL 14+
+- Redis 6+
+- PM2 (for process management)
+- Git
 
----
+### Optional Software
 
-## Environment Setup
+- AWS CLI (for AWS Secrets Manager)
+- Docker (for containerized deployments)
+- nginx (for reverse proxy)
 
-### Environments
+### Required Secrets
 
-Horizon-HCM supports three environments:
+Before deployment, ensure all required secrets are configured. See [SECRETS_QUICK_REFERENCE.md](./SECRETS_QUICK_REFERENCE.md) for the complete list.
 
-- **Development**: Local development and testing
-- **Staging**: Pre-production testing and QA
-- **Production**: Live production environment
+**Minimum required:**
+- `DATABASE_URL`
+- `REDIS_HOST` and `REDIS_PORT`
+- `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY`
 
-### Environment Variables
-
-Each environment requires these variables:
+**Validate secrets before deployment:**
 
 ```bash
-# Application
-NODE_ENV=production
-PORT=3001
-APP_URL=https://api.horizon-hcm.com
-
-# Database (Supabase PostgreSQL)
-DATABASE_URL=postgresql://user:password@host:5432/database
-DIRECT_URL=postgresql://user:password@host:5432/database
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-CACHE_NAMESPACE=horizon-hcm
-
-# Firebase Authentication
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# Logging
-SEQ_SERVER_URL=http://seq.example.com
-SEQ_API_KEY=your-seq-api-key
-
-# Security
-JWT_SECRET=your-jwt-secret-key
-ENCRYPTION_KEY=your-encryption-key
-
-# Rate Limiting
-RATE_LIMIT_TTL=900
-RATE_LIMIT_MAX=1000
-
-# Feature Flags
-FEATURE_FLAGS_ENABLED=true
-
-# File Storage
-STORAGE_BUCKET=horizon-hcm-files
-STORAGE_REGION=us-east-1
-
-# Email (Optional)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=noreply@horizon-hcm.com
-SMTP_PASSWORD=your-smtp-password
+./scripts/validate-secrets.sh production
 ```
 
-### Environment-Specific Configurations
+## Deployment Methods
 
-**Development (.env.development)**
+### Method 1: Standard Deployment
+
+Standard deployment with downtime (recommended for staging).
+
 ```bash
-NODE_ENV=development
-PORT=3001
-DATABASE_URL=postgresql://localhost:5432/horizon_dev
-REDIS_HOST=localhost
-LOG_LEVEL=debug
+# 1. Validate secrets
+./scripts/validate-secrets.sh production
+
+# 2. Run deployment
+./scripts/deploy.sh production
+
+# 3. Verify deployment
+curl http://localhost:3000/health
 ```
 
-**Staging (.env.staging)**
+**What it does:**
+1. Loads secrets from environment file or AWS Secrets Manager
+2. Validates all required secrets are present
+3. Checks database and Redis connectivity
+4. Installs dependencies
+5. Runs database migrations
+6. Builds the application
+7. Stops old application
+8. Starts new application
+9. Runs health checks
+10. Saves PM2 configuration
+
+### Method 2: Blue-Green Deployment
+
+Zero-downtime deployment (recommended for production).
+
 ```bash
-NODE_ENV=staging
-PORT=3001
-DATABASE_URL=postgresql://staging-db:5432/horizon_staging
-REDIS_HOST=staging-redis
-LOG_LEVEL=info
+# 1. Validate secrets
+./scripts/validate-secrets.sh production
+
+# 2. Run blue-green deployment
+./scripts/blue-green-deploy.sh production
+
+# 3. Verify deployment
+curl http://localhost:3000/health
 ```
 
-**Production (.env.production)**
+**What it does:**
+1. Loads secrets and validates
+2. Determines current environment (blue or green)
+3. Builds application
+4. Runs database migrations
+5. Starts new environment on different port
+6. Runs health checks on new environment
+7. Switches traffic to new environment
+8. Waits for connections to drain
+9. Stops old environment
+
+**Benefits:**
+- Zero downtime
+- Quick rollback capability
+- Safe deployment testing
+
+### Method 3: CI/CD Deployment (GitHub Actions)
+
+Automated deployment triggered by code push.
+
+**Setup:**
+
+1. **Add secrets to GitHub:**
+   - Go to repository Settings → Secrets and variables → Actions
+   - Add all required secrets (see SECRETS_MANAGEMENT.md)
+
+2. **Push to main branch:**
+   ```bash
+   git push origin main
+   ```
+
+3. **Monitor deployment:**
+   - Go to Actions tab in GitHub
+   - Watch deployment progress
+   - Check logs for any errors
+
+**GitHub Actions workflow** (already configured in `.github/workflows/deploy.yml`):
+- Runs on push to main branch
+- Executes tests
+- Builds application
+- Deploys to production
+- Runs health checks
+
+## Secrets Management
+
+### Using Environment Files
+
+**For development and staging:**
+
 ```bash
-NODE_ENV=production
-PORT=3001
-DATABASE_URL=postgresql://prod-db:5432/horizon_prod
-REDIS_HOST=prod-redis
-LOG_LEVEL=warn
+# 1. Create environment file
+cp .env.example .env.production
+
+# 2. Edit with production values
+nano .env.production
+
+# 3. Deploy
+./scripts/deploy.sh production
 ```
 
----
+### Using AWS Secrets Manager
+
+**For production (recommended):**
+
+```bash
+# 1. Create secrets in AWS
+aws secretsmanager create-secret \
+    --name horizon-hcm/production/database \
+    --secret-string '{"url":"postgresql://user:pass@host:5432/db"}'
+
+# 2. Deploy with AWS Secrets Manager
+export USE_AWS_SECRETS=true
+export AWS_SECRETS_PREFIX=horizon-hcm/production
+./scripts/deploy.sh production
+```
+
+### Using GitHub Secrets
+
+**For CI/CD:**
+
+Secrets are automatically injected from GitHub Secrets during CI/CD deployment.
+
+**See:** [SECRETS_MANAGEMENT.md](./SECRETS_MANAGEMENT.md) for detailed instructions.
 
 ## Database Migrations
 
-### Running Migrations
+Database migrations are automatically run during deployment.
 
-Migrations are managed by Prisma and should be run before deploying new code.
-
-#### Development
+### Manual Migration
 
 ```bash
-# Generate migration from schema changes
-npx prisma migrate dev --name add_new_feature
-
-# Apply migrations
-npx prisma migrate dev
-```
-
-#### Staging/Production
-
-```bash
-# Deploy migrations (no prompts)
+# Run migrations
 npx prisma migrate deploy
 
 # Check migration status
 npx prisma migrate status
+
+# Generate Prisma client
+npx prisma generate
 ```
 
-### Migration Best Practices
+### Rollback Migration
 
-1. **Test migrations in staging first**
-2. **Backup database before running migrations**
-3. **Run migrations during low-traffic periods**
-4. **Have rollback plan ready**
-5. **Monitor application after migration**
+Prisma doesn't support automatic rollback. For rollback:
 
-### Migration Rollback
-
-If a migration fails:
-
-```bash
-# 1. Restore database from backup
-./scripts/restore-database.sh backup-2024-02-24.sql
-
-# 2. Revert code to previous version
-git checkout previous-tag
-
-# 3. Redeploy application
-npm run deploy
-```
-
----
-
-## Deployment Strategies
-
-### Standard Deployment
-
-For small updates with minimal risk:
-
-```bash
-# 1. Pull latest code
-git pull origin main
-
-# 2. Install dependencies
-npm ci
-
-# 3. Run migrations
-npx prisma migrate deploy
-
-# 4. Build application
-npm run build
-
-# 5. Restart application
-pm2 restart horizon-hcm
-```
-
-### Zero-Downtime Deployment
-
-For production deployments:
-
-```bash
-# Use the deployment script
-./scripts/deploy.sh production
-```
-
-This script:
-1. Builds the application
-2. Runs database migrations
-3. Performs health checks
-4. Gradually shifts traffic to new version
-5. Monitors for errors
-6. Rolls back if issues detected
-
----
-
-## Blue-Green Deployment
-
-Blue-green deployment eliminates downtime by running two identical environments.
-
-### Architecture
-
-```
-Load Balancer
-    ├── Blue Environment (Current Production)
-    └── Green Environment (New Version)
-```
-
-### Deployment Process
-
-```bash
-# Run the blue-green deployment script
-./scripts/blue-green-deploy.sh
-```
-
-#### Step-by-Step Process
-
-1. **Prepare Green Environment**
+1. **Identify the migration to rollback:**
    ```bash
-   # Deploy new version to green environment
-   ssh green-server
-   git pull origin main
-   npm ci
-   npm run build
+   npx prisma migrate status
    ```
 
-2. **Run Migrations**
-   ```bash
-   # Run migrations on shared database
-   npx prisma migrate deploy
+2. **Create rollback SQL manually:**
+   ```sql
+   -- Example: Rollback adding a column
+   ALTER TABLE users DROP COLUMN new_column;
    ```
 
-3. **Health Check Green**
+3. **Execute rollback SQL:**
    ```bash
-   # Verify green environment is healthy
-   curl http://green-server:3001/health
+   psql $DATABASE_URL -f rollback.sql
    ```
-
-4. **Switch Traffic**
-   ```bash
-   # Update load balancer to point to green
-   # This is instant - no downtime
-   aws elb modify-target-group --target-group-arn $GREEN_TG
-   ```
-
-5. **Monitor**
-   ```bash
-   # Watch logs and metrics for 10 minutes
-   # If issues detected, switch back to blue
-   ```
-
-6. **Decommission Blue**
-   ```bash
-   # After 24 hours of stable operation
-   # Blue becomes the new green for next deployment
-   ```
-
-### Rollback
-
-Instant rollback by switching load balancer back to blue:
-
-```bash
-aws elb modify-target-group --target-group-arn $BLUE_TG
-```
-
----
-
-## Rollback Procedures
-
-### Application Rollback
-
-```bash
-# Use the rollback script
-./scripts/rollback.sh
-
-# Or manually:
-# 1. Checkout previous version
-git checkout v1.2.3
-
-# 2. Install dependencies
-npm ci
-
-# 3. Build
-npm run build
-
-# 4. Restart
-pm2 restart horizon-hcm
-```
-
-### Database Rollback
-
-```bash
-# 1. Stop application
-pm2 stop horizon-hcm
-
-# 2. Restore database
-./scripts/restore-database.sh backup-2024-02-24.sql
-
-# 3. Checkout matching code version
-git checkout v1.2.3
-
-# 4. Restart application
-pm2 start horizon-hcm
-```
-
-### Rollback Checklist
-
-- [ ] Identify the issue and root cause
-- [ ] Determine rollback target version
-- [ ] Notify team of rollback
-- [ ] Stop application
-- [ ] Restore database if needed
-- [ ] Deploy previous version
-- [ ] Verify health checks
-- [ ] Monitor for 30 minutes
-- [ ] Document incident
-
----
 
 ## Health Checks
 
-### Health Check Endpoint
+### Automated Health Checks
 
-```
-GET /health
-```
-
-Response:
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-02-24T10:30:00.000Z",
-  "uptime": 86400,
-  "database": "connected",
-  "redis": "connected",
-  "memory": {
-    "used": 512,
-    "total": 2048
-  }
-}
-```
-
-### Readiness Check
-
-```
-GET /health/ready
-```
-
-Returns 200 if application is ready to serve traffic.
-
-### Liveness Check
-
-```
-GET /health/live
-```
-
-Returns 200 if application is alive (used by orchestrators).
-
-### Monitoring Health
+Health checks are automatically run during deployment:
 
 ```bash
-# Check health
-curl http://localhost:3001/health
+# Basic health check
+curl http://localhost:3000/health
 
-# Continuous monitoring
-watch -n 5 'curl -s http://localhost:3001/health | jq'
+# Readiness check (includes dependency checks)
+curl http://localhost:3000/health/ready
 ```
 
----
-
-## Database Backup Strategy
-
-### Automated Backups
-
-#### Daily Backups
-
-Automated daily backups run at 2 AM UTC:
+### Manual Health Checks
 
 ```bash
-# Cron job (runs daily at 2 AM)
-0 2 * * * /app/scripts/backup-database.sh
+# Check application status
+pm2 status horizon-hcm
+
+# Check application logs
+pm2 logs horizon-hcm --lines 50
+
+# Check database connectivity
+psql $DATABASE_URL -c "SELECT 1;"
+
+# Check Redis connectivity
+redis-cli -h $REDIS_HOST -p $REDIS_PORT ping
 ```
 
-#### Backup Script
+### Health Check Endpoints
+
+**GET /health**
+- Returns basic health status
+- Response: `{ "status": "healthy", "uptime": 12345 }`
+
+**GET /health/ready**
+- Returns readiness status with dependency checks
+- Checks: database, Redis, storage
+- Response: `{ "status": "healthy", "checks": {...} }`
+
+## Rollback
+
+### Rollback to Previous Version
 
 ```bash
-#!/bin/bash
-# scripts/backup-database.sh
+# 1. Identify version to rollback to
+git tag -l
 
-DATE=$(date +%Y-%m-%d-%H%M%S)
-BACKUP_DIR="/backups"
-BACKUP_FILE="$BACKUP_DIR/horizon-hcm-$DATE.sql"
+# 2. Run rollback script
+./scripts/rollback.sh production v1.2.3
 
-# Create backup
-pg_dump $DATABASE_URL > $BACKUP_FILE
-
-# Compress backup
-gzip $BACKUP_FILE
-
-# Upload to S3
-aws s3 cp $BACKUP_FILE.gz s3://horizon-hcm-backups/
-
-# Keep only last 30 days locally
-find $BACKUP_DIR -name "*.sql.gz" -mtime +30 -delete
-
-echo "Backup completed: $BACKUP_FILE.gz"
+# 3. Verify rollback
+curl http://localhost:3000/health
+pm2 logs horizon-hcm --lines 50
 ```
 
-### Backup Retention Policy
+### Quick Rollback (Blue-Green)
 
-- **Daily backups**: Retained for 30 days
-- **Weekly backups**: Retained for 90 days (every Sunday)
-- **Monthly backups**: Retained for 1 year (first of month)
-- **Yearly backups**: Retained indefinitely
-
-### Manual Backup
+If using blue-green deployment, you can quickly switch back:
 
 ```bash
-# Create manual backup
-./scripts/backup-database.sh
+# Stop current environment
+pm2 stop horizon-hcm-green
 
-# Backup specific database
-pg_dump -h localhost -U postgres -d horizon_prod > backup.sql
+# Start previous environment
+pm2 start horizon-hcm-blue
+
+# Update load balancer to point to blue
 ```
 
-### Restore from Backup
+## Monitoring
+
+### Application Monitoring
 
 ```bash
-# Restore from backup file
-./scripts/restore-database.sh backup-2024-02-24.sql
+# View application status
+pm2 status
 
-# Or manually:
-psql $DATABASE_URL < backup-2024-02-24.sql
-```
-
-### Backup Verification
-
-Test backups monthly:
-
-```bash
-# 1. Restore to test database
-psql $TEST_DATABASE_URL < backup.sql
-
-# 2. Run integrity checks
-npm run test:integration
-
-# 3. Verify data completeness
-psql $TEST_DATABASE_URL -c "SELECT COUNT(*) FROM apartments;"
-```
-
-### Disaster Recovery
-
-In case of complete database loss:
-
-1. **Identify latest valid backup**
-   ```bash
-   aws s3 ls s3://horizon-hcm-backups/ | tail -10
-   ```
-
-2. **Download backup**
-   ```bash
-   aws s3 cp s3://horizon-hcm-backups/backup-2024-02-24.sql.gz .
-   gunzip backup-2024-02-24.sql.gz
-   ```
-
-3. **Restore database**
-   ```bash
-   psql $DATABASE_URL < backup-2024-02-24.sql
-   ```
-
-4. **Verify restoration**
-   ```bash
-   npm run test:integration
-   ```
-
-5. **Resume operations**
-   ```bash
-   pm2 start horizon-hcm
-   ```
-
-**Recovery Time Objective (RTO)**: 1 hour  
-**Recovery Point Objective (RPO)**: 24 hours (daily backups)
-
----
-
-## Monitoring and Alerts
-
-### Key Metrics to Monitor
-
-1. **Application Health**
-   - Response time (p50, p95, p99)
-   - Error rate
-   - Request throughput
-   - Active connections
-
-2. **Database**
-   - Connection pool usage
-   - Query performance
-   - Slow queries (>1s)
-   - Database size
-
-3. **Redis**
-   - Memory usage
-   - Cache hit rate
-   - Eviction rate
-   - Connection count
-
-4. **System Resources**
-   - CPU usage
-   - Memory usage
-   - Disk space
-   - Network I/O
-
-### Alert Thresholds
-
-| Metric | Warning | Critical |
-|--------|---------|----------|
-| Response Time (p95) | >500ms | >1000ms |
-| Error Rate | >1% | >5% |
-| CPU Usage | >70% | >90% |
-| Memory Usage | >80% | >95% |
-| Disk Space | >80% | >90% |
-| Database Connections | >80% | >95% |
-
-### Alert Channels
-
-- **Slack**: #horizon-hcm-alerts
-- **Email**: ops@horizon-hcm.com
-- **PagerDuty**: For critical alerts
-
----
-
-## Deployment Checklist
-
-### Pre-Deployment
-
-- [ ] Code reviewed and approved
-- [ ] All tests passing
-- [ ] Database migrations tested in staging
-- [ ] Backup created
-- [ ] Deployment window scheduled
-- [ ] Team notified
-- [ ] Rollback plan prepared
-
-### During Deployment
-
-- [ ] Run database migrations
-- [ ] Deploy new version
-- [ ] Verify health checks
-- [ ] Check error logs
-- [ ] Monitor key metrics
-- [ ] Test critical user flows
-
-### Post-Deployment
-
-- [ ] Monitor for 30 minutes
-- [ ] Verify no error spikes
-- [ ] Check performance metrics
-- [ ] Test critical features
-- [ ] Update deployment log
-- [ ] Notify team of completion
-
----
-
-## Troubleshooting Deployments
-
-### Common Issues
-
-**Issue**: Migration fails
-```bash
-# Solution: Rollback and investigate
-./scripts/rollback.sh
-npx prisma migrate status
-```
-
-**Issue**: Application won't start
-```bash
-# Check logs
+# View application logs
 pm2 logs horizon-hcm
 
-# Check environment variables
-printenv | grep DATABASE_URL
+# View error logs only
+pm2 logs horizon-hcm --err
 
-# Verify database connection
+# Monitor in real-time
+pm2 monit
+```
+
+### Log Aggregation
+
+Logs are sent to Seq for aggregation and analysis:
+
+- **Seq URL**: Configured in `SEQ_SERVER_URL`
+- **Access**: Open Seq dashboard to view logs
+- **Alerts**: Configure alerts in Seq for critical errors
+
+### Performance Monitoring
+
+```bash
+# View PM2 metrics
+pm2 show horizon-hcm
+
+# View memory usage
+pm2 list
+
+# Generate performance report
+pm2 report
+```
+
+## Troubleshooting
+
+### Deployment Fails
+
+**Check secrets:**
+```bash
+./scripts/validate-secrets.sh production
+```
+
+**Check logs:**
+```bash
+pm2 logs horizon-hcm --lines 100
+```
+
+**Check database:**
+```bash
 psql $DATABASE_URL -c "SELECT 1;"
 ```
 
-**Issue**: High error rate after deployment
-```bash
-# Immediate rollback
-./scripts/rollback.sh
+### Application Won't Start
 
-# Investigate logs
-tail -f logs/error-*.log
+**Check PM2 status:**
+```bash
+pm2 status
+pm2 logs horizon-hcm --err
 ```
 
----
+**Check port availability:**
+```bash
+netstat -an | grep 3000
+```
 
-## Additional Resources
+**Check environment variables:**
+```bash
+pm2 env horizon-hcm
+```
 
-- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Common issues and solutions
-- [MONITORING_GUIDE.md](./MONITORING_GUIDE.md) - Monitoring setup
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture
-- [Database Backup Scripts](../scripts/) - Backup automation scripts
+### Health Check Fails
 
----
+**Check dependencies:**
+```bash
+# Database
+psql $DATABASE_URL -c "SELECT 1;"
+
+# Redis
+redis-cli -h $REDIS_HOST -p $REDIS_PORT ping
+
+# Storage (S3)
+aws s3 ls s3://$AWS_S3_BUCKET
+```
+
+**Check application logs:**
+```bash
+pm2 logs horizon-hcm --lines 50
+```
+
+### High Memory Usage
+
+**Restart application:**
+```bash
+pm2 restart horizon-hcm
+```
+
+**Adjust memory limit:**
+```bash
+pm2 start dist/main.js --name horizon-hcm --max-memory-restart 1G
+```
+
+### Database Connection Issues
+
+**Check connection string:**
+```bash
+echo $DATABASE_URL
+```
+
+**Test connection:**
+```bash
+psql $DATABASE_URL -c "SELECT version();"
+```
+
+**Check connection pool:**
+```bash
+# View active connections
+psql $DATABASE_URL -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'horizon_hcm';"
+```
+
+## Best Practices
+
+### Pre-Deployment
+
+- [ ] Run tests locally: `npm test`
+- [ ] Validate secrets: `./scripts/validate-secrets.sh production`
+- [ ] Review database migrations: `npx prisma migrate status`
+- [ ] Check for breaking changes in CHANGELOG.md
+- [ ] Notify team about deployment window
+
+### During Deployment
+
+- [ ] Monitor deployment logs
+- [ ] Watch health check results
+- [ ] Check error rates in Seq
+- [ ] Verify critical features work
+- [ ] Monitor performance metrics
+
+### Post-Deployment
+
+- [ ] Verify all health checks pass
+- [ ] Test critical user flows
+- [ ] Monitor error rates for 30 minutes
+- [ ] Check database query performance
+- [ ] Review application logs
+- [ ] Update deployment log
+
+### Deployment Schedule
+
+**Recommended deployment windows:**
+- **Staging**: Anytime
+- **Production**: Off-peak hours (e.g., 2 AM - 4 AM local time)
+- **Emergency fixes**: As needed with proper communication
+
+## Security Considerations
+
+### Secrets Security
+
+- Never commit secrets to version control
+- Use AWS Secrets Manager for production
+- Rotate secrets regularly (see SECRETS_ROTATION.md)
+- Restrict access to secrets using IAM policies
+
+### Network Security
+
+- Use HTTPS for all API communications
+- Enable database SSL connections
+- Configure firewall rules
+- Use VPC for AWS resources
+
+### Application Security
+
+- Keep dependencies updated
+- Run security audits: `npm audit`
+- Enable rate limiting
+- Configure CORS properly
+- Use Helmet for security headers
+
+## Scaling
+
+### Horizontal Scaling
+
+```bash
+# Increase number of instances
+pm2 scale horizon-hcm 4
+
+# Or restart with more instances
+pm2 delete horizon-hcm
+pm2 start dist/main.js --name horizon-hcm --instances 4
+```
+
+### Load Balancing
+
+Configure nginx as reverse proxy:
+
+```nginx
+upstream horizon_hcm {
+    server localhost:3000;
+    server localhost:3001;
+    server localhost:3002;
+    server localhost:3003;
+}
+
+server {
+    listen 80;
+    server_name api.horizon-hcm.com;
+
+    location / {
+        proxy_pass http://horizon_hcm;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+## References
+
+- [SECRETS_MANAGEMENT.md](./SECRETS_MANAGEMENT.md) - Comprehensive secrets guide
+- [SECRETS_QUICK_REFERENCE.md](./SECRETS_QUICK_REFERENCE.md) - Quick reference
+- [SECRETS_ROTATION.md](./SECRETS_ROTATION.md) - Rotation procedures
+- [.env.example](../.env.example) - Environment variables template
 
 ## Support
 
 For deployment issues:
-- **Slack**: #horizon-hcm-ops
-- **Email**: ops@horizon-hcm.com
-- **On-Call**: Check PagerDuty schedule
-
----
-
-**Remember**: Always test in staging first! 🚀
+1. Check this guide and related documentation
+2. Review application logs: `pm2 logs horizon-hcm`
+3. Check Seq dashboard for errors
+4. Contact DevOps team

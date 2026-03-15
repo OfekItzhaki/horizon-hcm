@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MonitoringService } from '../services/monitoring.service';
 import { getCorrelationId } from '../middleware/correlation-id.middleware';
 import { generateId } from '../utils/id-generator';
 
@@ -36,6 +37,7 @@ export class PerformanceInterceptor implements NestInterceptor {
   constructor(
     private logger: LoggerService,
     private prisma: PrismaService,
+    private monitoring: MonitoringService,
   ) {}
 
   /**
@@ -119,6 +121,22 @@ export class PerformanceInterceptor implements NestInterceptor {
 
     // Log performance metrics
     this.logger.logWithMetadata('info', 'Performance Metrics', performanceData);
+
+    // Record metrics in monitoring service
+    const totalCacheRequests = metrics.cacheHits + metrics.cacheMisses;
+    const cacheHitRate = totalCacheRequests > 0 ? metrics.cacheHits / totalCacheRequests : 0;
+    const errorRate = statusCode && statusCode >= 400 ? 1 : 0;
+
+    this.monitoring.recordMetrics({
+      endpoint: url,
+      method,
+      responseTime,
+      statusCode: statusCode || 200,
+      errorRate,
+      timestamp: new Date(),
+      dbQueryCount: metrics.databaseQueries,
+      cacheHitRate,
+    });
 
     // Store metrics in database (async, don't block response)
     this.storeMetrics(method, url, responseTime, metrics, statusCode, errorMessage).catch(

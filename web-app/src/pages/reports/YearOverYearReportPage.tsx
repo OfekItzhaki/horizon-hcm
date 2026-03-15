@@ -246,28 +246,28 @@ export default function YearOverYearReportPage() {
         <Typography variant="h6" mb={2}>
           Year-over-Year Trend
         </Typography>
-        {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
         <ResponsiveContainer width="100%" height={350}>
-          {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
           <LineChart data={data.trend}>
             <CartesianGrid strokeDasharray="3 3" />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <XAxis
               dataKey="date"
               tickFormatter={(value) =>
                 new Date(value).toLocaleDateString('en-US', { month: 'short' })
               }
             />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <YAxis />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Tooltip
               labelFormatter={(value) => new Date(value).toLocaleDateString()}
               formatter={(value: number) => `₪${value.toFixed(2)}`}
             />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Legend />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Line
               type="monotone"
               dataKey="income"
@@ -275,7 +275,7 @@ export default function YearOverYearReportPage() {
               name={`${selectedYears[1]} Income`}
               strokeWidth={2}
             />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Line
               type="monotone"
               dataKey="expense"
@@ -292,30 +292,30 @@ export default function YearOverYearReportPage() {
         <Typography variant="h6" mb={2}>
           Monthly Breakdown
         </Typography>
-        {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
         <ResponsiveContainer width="100%" height={350}>
-          {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
           <BarChart data={data.trend}>
             <CartesianGrid strokeDasharray="3 3" />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <XAxis
               dataKey="date"
               tickFormatter={(value) =>
                 new Date(value).toLocaleDateString('en-US', { month: 'short' })
               }
             />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <YAxis />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Tooltip
               labelFormatter={(value) => new Date(value).toLocaleDateString()}
               formatter={(value: number) => `₪${value.toFixed(2)}`}
             />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Legend />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Bar dataKey="income" fill="#00C49F" name="Income" />
-            {/* @ts-expect-error - Recharts types incompatible with React 18 */}
+
             <Bar dataKey="expense" fill="#FF8042" name="Expense" />
           </BarChart>
         </ResponsiveContainer>

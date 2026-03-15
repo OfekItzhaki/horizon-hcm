@@ -17,7 +17,9 @@
       "bundleIdentifier": "com.horizonhcm.mobile",
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSCameraUsageDescription": "This app needs access to your camera to take photos for maintenance requests.",
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select photos for maintenance requests.",
         "NSFaceIDUsageDescription": "This app uses Face ID for secure and convenient authentication.",
@@ -40,11 +42,12 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ],
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "googleServicesFile": "./google-services.json"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -67,8 +70,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "fa286517-a61b-4c9e-b752-26624f6b646e"
       }
-    }
+    },
+    "owner": "seginomikata"
   }
 }
