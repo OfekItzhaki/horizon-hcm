@@ -7,9 +7,9 @@ export const initializeApiClient = () => {
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
     getTokens: () => {
       const state = useAuthStore.getState();
-      if (state.accessToken && state.refreshToken) {
+      if (state.token && state.refreshToken) {
         return {
-          accessToken: state.accessToken,
+          accessToken: state.token,
           refreshToken: state.refreshToken,
           expiresIn: 3600,
         };
