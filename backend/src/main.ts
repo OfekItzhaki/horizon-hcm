@@ -23,6 +23,12 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('uncaughtException', (error) => {
+  // Don't crash on Redis socket errors — they're handled by the client's error event
+  if ((error as any)?.name === 'SocketClosedUnexpectedlyError' ||
+      (error as any)?.code === 'ECONNREFUSED') {
+    console.error('[WARN] Redis connection error (non-fatal):', error.message);
+    return;
+  }
   console.error('[FATAL] Uncaught Exception:', error);
   process.exit(1);
 });

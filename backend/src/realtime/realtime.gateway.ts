@@ -46,6 +46,9 @@ export class RealtimeGateway
       const pubClient = createClient(getRedisClientOptions() as any);
       const subClient = pubClient.duplicate();
 
+      pubClient.on('error', (err) => this.logger.warn(`Redis pub error: ${err.message}`));
+      subClient.on('error', (err) => this.logger.warn(`Redis sub error: ${err.message}`));
+
       await Promise.all([pubClient.connect(), subClient.connect()]);
 
       // Use the adapter method correctly

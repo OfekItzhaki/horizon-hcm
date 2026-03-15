@@ -25,17 +25,24 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       this.logger.log('Redis Client Connected', 'CacheService');
     });
 
-    await this.client.connect();
+    try {
+      await this.client.connect();
+    } catch (err) {
+      this.logger.error('Redis connection failed — cache disabled', err);
+    }
   }
 
   async onModuleDestroy() {
-    await this.client.quit();
+    try {
+      if (this.client.isOpen) await this.client.quit();
+    } catch (_) {}
   }
 
   /**
    * Get value from cache
    */
   async get<T>(key: string): Promise<T | null> {
+    if (!this.client?.isOpen) return null;
     try {
       const value = await this.client.get(this.namespaceKey(key));
       if (!value) return null;
@@ -51,6 +58,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
    * Set value in cache with optional TTL
    */
   async set(key: string, value: any, ttl?: number): Promise<void> {
+    if (!this.client?.isOpen) return;
     try {
       const serialized = JSON.stringify(value);
       const namespacedKey = this.namespaceKey(key);
@@ -66,6 +74,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
    * Delete value from cache
    */
   async delete(key: string): Promise<void> {
+    if (!this.client?.isOpen) return;
     try {
       await this.client.del(this.namespaceKey(key));
     } catch (error) {
