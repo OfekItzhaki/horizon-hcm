@@ -139,6 +139,8 @@ export class AuthOverrideController {
         issuer: 'horizon-auth',
         audience: 'horizon-api',
       }) as any;
+
+      if (decoded.type !== 'refresh') {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
