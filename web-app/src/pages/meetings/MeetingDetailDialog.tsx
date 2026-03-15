@@ -61,6 +61,8 @@ export const MeetingDetailDialog = ({ open, onClose, meeting }: MeetingDetailDia
     rsvpMutation.mutate({ meetingId: meeting.id, status });
   };
 
+  if (!meeting) return null;
+
   const meetingDate = new Date(meeting.date);
   const isPastMeeting = meetingDate < new Date();
 

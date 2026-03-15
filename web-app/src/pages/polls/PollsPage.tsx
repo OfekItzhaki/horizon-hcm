@@ -190,7 +190,7 @@ export default function PollsPage() {
           <Box display="flex" flexDirection="column" gap={2} mb={3}>
             {polls.map((poll: Poll) => {
               const status = getPollStatus(poll);
-              const totalVotes = poll.options.reduce(
+              const totalVotes = (Array.isArray(poll.options) ? poll.options : []).reduce(
                 (sum: number, opt: any) => sum + (opt.votes || 0),
                 0
               );
@@ -233,7 +233,7 @@ export default function PollsPage() {
                         <Typography variant="subtitle2" mb={1}>
                           Results:
                         </Typography>
-                        {poll.options.map((option: any) => {
+                        {(Array.isArray(poll.options) ? poll.options : []).map((option: any) => {
                           const percentage =
                             totalVotes > 0 ? ((option.votes || 0) / totalVotes) * 100 : 0;
 

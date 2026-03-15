@@ -38,6 +38,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
           user_profiles: {
             select: {
               id: true,
+              user_id: true,
               full_name: true,
               phone_number: true,
               user_type: true,
@@ -70,6 +71,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
           user_profiles: {
             select: {
               id: true,
+              user_id: true,
               full_name: true,
               phone_number: true,
               user_type: true,
@@ -94,6 +96,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
           user_profiles: {
             select: {
               id: true,
+              user_id: true,
               full_name: true,
               phone_number: true,
               user_type: true,
@@ -117,6 +120,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
           id: userId,
+          user_id: member.user_profiles.user_id,
           full_name: member.user_profiles.full_name,
           phone_number: member.user_profiles.phone_number,
           user_type: member.user_profiles.user_type,
@@ -143,6 +147,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
           id: userId,
+          user_id: owner.user_profiles.user_id,
           full_name: owner.user_profiles.full_name,
           phone_number: owner.user_profiles.phone_number,
           user_type: owner.user_profiles.user_type,
@@ -162,6 +167,7 @@ export class ListResidentsHandler implements IQueryHandler<ListResidentsQuery> {
       if (!residentsMap.has(userId)) {
         residentsMap.set(userId, {
           id: userId,
+          user_id: tenant.user_profiles.user_id,
           full_name: tenant.user_profiles.full_name,
           phone_number: tenant.user_profiles.phone_number,
           user_type: tenant.user_profiles.user_type,

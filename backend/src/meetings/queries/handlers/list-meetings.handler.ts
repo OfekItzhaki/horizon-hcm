@@ -31,7 +31,21 @@ export class ListMeetingsHandler implements IQueryHandler<ListMeetingsQuery> {
     ]);
 
     return {
-      data: meetings,
+      data: meetings.map((m) => ({
+        id: m.id,
+        buildingId: m.building_id,
+        title: m.title,
+        description: m.description,
+        // Normalize meeting_date → date for frontend compatibility
+        date: m.meeting_date,
+        location: m.location,
+        status: m.status,
+        createdBy: m.created_by,
+        createdAt: m.created_at,
+        cancelledAt: m.status === 'cancelled' ? m.updated_at : null,
+        attendees: m.meeting_attendees,
+        agendaItems: m.agenda_items,
+      })),
       meta: {
         total,
         page,
