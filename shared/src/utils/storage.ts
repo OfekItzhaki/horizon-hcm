@@ -11,7 +11,10 @@ export interface StorageAdapter {
 }
 
 class Storage {
-  constructor(private adapter: StorageAdapter) {}
+  private adapter: StorageAdapter;
+  constructor(adapter: StorageAdapter) {
+    this.adapter = adapter;
+  }
 
   /**
    * Get item from storage

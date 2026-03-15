@@ -31,7 +31,7 @@ export function CommitteeDashboard() {
 
   const { data: meetingsData } = useQuery({
     queryKey: ['dashboard-meetings', selectedBuildingId],
-    queryFn: () => meetingsApi.getAll(selectedBuildingId!, { status: 'scheduled', limit: 1 }),
+    queryFn: () => meetingsApi.getAll(selectedBuildingId!, { status: 'upcoming', limit: 1 }),
     enabled: !!selectedBuildingId,
   });
 

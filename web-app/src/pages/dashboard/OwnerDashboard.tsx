@@ -21,7 +21,7 @@ export function OwnerDashboard() {
 
   const { data: balanceData } = useQuery({
     queryKey: ['dashboard-balance', selectedBuildingId],
-    queryFn: () => reportsApi.getBalance(selectedBuildingId!, { startDate: yearStart, endDate: today.toISOString() }),
+    queryFn: () => reportsApi.getBalance(selectedBuildingId!, { startDate: new Date(yearStart), endDate: today }),
     enabled: !!selectedBuildingId,
   });
 
