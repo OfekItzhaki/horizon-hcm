@@ -22,6 +22,9 @@ export function getRedisClientOptions(env: NodeJS.ProcessEnv = process.env) {
 /**
  * Returns host/port connection object for libraries that don't accept a URL
  * (BullMQ, ioredis). Falls back to parsing REDIS_URL if set.
+ *
+ * NOTE: Does NOT include lazyConnect/retryStrategy — callers should add those
+ * themselves if they need resilient (non-blocking) behaviour.
  */
 export function getRedisConnection(env: NodeJS.ProcessEnv = process.env) {
   const url = env.REDIS_URL;

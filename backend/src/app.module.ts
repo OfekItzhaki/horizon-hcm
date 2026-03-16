@@ -54,9 +54,15 @@ import { ApiVersioningMiddleware } from './common/middleware/api-versioning.midd
     }),
     // Import PrismaModule first so it's available for HorizonAuthModule
     PrismaModule,
-    // BullMQ configuration
+    // BullMQ configuration — resilient: won't block startup if Redis is down
     BullModule.forRoot({
-      connection: getRedisConnection(),
+      connection: {
+        ...(getRedisConnection() as any),
+        lazyConnect: true,
+        maxRetriesPerRequest: null,
+        enableOfflineQueue: false,
+        retryStrategy: (times: number) => Math.min(times * 500, 10000),
+      },
     }),
     // Rate limiting
     ThrottlerModule.forRoot([
