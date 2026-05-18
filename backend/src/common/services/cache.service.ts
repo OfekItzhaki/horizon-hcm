@@ -15,7 +15,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    this.client = createClient(getRedisClientOptions() as any);
+    const opts = getRedisClientOptions() as any;
+    this.client = createClient({
+      ...opts,
+      socket: { ...opts.socket, reconnectStrategy: false, connectTimeout: 5000 },
+    } as any);
 
     this.client.on('error', (err) => {
       this.logger.error('Redis Client Error', err);

@@ -17,7 +17,15 @@ import { PrismaService } from './prisma/prisma.service';
 import helmet from 'helmet';
 import * as compression from 'compression';
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason: any, promise) => {
+  // Don't crash on Redis connection failures — they're expected when Redis is unavailable
+  if (reason?.code === 'ECONNREFUSED' ||
+      reason?.name === 'SocketClosedUnexpectedlyError' ||
+      reason?.message?.includes('ECONNREFUSED') ||
+      reason?.message?.includes('Redis')) {
+    console.error('[WARN] Redis unhandled rejection (non-fatal):', reason?.message || reason);
+    return;
+  }
   console.error('[FATAL] Unhandled Rejection:', reason);
   process.exit(1);
 });
@@ -25,7 +33,8 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('uncaughtException', (error) => {
   // Don't crash on Redis socket errors — they're handled by the client's error event
   if ((error as any)?.name === 'SocketClosedUnexpectedlyError' ||
-      (error as any)?.code === 'ECONNREFUSED') {
+      (error as any)?.code === 'ECONNREFUSED' ||
+      (error as any)?.message?.includes('ECONNREFUSED')) {
     console.error('[WARN] Redis connection error (non-fatal):', error.message);
     return;
   }

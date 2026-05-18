@@ -43,7 +43,13 @@ export class RealtimeGateway
   async afterInit(server: Server) {
     try {
       // Set up Redis adapter for multi-instance WebSocket support
-      const pubClient = createClient(getRedisClientOptions() as any);
+      const opts = getRedisClientOptions() as any;
+      // Disable reconnect so connect() fails fast when Redis is unavailable
+      const adapterOpts = {
+        ...opts,
+        socket: { ...opts.socket, reconnectStrategy: false, connectTimeout: 5000 },
+      };
+      const pubClient = createClient(adapterOpts);
       const subClient = pubClient.duplicate();
 
       pubClient.on('error', (err) => this.logger.warn(`Redis pub error: ${err.message}`));
